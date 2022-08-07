@@ -1,52 +1,25 @@
-# kms/cfn/policy_kms_admins.yaml
+# kms/cfn/kms_job_admins.yaml
 # author: @tradichel @2ndsightlab
+Parameters:
+  policynameparam:
+    Type: String
+
 Resources:
-  kmsadminpolicy:
-    Type: 'AWS::IAM::ManagedPolicy'
+  batchadminpolicy:
+    Type: 'AWS::IAM::Policy'
     Properties:
-      ManagedPolicyName: KMSAdminPolicy
+      PolicyName: !Ref policynameparam
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
-          -
-            Effect: Allow
-            Action:
-              - "kms:Create*"
-              - "kms:Describe*"
-              - "kms:Enable*"
-              - "kms:List*"
-              - "kms:Put*"
-              - "kms:Update*"
-              - "kms:Revoke*"
-              - "kms:Disable*"
-              - "kms:Get*"
-              - "kms:Delete*"
-              - "kms:TagResource"
-              - "kms:UntagResource"
-              - "kms:Schedule*"
-            Resource: 
-              - !Sub arn:aws:kms:*:${AWS::AccountId}:key/*
-              - !Sub arn:aws:kms:*:${AWS::AccountId}:alias/*
-          -
-            Effect: Allow
-            Action:
-             - "kms:CreateKey"
-             - "kms:CreateAlias"
-            Resource: "*"
-          - 
-            Effect: Allow
-            Action:
-              - "cloudformation:*"
-              - "cloudformation:DescribeStacks"
-              - "cloudformation:CreateChangeSet"
-              - "cloudformation:GetTemplateSummary"
-            Resource: "*"
-
-Outputs:
-  kmspolicyoutput:
-    Value: !Ref kmsadminpolicy
-    Export:
-     Name: kmskeyadminpolicyarn
+          - Effect: Allow
+            Action: 'sts:AssumeRole'
+            Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/KmsKeyAdministrator'
+            Condition:
+              "Bool":
+                "aws:MultiFactorAuthPresent": "true"
+      Groups:
+        - !ImportValue groupkmsadmins
 
 #################################################################################
 # Copyright Notice

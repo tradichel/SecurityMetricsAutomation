@@ -1,40 +1,44 @@
 #!/bin/bash -e
-#kms/deploy_kms_admin.sh
+#kms/deploy_user_kms_admin.sh
 #author: @teriradichel @2ndsightlab
-#pass in the arn of the aws identity that you want to allow to assume the kms admin role
-assumerolearn="$1"
-profile="$2"
+#description: Deploy kms admin group, user, and policy
 
-if [ "$assumerolearn" == "" ]; then
-  echo "You must provide an ARN of the identity that is allowed to assume the KMS admin role."
-  exit
-else
-  echo "Assume role for role trust policy: "$assumerolearn
+profile="$1"
+
+if [ "$profile" == "" ]; then 
+	profile="default"; 
 fi
 
-if [ "$profile" == "" ]; then
-  profile="default";
-fi
+groupname="KmsAdmins"
+policyname="KmsAdminsPolicy"
+username="KmsAdmin"
 
-kmsadminrolename="KmsAdminRole"
-kmsadminpolicyname="KmsAdminPolicy"
+echo "-------------- GROUP -------------------"
+aws cloudformation deploy \
+		--profile $profile \
+    --capabilities CAPABILITY_NAMED_IAM \
+		--stack-name $groupname \
+    --template-file cfn/group_kms_admins.yaml \
+    --parameter-overrides \
+			groupnameparam=$groupname
 
-echo "-------------- KMS ADMIN POLICY-------------------"
+echo "-------------- POLICY -------------------"
 aws cloudformation deploy \
     --profile $profile \
     --capabilities CAPABILITY_NAMED_IAM \
-    --stack-name $kmsadminpolicyname \
-    --template-file cfn/policy_role_kms_admin.yaml
+    --stack-name $policyname \
+    --template-file cfn/policy_group_kms_admin.yaml \
+    --parameter-overrides \
+        policynameparam=$policyname
 
-echo "-------------- KMS ADMIN -------------------"
+echo "-------------- USER -------------------"
 aws cloudformation deploy \
     --profile $profile \
     --capabilities CAPABILITY_NAMED_IAM \
-    --stack-name $kmsadminrolename \
-    --template-file cfn/role_kms_administrator.yaml \
-    --parameter-overrides assumerolearnparam=$assumerolearn
-
-
+    --stack-name $username \
+    --template-file cfn/user_kms_admin.yaml \
+    --parameter-overrides \
+        usernameparam=$username
 
 #################################################################################
 # Copyright Notice
@@ -58,4 +62,5 @@ aws cloudformation deploy \
 # HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-################################################################################  
+################################################################################ 
+
