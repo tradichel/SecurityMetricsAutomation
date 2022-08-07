@@ -1,0 +1,10 @@
+Parameters:
+  keyaliasparam:
+    Type: String
+
+Resources:
+ keyalias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: !Ref keyaliasparam
+      TargetKeyId: !ImportValue batchcredentialkeyid
