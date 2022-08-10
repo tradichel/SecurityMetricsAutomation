@@ -1,44 +1,21 @@
-#!/bin/bash -e
-#kms/deploy_user_kms_admin.sh
+#!/bin/sh -e
+#jobs/DeployBatchJobCredentials
 #author: @teriradichel @2ndsightlab
-#description: Deploy kms admin group, user, and policy
 
-profile="$1"
+#run this code with the role created for this batch job
+#because that role has permissions to encrypt the credentials
+#will need to set up an AWS CLI profile for the batch job role and one 
+#for the user that is allowed to assume the role
+#in this case, the IAM user is allowed to assunme the batch job role
+profile='job_batchcreds'
+aws sts get-caller-identity --profile $profile
 
-if [ "$profile" == "" ]; then 
-	profile="default"; 
-fi
-
-groupname="KmsAdmins"
-policyname="KmsAdminsPolicy"
-username="KmsAdmin"
-
-echo "-------------- GROUP -------------------"
-aws cloudformation deploy \
-		--profile $profile \
-    --capabilities CAPABILITY_NAMED_IAM \
-		--stack-name $groupname \
-    --template-file cfn/group_kms_admins.yaml \
-    --parameter-overrides \
-			groupnameparam=$groupname
-
-echo "-------------- POLICY -------------------"
+echo "-------------- CREDS -------------------"
 aws cloudformation deploy \
     --profile $profile \
     --capabilities CAPABILITY_NAMED_IAM \
-    --stack-name $policyname \
-    --template-file cfn/policy_group_kms_admin.yaml \
-    --parameter-overrides \
-        policynameparam=$policyname
-
-echo "-------------- USER -------------------"
-aws cloudformation deploy \
-    --profile $profile \
-    --capabilities CAPABILITY_NAMED_IAM \
-    --stack-name $username \
-    --template-file cfn/user_kms_admin.yaml \
-    --parameter-overrides \
-        usernameparam=$username
+    --stack-name BatchJobAdminCredentials \
+    --template-file cfn/access_key_batch_job_admin.yaml
 
 #################################################################################
 # Copyright Notice
@@ -63,4 +40,3 @@ aws cloudformation deploy \
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
-

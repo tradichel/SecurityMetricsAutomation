@@ -1,21 +1,28 @@
-# kms/user_kms_admin.yaml
-# author: @tradichel @2ndsightlab
-Parameters:
-  usernameparam:
-    Type: String
+#trigger_batch_job_role/cfn/role_trigger_batch_job.yaml
+#author: @teriradichel @2ndsightlab
 
 Resources:
-  kmsadminuser:
-    Type: AWS::IAM::User
+  BatchJobRole:
+    Type: 'AWS::IAM::Role'
     Properties:
-      UserName: !Ref usernameparam
-      Groups: [ !ImportValue groupkmsadmins ]
+      RoleName: BatchJobTriggerRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Action: "sts:AssumeRole"
+            Principal:
+               Service: "lambda.amazonaws.com"
 
 Outputs:
-  kmsadminuseroutput:
-    Value: !Ref kmsadminuser
+  batchjobroleoutput:
+    Value: !Ref BatchJobRole
     Export:
-     Name: kmsadminuser
+     Name: triggerjobtriggerrole
+  batchjobrolarneoutput:
+    Value: !GetAtt BatchJobRole.Arn
+    Export:
+     Name: triggerjobtriggerrolearn
 
 #################################################################################
 # Copyright Notice
@@ -39,4 +46,4 @@ Outputs:
 # HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-################################################################################
+################################################################################ 

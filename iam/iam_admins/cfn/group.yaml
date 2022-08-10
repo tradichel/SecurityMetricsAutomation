@@ -1,28 +1,21 @@
-#trigger_batch_job_role/cfn/role_trigger_batch_job.yaml
-#author: @teriradichel @2ndsightlab
+# iam_admins/group.yaml
+# author: @tradichel @2ndsightlab
+Parameters:
+  groupnameparam:
+    Type: String
 
 Resources:
-  BatchJobRole:
-    Type: 'AWS::IAM::Role'
+  iamgroup:
+    Type: AWS::IAM::Group
     Properties:
-      RoleName: BatchJobTriggerRole
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: "Allow"
-            Action: "sts:AssumeRole"
-            Principal:
-               Service: "ec2.amazonaws.com"
+      GroupName: !Ref groupnameparam
 
 Outputs:
-  batchjobroleoutput:
-    Value: !Ref BatchJobRole
+  iamgroupoutput:
+    Value: !Ref iamgroup
     Export:
-     Name: batchjobtriggerrole
-  batchjobrolarneoutput:
-    Value: !GetAtt BatchJobRole.Arn
-    Export:
-     Name: batchjobtriggerrolearn
+     Name: groupiamadmins
+
 
 #################################################################################
 # Copyright Notice
@@ -46,4 +39,4 @@ Outputs:
 # HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-################################################################################ 
+################################################################################

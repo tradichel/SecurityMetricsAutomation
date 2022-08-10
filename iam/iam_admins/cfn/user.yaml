@@ -1,41 +1,25 @@
-#kms/cfn/role_kms_administrator.yaml
-#author: @teriradichel @2ndsightlab
+# batch_job_admins/user_batch_job_admin.yaml
+# author: @tradichel @2ndsightlab
 Parameters:
-  rolenameparam:
-    Type: String
-    Default: KmsKeyAdministrator
-  assumerolearnparam:
+  usernameparam:
     Type: String
 
 Resources:
-  KMSAdminRole:
-    Type: 'AWS::IAM::Role'
+  iamadminuser:
+    Type: AWS::IAM::User
     Properties:
-      RoleName: !Ref rolenameparam
-      ManagedPolicyArns:
-        - !ImportValue kmskeyadminpolicyarn
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-            Effect: "Allow"
-            Action: "sts:AssumeRole"
-            Principal:
-              AWS:
-                - !Ref assumerolearnparam
-            Condition:
-              "Bool":
-                "aws:MultiFactorAuthPresent": "true"
+      UserName: !Ref usernameparam
+      Groups: [ !ImportValue groupiamadmins ]
 
 Outputs:
-  kmsadminoutput:
-    Value: !Ref KMSAdminRole
+  iamdminuseroutput:
+    Value: !Ref iamadminuser
     Export:
-     Name: kmsadminrole
-  kmsadminarnoutput:
-    Value: !GetAtt KMSAdminRole.Arn
+     Name: iamuser
+  iamadminuserarnoutput:
+    Value: !GetAtt iamadminuser.Arn
     Export:
-     Name: kmsadminrolearn
-
+      Name: iamuserarn
 #################################################################################
 # Copyright Notice
 # All Rights Reserved.
@@ -58,4 +42,4 @@ Outputs:
 # HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-################################################################################ 
+################################################################################

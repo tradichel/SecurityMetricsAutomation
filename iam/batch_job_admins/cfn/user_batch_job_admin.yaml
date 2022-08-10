@@ -1,40 +1,25 @@
-#!/bin/bash -e
-#/kms/deploy_key_trigger_batch_job_secrets.sh
-#author: @teriradichel @2ndsightlab
+# batch_job_admins/user_batch_job_admin.yaml
+# author: @tradichel @2ndsightlab
+Parameters:
+  usernameparam:
+    Type: String
 
-#pass in the arn of the identities allowed to encrypt and decrypt using the KMS key
-encryptarn="$1"
-decryptarn="$2"
-profile="$3"
+Resources:
+  batchjobadminuser:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: !Ref usernameparam
+      Groups: [ !ImportValue groupbatchjobadmins ]
 
-if [ "$encryptarn" == "" ];then
-  echo "An encrypt ARN is required. deploy_trigger_batch_key.sh encrytarn decryptarn [profile]"
-  exit
-fi
-
-if [ "$decryptarn" == "" ];then
-  echo "An decrypt ARN is required. deploy_trigger_batch_key.sh encrytarn decryptarn [profile]"
-  exit
-fi
-
-if [ "$profile" == "" ]; then
-  profile="default";
-fi
-
-desc="Key to encrypt secrets used to kick off batch jobs"
-keyalias="batch-credentials-key"
-
-echo "Encrypt Arn: " $encryptarn
-echo "Decrypt Arn: " $decryptarn
-
-echo "-------------- KMS KEY BatchKms$keyalias -------------------"
-aws cloudformation deploy \
-    --profile $profile \
-    --stack-name BatchKms$keyalias \
-    --template-file cfn/kms_key.yaml \
-    --parameter-overrides descparam="$desc" encryptarnparam="$encryptarn" decryptarnparam="$decryptarn"
-
-
+Outputs:
+  batchjobadminuseroutput:
+    Value: !Ref batchjobadminuser
+    Export:
+     Name: batchjobadminuser
+  batchjobadminuserarnoutput:
+    Value: !GetAtt batchjobadminuser.Arn
+    Export:
+      Name: batchjobuserarn
 #################################################################################
 # Copyright Notice
 # All Rights Reserved.
@@ -57,4 +42,4 @@ aws cloudformation deploy \
 # HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-################################################################################ 
+################################################################################

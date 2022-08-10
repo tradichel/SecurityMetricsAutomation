@@ -1,33 +1,24 @@
-# batch_job_role/deploy.sh
-# author: @teriradichel @2ndsightlab
-# deploy an IAM role used by a batch job
+#!/bin/bash -e
+#/kms/deploy_key_trigger_alias.sh
+#author: @teriradichel @2ndsightlab
 
-# argument 1: must pass in a job name that matches the job directory
-# argument 2: if you need to use a specific profile pass it in on the command line
-#./deploy.sh batch_job_directory_here profile_name_here
-job="$1"
-profile="$2"
-
-if [ "$job" == "" ]; then
-  echo "You must pass in the job name with matches a directory."
-  echo "The job name should not contain special characters or start with a number."
-  exit
-fi
+profile="$1"
 
 if [ "$profile" == "" ]; then
   profile="default";
 fi
 
-stackname="BatchJobRole"$job
+keyalias="batch-credentials-key"
 
-echo "-------------- JOB ROLE -------------------"
+echo "Arn for profile: $profile"
+aws sts get-caller-identity --profile $profile
+
+echo "-------------- KMS KEY ALIAS: $keyalias -------------------"
 aws cloudformation deploy \
     --profile $profile \
-    --capabilities CAPABILITY_NAMED_IAM \
-    --stack-name $stackname \
-    --template-file cfn/role_batch_job.yaml \
-    --parameter-overrides \
-      jobnameparam=$job
+    --stack-name BatchKmsAlias$keyalias \
+    --template-file cfn/kms_key_alias.yaml \
+    --parameter-overrides keyaliasparam="alias/$keyalias" 
 
 #################################################################################
 # Copyright Notice

@@ -1,39 +1,38 @@
-#!/bin/bash -e
-#/kms/deploy_key_trigger_batch_job_secrets.sh
+#kms/cfn/role_kms_administrator.yaml
 #author: @teriradichel @2ndsightlab
+Parameters:
+  rolenameparam:
+    Type: String
+    Default: KmsKeyAdministrator
 
-#pass in the arn of the identities allowed to encrypt and decrypt using the KMS key
-encryptarn="$1"
-decryptarn="$2"
-profile="$3"
+Resources:
+  KMSAdminRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: !Ref rolenameparam
+      ManagedPolicyArns:
+        - !ImportValue kmskeyadminpolicyarn
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+            Effect: "Allow"
+            Action: "sts:AssumeRole"
+            Principal:
+              AWS:
+                - !ImportValue kmsadminuserarn
+            Condition:
+              "Bool":
+                "aws:MultiFactorAuthPresent": "true"
 
-if [ "$encryptarn" == "" ];then
-  echo "An encrypt ARN is required. deploy_trigger_batch_key.sh encrytarn decryptarn [profile]"
-  exit
-fi
-
-if [ "$decryptarn" == "" ];then
-  echo "An decrypt ARN is required. deploy_trigger_batch_key.sh encrytarn decryptarn [profile]"
-  exit
-fi
-
-if [ "$profile" == "" ]; then
-  profile="default";
-fi
-
-desc="Key to encrypt secrets used to kick off batch jobs"
-keyalias="batch-credentials-key"
-
-echo "Encrypt Arn: " $encryptarn
-echo "Decrypt Arn: " $decryptarn
-
-echo "-------------- KMS KEY BatchKms$keyalias -------------------"
-aws cloudformation deploy \
-    --profile $profile \
-    --stack-name BatchKms$keyalias \
-    --template-file cfn/kms_key.yaml \
-    --parameter-overrides descparam="$desc" encryptarnparam="$encryptarn" decryptarnparam="$decryptarn"
-
+Outputs:
+  kmsadminoutput:
+    Value: !Ref KMSAdminRole
+    Export:
+     Name: kmsadminrole
+  kmsadminarnoutput:
+    Value: !GetAtt KMSAdminRole.Arn
+    Export:
+     Name: kmsadminrolearn
 
 #################################################################################
 # Copyright Notice

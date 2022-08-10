@@ -1,39 +1,26 @@
 #!/bin/sh -e
 #jobs/DeployBatchJobCredentials
 #author: @teriradichel @2ndsightlab
-assumerolearn="$1"
-profile="$2"
+profile="$1"
 
-if [ "$assumerolearn" == "" ]; then
-  echo "Must enter an assumerole arn"
-	exit
-fi
+#get arn for iam admin user - not sure this will end up in same account
+adminarn=$(aws cloudformation describe-stacks --stack-name IAMAdmin \
+  --query "Stacks[0].Outputs[?ExportName=='iamuserarn'].OutputValue" --output text)
 
 if [ "$profile" == "" ]; then
   profile="default";
 fi
 
+echo "Assume Role:" $assumerolearn
 echo "Profile: "$profile
 
 job='DeployBatchJobCredentials'
 policyname='BatchJobPolicy'$job
 rolename="BatchJobRole"$job
 
-echo $assumerolearn
-
-#cd ../../batch_job_role/
-#./deploy.sh $job $profile
-#cd ../jobs/$job
-
-echo "-------------- JOB ROLE -------------------"
-aws cloudformation deploy \
-    --profile $profile \
-    --capabilities CAPABILITY_NAMED_IAM \
-    --stack-name $rolename \
-    --template-file cfn/role_batch_job.yaml \
-    --parameter-overrides \
-      jobnameparam=$job \
-      assumerolearnparam=$assumerolearn
+cd ../../iam/batch_job_role/
+./deploy.sh $job $adminarn $profile
+cd ../../jobs/$job
 
 echo "-------------- POLICY -------------------"
 aws cloudformation deploy \
@@ -43,13 +30,6 @@ aws cloudformation deploy \
     --template-file cfn/policy_batch_job.yaml \
     --parameter-overrides \
         batchjobnameparam=$job
-
-echo "-------------- CREDS -------------------"
-aws cloudformation deploy \
-    --profile $profile \
-    --capabilities CAPABILITY_NAMED_IAM \
-    --stack-name BatchJobAdminCredentials \
-    --template-file cfn/access_key_batch_job_admin.yaml
 
 #################################################################################
 # Copyright Notice

@@ -1,39 +1,44 @@
 #!/bin/bash -e
-#/kms/deploy_key_trigger_batch_job_secrets.sh
+#kms/deploy_user_kms_admin.sh
 #author: @teriradichel @2ndsightlab
+#description: Deploy kms admin group, user, and policy
 
-#pass in the arn of the identities allowed to encrypt and decrypt using the KMS key
-encryptarn="$1"
-decryptarn="$2"
-profile="$3"
+profile="$1"
 
-if [ "$encryptarn" == "" ];then
-  echo "An encrypt ARN is required. deploy_trigger_batch_key.sh encrytarn decryptarn [profile]"
-  exit
+if [ "$profile" == "" ]; then 
+	profile="default"; 
 fi
 
-if [ "$decryptarn" == "" ];then
-  echo "An decrypt ARN is required. deploy_trigger_batch_key.sh encrytarn decryptarn [profile]"
-  exit
-fi
+groupname="KmsAdmins"
+policyname="KmsAdminsPolicy"
+username="KmsAdmin"
 
-if [ "$profile" == "" ]; then
-  profile="default";
-fi
+echo "-------------- GROUP: $groupname -------------------"
+aws cloudformation deploy \
+		--profile $profile \
+    --capabilities CAPABILITY_NAMED_IAM \
+		--stack-name $groupname \
+    --template-file cfn/group_kms_admins.yaml \
+    --parameter-overrides \
+			groupnameparam=$groupname
 
-desc="Key to encrypt secrets used to kick off batch jobs"
-keyalias="batch-credentials-key"
-
-echo "Encrypt Arn: " $encryptarn
-echo "Decrypt Arn: " $decryptarn
-
-echo "-------------- KMS KEY BatchKms$keyalias -------------------"
+echo "-------------- POLICY: $policyname -------------------"
 aws cloudformation deploy \
     --profile $profile \
-    --stack-name BatchKms$keyalias \
-    --template-file cfn/kms_key.yaml \
-    --parameter-overrides descparam="$desc" encryptarnparam="$encryptarn" decryptarnparam="$decryptarn"
+    --capabilities CAPABILITY_NAMED_IAM \
+    --stack-name $policyname \
+    --template-file cfn/policy_group_kms_admin.yaml \
+    --parameter-overrides \
+        policynameparam=$policyname
 
+echo "-------------- USER: $username -------------------"
+aws cloudformation deploy \
+    --profile $profile \
+    --capabilities CAPABILITY_NAMED_IAM \
+    --stack-name $username \
+    --template-file cfn/user_kms_admin.yaml \
+    --parameter-overrides \
+        usernameparam=$username
 
 #################################################################################
 # Copyright Notice
@@ -58,3 +63,4 @@ aws cloudformation deploy \
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
+

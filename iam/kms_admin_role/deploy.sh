@@ -1,44 +1,30 @@
 #!/bin/bash -e
-#batch_job_admins/deploy.sh
+#kms/deploy_kms_admin.sh
 #author: @teriradichel @2ndsightlab
-#description: Deploy batch job admin group, user, and policy
+#pass in the arn of the aws identity that you want to allow to assume the kms admin role
+assumerolearn="$1"
+profile="$2"
 
-profile="$1"
-
-if [ "$profile" == "" ]; then 
-	profile="default"; 
+if [ "$profile" == "" ]; then
+  profile="default";
 fi
 
-groupname="BatchJobAdmins"
-policyname="BatchJobAdminsPolicy"
-username="BatchJobAdmin"
+kmsadminrolename="KmsAdminRole"
+kmsadminpolicyname="KmsAdminPolicy"
 
-echo "-------------- GROUP -------------------"
-aws cloudformation deploy \
-		--profile $profile \
-    --capabilities CAPABILITY_NAMED_IAM \
-		--stack-name $groupname \
-    --template-file cfn/group_batch_job_admins.yaml \
-    --parameter-overrides \
-			groupnameparam=$groupname
-
-echo "-------------- POLICY -------------------"
+echo "-------------- POLICY: $kmsadminpolicyname -------------------"
 aws cloudformation deploy \
     --profile $profile \
     --capabilities CAPABILITY_NAMED_IAM \
-    --stack-name $policyname \
-    --template-file cfn/policy_batch_job_admins.yaml \
-    --parameter-overrides \
-        dpolicynameparam=$policyname
+    --stack-name $kmsadminpolicyname \
+    --template-file cfn/policy_role_kms_admin.yaml
 
-echo "-------------- USER -------------------"
+echo "-------------- Role: $kmsadminrolename  -------------------"
 aws cloudformation deploy \
     --profile $profile \
     --capabilities CAPABILITY_NAMED_IAM \
-    --stack-name $username \
-    --template-file cfn/user_batch_job_admin.yaml \
-    --parameter-overrides \
-        usernameparam=$username
+    --stack-name $kmsadminrolename \
+    --template-file cfn/role_kms_administrator.yaml \
 
 #################################################################################
 # Copyright Notice
@@ -62,5 +48,4 @@ aws cloudformation deploy \
 # HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-################################################################################ 
-
+################################################################################  

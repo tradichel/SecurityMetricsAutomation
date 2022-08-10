@@ -1,20 +1,44 @@
-# trigger_batch_job_role/deploy.sh
-# author: @teriradichel @2ndsightlab
-# deploy an IAM role used to trigger a batch job
+#!/bin/bash -e
+#batch_job_admins/deploy.sh
+#author: @teriradichel @2ndsightlab
+#description: Deploy batch job admin group, user, and policy
 
-#./deploy.sh profile_name_here
 profile="$1"
 
 if [ "$profile" == "" ]; then 
 	profile="default"; 
 fi
 
-echo "-------------- JOB ROLE -------------------"
+groupname="BatchJobAdmins"
+policyname="BatchJobAdminsPolicy"
+username="BatchJobAdmin"
+
+echo "-------------- GROUP: $groupname -------------------"
 aws cloudformation deploy \
 		--profile $profile \
     --capabilities CAPABILITY_NAMED_IAM \
-		--stack-name RoleTriggerBatchJob \
-    --template-file cfn/role_trigger_batch_job.yaml 
+		--stack-name $groupname \
+    --template-file cfn/group_batch_job_admins.yaml \
+    --parameter-overrides \
+			groupnameparam=$groupname
+
+echo "-------------- POLICY: $policyname -------------------"
+aws cloudformation deploy \
+    --profile $profile \
+    --capabilities CAPABILITY_NAMED_IAM \
+    --stack-name $policyname \
+    --template-file cfn/policy_batch_job_admins.yaml \
+    --parameter-overrides \
+        dpolicynameparam=$policyname
+
+echo "-------------- USER: $username -------------------"
+aws cloudformation deploy \
+    --profile $profile \
+    --capabilities CAPABILITY_NAMED_IAM \
+    --stack-name $username \
+    --template-file cfn/user_batch_job_admin.yaml \
+    --parameter-overrides \
+        usernameparam=$username
 
 #################################################################################
 # Copyright Notice
@@ -39,3 +63,4 @@ aws cloudformation deploy \
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
+

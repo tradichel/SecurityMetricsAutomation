@@ -5,4 +5,4 @@
 keyid="$1"
 profile="$2"
 
-aws kms schedule-key-deletion --key-id $keyid --pending-window-in-days 7
+aws kms schedule-key-deletion --key-id $keyid --pending-window-in-days 7 --profile $profile

@@ -1,24 +1,40 @@
-#!/bin/bash -e
-#/kms/deploy_key_trigger_alias.sh
-#author: @teriradichel @2ndsightlab
+# batch_job_role/deploy.sh
+# author: @teriradichel @2ndsightlab
+# deploy an IAM role used by a batch job
+job="$1"
+assumerolearn="$2"
+profile="$3"
 
-profile="$1"
+if [ "$job" == "" ]; then
+  echo "You must pass in the job name with matches a directory."
+  echo "The job name should not contain special characters or start with a number."
+  exit
+fi
+
+if [ "$assumerolearn" == "" ]; then
+  echo "You must pass in an ARN that is allowed to assume the role for batch job: $job"
+  exit
+fi
 
 if [ "$profile" == "" ]; then
   profile="default";
 fi
 
-keyalias="batchcredkey"
+stackname="BatchJobRole"$job
 
-echo "Arn for profile: $profile"
-aws sts get-caller-identity --profile $profile
+echo "Stackname: "$stackname
+echo "Job: "$job
+echo "AssumeRoleArn: "$assumerolearn
 
-echo "-------------- KMS KEY -------------------"
+echo "-------------- JOB ROLE:$job -------------------"
 aws cloudformation deploy \
     --profile $profile \
-    --stack-name BatchKmsAlias$keyalias \
-    --template-file cfn/kms_key_alias.yaml \
-    --parameter-overrides keyaliasparam="alias/$keyalias" 
+    --capabilities CAPABILITY_NAMED_IAM \
+    --stack-name $stackname \
+    --template-file cfn/role_batch_job.yaml \
+    --parameter-overrides \
+      jobnameparam=$job \
+      assumerolearnparam=$assumerolearn
 
 #################################################################################
 # Copyright Notice

@@ -1,40 +1,28 @@
-#batch_job_role/cfn/role_batch_job.yaml
-#author: @teriradichel @2ndsightlab
+# batch_job_admins/cfn/policy_batch_job_admins.yaml
+# author: @tradichel @2ndsightlab
 Parameters:
-  jobnameparam:
+  policynameparam:
     Type: String
-  maxsessionparam:
-    Type: Number
-    Default: 43200
 
 Resources:
-  BatchJobRole:
-    Type: 'AWS::IAM::Role'
+  iamadminpolicy:
+    Type: 'AWS::IAM::Policy'
     Properties:
-      RoleName: !Sub BatchRole${jobnameparam}
-      AssumeRolePolicyDocument:
+      PolicyName: !Ref policynameparam
+      PolicyDocument:
         Version: "2012-10-17"
         Statement:
-          - Effect: "Allow"
-            Action: "sts:AssumeRole"
-            Principal:
-               AWS:
-                - !Sub
-                    - "arn:aws:iam::${AWS::AccountId}:user/${user}"
-                    - user: !ImportValue batchjobadminuser
+          - Effect: Allow
+            Action: 'sts:AssumeRole'
+            Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/BatchRole*'
             Condition:
               "Bool":
                 "aws:MultiFactorAuthPresent": "true"
-
-Outputs:
-  batchjobroleoutput:
-    Value: !Ref BatchJobRole
-    Export:
-     Name: !Sub batchjobrole${jobnameparam}
-  batchjobrolearnoutput:
-    Value: !GetAtt BatchJobRole.Arn
-    Export:
-     Name: !Sub batchjobrolearn${jobnameparam}
+          - Effect: Allow
+            Action: 'iam:*'
+            Resource: '*'
+      Groups:
+        - !ImportValue groupiamadmins
 
 #################################################################################
 # Copyright Notice

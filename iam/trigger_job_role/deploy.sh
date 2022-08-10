@@ -1,21 +1,20 @@
-# batch_job_admins/user_batch_job_admin.yaml
-# author: @tradichel @2ndsightlab
-Parameters:
-  usernameparam:
-    Type: String
+# trigger_batch_job_role/deploy.sh
+# author: @teriradichel @2ndsightlab
+# deploy an IAM role used to trigger a batch job
 
-Resources:
-  batchjobadminuser:
-    Type: AWS::IAM::User
-    Properties:
-      UserName: !Ref usernameparam
-      Groups: [ !ImportValue groupbatchjobadmins ]
+#./deploy.sh profile_name_here
+profile="$1"
 
-Outputs:
-  batchjobadminuseroutput:
-    Value: !Ref batchjobadminuser
-    Export:
-     Name: batchjobadminuser
+if [ "$profile" == "" ]; then 
+	profile="default"; 
+fi
+
+echo "-------------- ROLE: RoleTriggerBatchJob -------------------"
+aws cloudformation deploy \
+		--profile $profile \
+    --capabilities CAPABILITY_NAMED_IAM \
+		--stack-name RoleTriggerBatchJob \
+    --template-file cfn/role_trigger_batch_job.yaml 
 
 #################################################################################
 # Copyright Notice
@@ -39,4 +38,4 @@ Outputs:
 # HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-################################################################################
+################################################################################ 

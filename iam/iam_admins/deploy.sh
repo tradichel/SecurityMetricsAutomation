@@ -1,38 +1,44 @@
-#jobs/DeployBatchJobCreentials/cfn/role_batch_job.yaml
+#!/bin/bash -e
+#iam_admins/deploy.sh
 #author: @teriradichel @2ndsightlab
-Parameters:
-  jobnameparam:
-    Type: String
-  assumerolearnparam:
-    Type: String
-  maxsessionparam:
-    Type: Number
-    Default: 43200
+#description: Deploy iam admin group, user, and policy
 
-Resources:
+profile="$1"
 
-  BatchJobRole:
-    Type: 'AWS::IAM::Role'
-    Properties:
-      RoleName: !Sub BatchRole${jobnameparam}
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: "Allow"
-            Action: "sts:AssumeRole"
-            Principal:
-               AWS:
-                - !Sub ${assumerolearnparam}
+if [ "$profile" == "" ]; then 
+	profile="default"; 
+fi
 
-Outputs:
-  batchjobroleoutput:
-    Value: !Ref BatchJobRole
-    Export:
-     Name: !Sub batchjobrole${jobnameparam}
-  batchjobrolearnoutput:
-    Value: !GetAtt BatchJobRole.Arn
-    Export:
-     Name: !Sub batchjobrolearn${jobnameparam}
+groupname="IAMAdmins"
+policyname="IAMAdminsPolicy"
+username="IAMAdmin"
+
+echo "-------------- GROUP: $groupname -------------------"
+aws cloudformation deploy \
+		--profile $profile \
+    --capabilities CAPABILITY_NAMED_IAM \
+		--stack-name $groupname \
+    --template-file cfn/group.yaml \
+    --parameter-overrides \
+			groupnameparam=$groupname
+
+echo "-------------- POLICY: $policyname -------------------"
+aws cloudformation deploy \
+    --profile $profile \
+    --capabilities CAPABILITY_NAMED_IAM \
+    --stack-name $policyname \
+    --template-file cfn/policy.yaml \
+    --parameter-overrides \
+        policynameparam=$policyname
+
+echo "-------------- USER: $username -------------------"
+aws cloudformation deploy \
+    --profile $profile \
+    --capabilities CAPABILITY_NAMED_IAM \
+    --stack-name $username \
+    --template-file cfn/user.yaml \
+    --parameter-overrides \
+        usernameparam=$username
 
 #################################################################################
 # Copyright Notice
@@ -57,3 +63,4 @@ Outputs:
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
+
