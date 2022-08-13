@@ -30,3 +30,6 @@ cd ..
 cd trigger_job_role
 ./deploy.sh
 cd ..
+
+
+

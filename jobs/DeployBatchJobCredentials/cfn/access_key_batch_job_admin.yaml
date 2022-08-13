@@ -1,5 +1,5 @@
 #jobs/DeployBatchJobCredentials/cfn/access_key_batch_job_admin.yaml
-#@author: teriradichel @2ndsightlab
+#author: @teriradichel @2ndsightlab
 Resources:
 
   BatchJobAdminAccessKey:
