@@ -8,7 +8,7 @@
 #for the user that is allowed to assume the role
 #in this case, the IAM user is allowed to assunme the batch job role
 profile='job_batchcreds'
-aws sts get-caller-identity --profile $profile
+aws sts get-caller-identity
 
 echo "-------------- CREDS -------------------"
 aws cloudformation deploy \

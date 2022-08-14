@@ -1,35 +1,37 @@
-#!/bin/sh -e
-#jobs/DeployBatchJobCredentials
-#author: @teriradichel @2ndsightlab
-profile="$1"
+# jobs/DeployBatchJobCredentials/cfn/policy_batch_job.yaml
+# author: @tradichel @2ndsightlab
+#############################################################
+#NOT DONE. These services do not exist in Access Analyzer.
+#Also AWS Athena doesn't work with AWS ControlTower organizational logs due to permissions error.
+#Due not not being able to quickly get what I need from those two services, I'll finsih this later.
+#############################################################
+Parameters:
+  batchjobnameparam:
+    Type: String
 
-#get arn for iam admin user - not sure this will end up in same account
-adminarn=$(aws cloudformation describe-stacks --stack-name IAMAdmin \
-  --query "Stacks[0].Outputs[?ExportName=='iamuserarn'].OutputValue" --output text)
-
-if [ "$profile" == "" ]; then
-  profile="default";
-fi
-
-echo "Assume Role:" $assumerolearn
-echo "Profile: "$profile
-
-job='DeployBatchJobCredentials'
-policyname='BatchJobPolicy'$job
-rolename="BatchJobRole"$job
-
-cd ../../iam/batch_job_role/
-./deploy.sh $job $adminarn $profile
-cd ../../jobs/$job
-
-echo "-------------- POLICY -------------------"
-aws cloudformation deploy \
-    --profile $profile \
-    --capabilities CAPABILITY_NAMED_IAM \
-    --stack-name $policyname \
-    --template-file cfn/policy_batch_job.yaml \
-    --parameter-overrides \
-        batchjobnameparam=$job
+Resources:
+  batchjobpolicy:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyName: !Sub BatchJobPolicy${batchjobnameparam}
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - cloudformation:GetTemplateSummary
+              - cloudformation:ExecuteChangeSet
+              - secretsmanager:CreateSecret
+              - cloudformation:DescribeStacks
+              - cloudformation:DescribeChangeSet
+              - cloudformation:CreateChangeSet
+              - iam:CreateAccessKey
+              - kms:GenerateDataKey
+              - kms:Decrypt
+              - sts:GetCallerIdentity
+            Resource: "*"
+      Roles:
+        - !ImportValue batchjobroleDeployBatchJobCredentials
 
 #################################################################################
 # Copyright Notice
