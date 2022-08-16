@@ -2,7 +2,7 @@
 # author: @teriradichel @2ndsightlab
 # deploy an IAM role used by a batch job
 job="$1"
-assumerolearn="$2"
+batchjobtype="$2"
 profile="$3"
 
 if [ "$job" == "" ]; then
@@ -11,8 +11,10 @@ if [ "$job" == "" ]; then
   exit
 fi
 
-if [ "$assumerolearn" == "" ]; then
-  echo "You must pass in an ARN that is allowed to assume the role for batch job: $job"
+if [ "$batchjobtype" == "" ]; then
+  echo "You must pass in a batch job type of "iam" or "batch" for batch job: $job"
+	echo "Only the Batch Administrator can assume a role of type batch."
+	echo "Only the IAM Administrator can assume a role of time iam."
   exit
 fi
 
@@ -24,7 +26,7 @@ stackname="BatchJobRole"$job
 
 echo "Stackname: "$stackname
 echo "Job: "$job
-echo "AssumeRoleArn: "$assumerolearn
+echo "Batch Job Type: "$batchjobtype
 
 echo "-------------- JOB ROLE:$job -------------------"
 aws cloudformation deploy \
@@ -34,7 +36,7 @@ aws cloudformation deploy \
     --template-file cfn/role_batch_job.yaml \
     --parameter-overrides \
       jobnameparam=$job \
-      assumerolearnparam=$assumerolearn
+      batchjobtypeparam=$batchjobtype
 
 #################################################################################
 # Copyright Notice

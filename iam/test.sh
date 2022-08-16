@@ -5,14 +5,11 @@ cd batch_job_admins
 ./deploy.sh
 cd ..
 
-#get arn for batch job admin user
-adminarn=$(aws cloudformation describe-stacks --stack-name BatchJobAdmin \
-	--query "Stacks[0].Outputs[?ExportName=='batchjobuserarn'].OutputValue" --output text)
-
 #deploy batch job role
 job="POC" 
+batchjobtype="batch"
 cd batch_job_role
-./deploy.sh $job $adminarn
+./deploy.sh $job $batchjobtype
 cd ..
 
 cd iam_admins

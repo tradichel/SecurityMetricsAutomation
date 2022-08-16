@@ -3,23 +3,18 @@
 #author: @teriradichel @2ndsightlab
 profile="$1"
 
-#get arn for iam admin user - not sure this will end up in same account
-adminarn=$(aws cloudformation describe-stacks --stack-name IAMAdmin \
-  --query "Stacks[0].Outputs[?ExportName=='iamuserarn'].OutputValue" --output text)
-
 if [ "$profile" == "" ]; then
   profile="default";
 fi
 
-echo "Assume Role:" $assumerolearn
 echo "Profile: "$profile
 
+batchjobtype="iam"
 job='DeployBatchJobCredentials'
 policyname='BatchJobPolicy'$job
-rolename="BatchJobRole"$job
 
 cd ../../../iam/batch_job_role/
-./deploy.sh $job $adminarn $profile
+./deploy.sh $job $batchjobtype $profile
 cd ../../jobs/iam/$job
 
 echo "-------------- POLICY -------------------"

@@ -3,17 +3,37 @@
 Parameters:
   jobnameparam:
     Type: String
-  assumerolearnparam:
+  batchjobtypeparam:
     Type: String
+    AllowedValues: 
+      - iam
+      - batch
   maxsessionparam:
     Type: Number
     Default: 43200
 
+Mappings:
+  BatchJobRoleMap:
+    iam:
+      roleprefix: IAMRole
+      assumeroleuser: IAMAdmin  
+    batch:
+      roleprefix: BatchRole
+      assumeroleuser: BatchJobAdmin 
+    
 Resources:
   BatchJobRole:
     Type: 'AWS::IAM::Role'
     Properties:
-      RoleName: !Sub BatchRole${jobnameparam}
+      RoleName: 
+        !Join
+          -  ''
+          -
+            - !FindInMap 
+                - BatchJobRoleMap
+                - !Ref batchjobtypeparam
+                - roleprefix
+            - !Ref jobnameparam
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -21,10 +41,17 @@ Resources:
             Action: "sts:AssumeRole"
             Principal:
               AWS:
-                - !Sub ${assumerolearnparam}
+                 !Join
+                    - ''
+                    -
+                      - !Sub 'arn:aws:iam::${AWS::AccountId}:user/' 
+                      - !FindInMap 
+                          - BatchJobRoleMap
+                          - !Ref batchjobtypeparam
+                          - assumeroleuser
             Condition:
-              "Bool":
-                "aws:MultiFactorAuthPresent": "true"
+               Bool:
+                  "aws:MultiFactorAuthPresent": "true"
 
 Outputs:
   batchjobroleoutput:
