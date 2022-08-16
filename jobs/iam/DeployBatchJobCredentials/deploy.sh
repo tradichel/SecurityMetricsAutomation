@@ -11,7 +11,7 @@ echo "Profile: "$profile
 
 batchjobtype="iam"
 job='DeployBatchJobCredentials'
-policyname='BatchJobPolicy'$job
+policyname='IAMJobPolicy'$job
 
 cd ../../../iam/batch_job_role/
 ./deploy.sh $job $batchjobtype $profile

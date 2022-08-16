@@ -1,4 +1,4 @@
-# batch_job_admins/cfn/policy_batch_job_admins.yaml
+# batch_job_admins/cfn/policy_batch_job_admins.yaml:wq!
 # author: @tradichel @2ndsightlab
 Parameters:
   policynameparam:
@@ -14,7 +14,7 @@ Resources:
         Statement:
           - Effect: Allow
             Action: 'sts:AssumeRole'
-            Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/BatchRole*'
+            Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/IAMRole*'
             Condition:
               "Bool":
                 "aws:MultiFactorAuthPresent": "true"
@@ -23,6 +23,7 @@ Resources:
             Resource: '*'
       Groups:
         - !ImportValue groupiamadmins
+
 
 #################################################################################
 # Copyright Notice

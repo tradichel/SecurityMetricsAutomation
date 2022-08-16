@@ -13,7 +13,7 @@ Resources:
   batchjobpolicy:
     Type: 'AWS::IAM::Policy'
     Properties:
-      PolicyName: !Sub BatchJobPolicy${batchjobnameparam}
+      PolicyName: !Sub IAMJobPolicy${batchjobnameparam}
       PolicyDocument:
         Version: "2012-10-17"
         Statement:

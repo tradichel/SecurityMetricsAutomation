@@ -22,7 +22,8 @@ if [ "$profile" == "" ]; then
   profile="default";
 fi
 
-stackname="BatchJobRole"$job
+stackname=$batchjobtype"JobRole"$job
+stackname=${stackname^}
 
 echo "Stackname: "$stackname
 echo "Job: "$job

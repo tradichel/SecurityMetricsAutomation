@@ -3,7 +3,7 @@
 #this deploy script presumes you have set up a cli profile with ksm with appopriate permissions
 
 #get arn for batch job admin user
-encryptarn=$(aws cloudformation describe-stacks --stack-name BatchJobRoleDeployBatchJobCredentials \
+encryptarn=$(aws cloudformation describe-stacks --stack-name IamJobRoleDeployBatchJobCredentials \
   --query "Stacks[0].Outputs[?ExportName=='batchjobrolearnDeployBatchJobCredentials'].OutputValue" --output text)
 
 #get arn for batch job admin user
@@ -14,3 +14,6 @@ decryptarn=$(aws cloudformation describe-stacks --stack-name RoleTriggerBatchJob
 ./deploy_key_trigger.sh $encryptarn $decryptarn "kms" 
 
 ./deploy_key_alias_trigger.sh "kms"
+
+
+
