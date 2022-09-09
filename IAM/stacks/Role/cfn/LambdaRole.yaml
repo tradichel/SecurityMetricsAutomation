@@ -1,32 +1,38 @@
-#!/bin/sh -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# test.sh
+# IAM/stacks/Role/LambdaRole.yaml
 # author: @teriradichel @2ndsightlab
+# Description: generic template to deploy a Lambda role
 ##############################################################
-#Before you run this code you need to set up AWS CLI profiles for the following:
+Parameters:
+  LambdaNameParam:
+    Type: String
 
-#test all the things
+Resources:
+  LambdaRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: 
+        !Sub ${LambdaNameParam}LambdaRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Action: "sts:AssumeRole"
+            Principal:
+               Service: "lambda.amazonaws.com"
 
-cd IAM
-./test.sh
-cd ..
+Outputs:
+  lambdaroleoutput:
+    Value: !Ref LambdaRole
+    Export:
+     Name: !Sub ${LambdaNameParam}LambdaRole
 
-cd KMS
-./test.sh
-cd ..
+  lambdarolarneoutput:
+    Value: !GetAtt LambdaRole.Arn
+    Export:
+     Name: !Sub ${LambdaNameParam}LambdaRoleArn
 
-cd Jobs
-./test.sh
-cd ..
-
-cd Lambda
-./test.sh
-cd ..
-
-echo "Test Complete"
-
-
-#################################################################################
+##################################################################################
 # Copyright Notice
 # All Rights Reserved.
 # All materials (the “Materials”) in this repository are protected by copyright 

@@ -1,30 +1,19 @@
-#!/bin/sh -e
+#!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# test.sh
-# author: @teriradichel @2ndsightlab
+# KMS/test.sh
+# author: @tradichel @2ndsightlab
 ##############################################################
-#Before you run this code you need to set up AWS CLI profiles for the following:
+echo "Running KMS tests with AWS CLI Profile named kms."
 
-#test all the things
+cd stacks/Key
+./deploy.sh
+cd ../../
 
-cd IAM
-./test.sh
-cd ..
+cd stacks/KeyAlias
+./deploy.sh
+cd ../../
 
-cd KMS
-./test.sh
-cd ..
-
-cd Jobs
-./test.sh
-cd ..
-
-cd Lambda
-./test.sh
-cd ..
-
-echo "Test Complete"
-
+echo "KMS Test Copmlete"
 
 #################################################################################
 # Copyright Notice
@@ -49,3 +38,4 @@ echo "Test Complete"
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
+~                                                                                     

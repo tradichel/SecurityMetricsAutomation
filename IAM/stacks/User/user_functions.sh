@@ -1,29 +1,38 @@
-#!/bin/sh -e
-# https://github.com/tradichel/SecurityMetricsAutomation
-# test.sh
+#!/bin/bash -e
+# https://github.com/tradichel/SecurityMetricsAutomation/
+# IAM/stacks/Users/user_functions.sh
 # author: @teriradichel @2ndsightlab
+# description: Functions for user creation
 ##############################################################
-#Before you run this code you need to set up AWS CLI profiles for the following:
+source "../../../Functions/shared_functions.sh"
 
-#test all the things
+deploy_user() {
 
-cd IAM
-./test.sh
-cd ..
+	username=$1
+	profile=$2
 
-cd KMS
-./test.sh
-cd ..
+	if [ "$username" == "" ]; then
+			echo "Username must be provided."
+			exit	
+	fi
 
-cd Jobs
-./test.sh
-cd ..
+  if [ "$profile" == "" ]; then
+      echo "Profile must be provided."
+      exit 
+  fi
 
-cd Lambda
-./test.sh
-cd ..
+	template="cfn/User.yaml"
+ 	resourcetype='User'
+  parameters='NameParam='$username
+	
+	function=${FUNCNAME[0]}
+  validate_param "profile" $profile $function
+  validate_param "username" $username $function
+  validate_param "template" $template $function
+  validate_param "parameters" $parameters $function
+  deploy_iam_stack $profile $username $resourcetype $template $parameters
 
-echo "Test Complete"
+}
 
 
 #################################################################################
@@ -49,3 +58,4 @@ echo "Test Complete"
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
+~                                                                                     

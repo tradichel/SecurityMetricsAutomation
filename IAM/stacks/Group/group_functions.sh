@@ -1,30 +1,64 @@
-#!/bin/sh -e
+#!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# test.sh
+# IAM/stacks/Group/group_functions.sh
 # author: @teriradichel @2ndsightlab
+# Description: Functions to deploy a group and add users to groups
 ##############################################################
-#Before you run this code you need to set up AWS CLI profiles for the following:
+source "../../../Functions/shared_functions.sh"
 
-#test all the things
+deploy_group(){
 
-cd IAM
-./test.sh
-cd ..
+	groupname=$1
+	profile=$2
+	
+	function=${FUNCNAME[0]}
+	validate_param "groupname" $groupname $function
+	validate_param "profile" $profile $function
 
-cd KMS
-./test.sh
-cd ..
+	resourcetype='Group'
+	template='cfn/Group.yaml'
+	parameters='NameParam='$groupname	
+	deploy_iam_stack $profile $groupname $resourcetype $template $parameters
 
-cd Jobs
-./test.sh
-cd ..
+	policyname=$groupname'GroupPolicy'
+	deploy_group_policy $policyname $profile
 
-cd Lambda
-./test.sh
-cd ..
+}
 
-echo "Test Complete"
+deploy_group_policy(){
 
+	policyname=$1
+	profile=$2
+
+  function=${FUNCNAME[0]}
+ 	validate_param "policy_name" $policyname $function
+	validate_param "profile" $profile $function
+
+	parameters='NameParam='$policyname
+	template='cfn/Policy/'$policyname'.yaml'
+	resourcetype='Policy'
+	deploy_iam_stack $profile $policyname $resourcetype $template "$parameters"
+
+}
+
+add_users_to_group() {
+
+  usernames="$1"
+	groupname=$2
+  profile=$3
+
+  function=${FUNCNAME[0]}
+  validate_param "usernames" $usernames $function
+	validate_param "groupname" $groupname $function
+	validate_param "profile" $profile $function
+
+	template='cfn/UserToGroupAddition.yaml'
+	name='AddUsersTo'$groupname
+	resourcetype='UserToGroupAddition'
+	parameters='UserNamesParam='$usernames' GroupNameParam='$groupname
+	deploy_iam_stack $profile $name $resourcetype $template "$parameters"
+
+}
 
 #################################################################################
 # Copyright Notice
@@ -49,3 +83,4 @@ echo "Test Complete"
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
+

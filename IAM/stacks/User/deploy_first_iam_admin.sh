@@ -1,30 +1,19 @@
-#!/bin/sh -e
+#!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# test.sh
+# IAM/stacks/User/deploy_first_iam_admin.sh
 # author: @teriradichel @2ndsightlab
+# Description: Deploy all users
 ##############################################################
-#Before you run this code you need to set up AWS CLI profiles for the following:
 
-#test all the things
+echo "-------------- Deploy First IAM User -------------------"
 
-cd IAM
-./test.sh
-cd ..
+source user_functions.sh
 
-cd KMS
-./test.sh
-cd ..
+#Someone needes to install the first IAM admins
+if [ "$1" == "" ]; then profile="default"; else profile="$1"; fi
 
-cd Jobs
-./test.sh
-cd ..
-
-cd Lambda
-./test.sh
-cd ..
-
-echo "Test Complete"
-
+echo 'Deploying with AWS CLI profile: '$profile
+deploy_user 'IAMAdmin' $profile
 
 #################################################################################
 # Copyright Notice
@@ -49,3 +38,4 @@ echo "Test Complete"
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
+

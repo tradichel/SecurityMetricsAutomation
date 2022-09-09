@@ -1,30 +1,20 @@
-#!/bin/sh -e
+#!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# test.sh
+# IAM/stacks/User/deploy.sh
 # author: @teriradichel @2ndsightlab
+# Description: Deploy all users
 ##############################################################
-#Before you run this code you need to set up AWS CLI profiles for the following:
 
-#test all the things
+echo "-------------- Deploy User -------------------"
 
-cd IAM
-./test.sh
-cd ..
+source user_functions.sh
 
-cd KMS
-./test.sh
-cd ..
-
-cd Jobs
-./test.sh
-cd ..
-
-cd Lambda
-./test.sh
-cd ..
-
-echo "Test Complete"
-
+profile="iam"
+deploy_user 'IAMAdmin2' $profile
+deploy_user 'KMSAdmin' $profile
+deploy_user 'SecurityMetricsOperator' $profile
+deploy_user 'NetworkAdmin' $profile
+deploy_user 'Developer' $profile
 
 #################################################################################
 # Copyright Notice
@@ -49,3 +39,4 @@ echo "Test Complete"
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
+

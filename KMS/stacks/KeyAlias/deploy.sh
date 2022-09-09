@@ -1,30 +1,27 @@
-#!/bin/sh -e
+#!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# test.sh
+# KMS/stacks/KeyAlias/deploy.sh
 # author: @teriradichel @2ndsightlab
 ##############################################################
-#Before you run this code you need to set up AWS CLI profiles for the following:
 
-#test all the things
+source keyalias_functions.sh
+source ../../../Functions/shared_functions.sh
 
-cd IAM
-./test.sh
-cd ..
+#must set up AWS CLI profile named kms to run this code
+profile="kms"
+alias="BatchCredentialKey"
 
-cd KMS
-./test.sh
-cd ..
+#get the key id from the key stack
+stack='KMS-Key-BatchJobCredentials'
+exportname='BatchJobCredentialsKeyIDExport'
+keyid=$(get_stack_export $stack $exportname)
 
-cd Jobs
-./test.sh
-cd ..
+if [ "$keyid" == "" ]; then
+  echo 'Export '$exportname ' for stack '$stack' did not return a value'
+  exit
+fi
 
-cd Lambda
-./test.sh
-cd ..
-
-echo "Test Complete"
-
+deploy_key_alias $profile $keyid $alias
 
 #################################################################################
 # Copyright Notice

@@ -1,30 +1,26 @@
-#!/bin/sh -e
+# !/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# test.sh
+# IAM/stacks/Role/deploy.sh
 # author: @teriradichel @2ndsightlab
+# Description: Deploy all roles
 ##############################################################
-#Before you run this code you need to set up AWS CLI profiles for the following:
 
-#test all the things
+echo "-------------- Deploy Roles -------------------"
 
-cd IAM
-./test.sh
-cd ..
+source role_functions.sh
 
-cd KMS
-./test.sh
-cd ..
+profile="iam"
+deploy_group_role 'KMSAdmins' $profile
+deploy_group_role 'NetworkAdmins' $profile
+deploy_group_role 'Developers' $profile
+deploy_group_role 'SecurityMetricsOperators' $profile
 
-cd Jobs
-./test.sh
-cd ..
+jobname="DeployBatchJobCredentials"
+jobtype="IAM"
+deploy_batch_role $jobname $jobtype $profile
 
-cd Lambda
-./test.sh
-cd ..
-
-echo "Test Complete"
-
+lambdaname='TriggerBatchJob'
+deploy_lambda_role $lambdaname $profile
 
 #################################################################################
 # Copyright Notice
@@ -49,3 +45,4 @@ echo "Test Complete"
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
+

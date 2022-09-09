@@ -1,30 +1,27 @@
-#!/bin/sh -e
+#!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# test.sh
+# KMS/stacks/KeyAlias/keyalias_functions.sh
 # author: @teriradichel @2ndsightlab
 ##############################################################
-#Before you run this code you need to set up AWS CLI profiles for the following:
+deploy_key_alias(){
 
-#test all the things
+  profile=$1
+  keyid=$2
+  alias=$3
 
-cd IAM
-./test.sh
-cd ..
+  function=${FUNCNAME[0]}
+  validate_param "profile" $profile $function
+  validate_param "keyid" $keyid $function
+  validate_param "alias" $alias $function
 
-cd KMS
-./test.sh
-cd ..
+  parameters='["KeyIdParam='$keyid'","KeyAliasParam='$alias'"]'
+  template='cfn/KeyAlias.yaml'
+  resourcetype='KeyAlias'
+  service="KMS"
+ 	
+	deploy_stack $profile $service $alias $resourcetype $template "$parameters"
 
-cd Jobs
-./test.sh
-cd ..
-
-cd Lambda
-./test.sh
-cd ..
-
-echo "Test Complete"
-
+}
 
 #################################################################################
 # Copyright Notice
@@ -49,3 +46,4 @@ echo "Test Complete"
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
+~                                                                                     

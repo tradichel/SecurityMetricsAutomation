@@ -1,29 +1,15 @@
-#!/bin/sh -e
+#!/bin/bash
 # https://github.com/tradichel/SecurityMetricsAutomation
-# test.sh
+# KMS/scripts/schedule_key_deletion.sh
 # author: @teriradichel @2ndsightlab
 ##############################################################
-#Before you run this code you need to set up AWS CLI profiles for the following:
+profile="kms"
 
-#test all the things
+#use to schedule key deletion
+keyid="$1"
+profile="kms"
 
-cd IAM
-./test.sh
-cd ..
-
-cd KMS
-./test.sh
-cd ..
-
-cd Jobs
-./test.sh
-cd ..
-
-cd Lambda
-./test.sh
-cd ..
-
-echo "Test Complete"
+aws kms schedule-key-deletion --key-id $keyid --pending-window-in-days 7 --profile $profile
 
 
 #################################################################################
@@ -49,3 +35,4 @@ echo "Test Complete"
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
+~                                                                                     

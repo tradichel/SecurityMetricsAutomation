@@ -1,30 +1,41 @@
-#!/bin/sh -e
-# https://github.com/tradichel/SecurityMetricsAutomation
-# test.sh
+# https://github.com/tradichel/SecurityMetricsAutomation/blob/main/iam/batch_job_role/cfn/role_batch_job.yaml
+# IAM/stacks/Role/cfn/GroupRole.yaml
 # author: @teriradichel @2ndsightlab
+# description: Generic template to create a role for an IAM Group
 ##############################################################
-#Before you run this code you need to set up AWS CLI profiles for the following:
+Parameters:
+  GroupNameParam:
+    Type: String
+  GroupUsers:
+    Type: CommaDelimitedList
 
-#test all the things
+Resources:
+  GroupRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: !Sub ${GroupNameParam}Group
 
-cd IAM
-./test.sh
-cd ..
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+            Effect: "Allow"
+            Action: "sts:AssumeRole"
+            Principal:
+              AWS:
+                !Ref GroupUsers
+            Condition:
+              "Bool":
+                "aws:MultiFactorAuthPresent": "true"
 
-cd KMS
-./test.sh
-cd ..
-
-cd Jobs
-./test.sh
-cd ..
-
-cd Lambda
-./test.sh
-cd ..
-
-echo "Test Complete"
-
+Outputs:
+  GroupRoleOutput:
+    Value: !Ref GroupRole
+    Export:
+     Name: !Sub ${GroupNameParam}RoleExport
+  GroupRoleArnOutput:
+    Value: !GetAtt GroupRole.Arn
+    Export:
+     Name: !Sub ${GroupNameParam}RoleArnExport
 
 #################################################################################
 # Copyright Notice

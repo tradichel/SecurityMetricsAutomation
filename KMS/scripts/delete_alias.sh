@@ -1,30 +1,12 @@
-#!/bin/sh -e
+#!/bin/sh
 # https://github.com/tradichel/SecurityMetricsAutomation
-# test.sh
+# KMS/scripts/delete_alias.sh
 # author: @teriradichel @2ndsightlab
 ##############################################################
-#Before you run this code you need to set up AWS CLI profiles for the following:
+profile=kms
+aliasname="$1"
 
-#test all the things
-
-cd IAM
-./test.sh
-cd ..
-
-cd KMS
-./test.sh
-cd ..
-
-cd Jobs
-./test.sh
-cd ..
-
-cd Lambda
-./test.sh
-cd ..
-
-echo "Test Complete"
-
+aws kms delete-alias --alias-name $aliasname --profile $profile
 
 #################################################################################
 # Copyright Notice
@@ -49,3 +31,4 @@ echo "Test Complete"
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
+~                                                                                     

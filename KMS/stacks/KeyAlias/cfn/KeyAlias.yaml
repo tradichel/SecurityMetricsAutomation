@@ -1,29 +1,20 @@
-#!/bin/sh -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# test.sh
+# KMS/stacks/KeyAlias/cfn/KeyAlias.yaml
 # author: @teriradichel @2ndsightlab
 ##############################################################
-#Before you run this code you need to set up AWS CLI profiles for the following:
+Parameters:
+  KeyAliasParam:
+    Type: String
+  KeyIdParam:
+    Type: String
 
-#test all the things
+Resources:
+ KeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: !Sub alias/${KeyAliasParam}
+      TargetKeyId: !Ref KeyIdParam
 
-cd IAM
-./test.sh
-cd ..
-
-cd KMS
-./test.sh
-cd ..
-
-cd Jobs
-./test.sh
-cd ..
-
-cd Lambda
-./test.sh
-cd ..
-
-echo "Test Complete"
 
 
 #################################################################################
@@ -49,3 +40,4 @@ echo "Test Complete"
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
+~                                                                                     

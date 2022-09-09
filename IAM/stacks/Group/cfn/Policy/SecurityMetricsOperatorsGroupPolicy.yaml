@@ -1,29 +1,27 @@
-#!/bin/sh -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# test.sh
-# author: @teriradichel @2ndsightlab
+# IAM/stacks/Group/cfn/Policy/SecurityMetricsGroupPolicy.yaml
+# author: @tradichel @2ndsightlab
 ##############################################################
-#Before you run this code you need to set up AWS CLI profiles for the following:
+Parameters:
+  NameParam:
+    Type: String
 
-#test all the things
-
-cd IAM
-./test.sh
-cd ..
-
-cd KMS
-./test.sh
-cd ..
-
-cd Jobs
-./test.sh
-cd ..
-
-cd Lambda
-./test.sh
-cd ..
-
-echo "Test Complete"
+Resources:
+  SecurityOperatorsGroupPolicy:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyName: !Ref NameParam
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: 'sts:AssumeRole'
+            Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/BatchSecurity*'
+            Condition:
+              "Bool":
+                "aws:MultiFactorAuthPresent": "true"
+      Groups:
+        - !ImportValue NetworkAdminsExport
 
 
 #################################################################################
@@ -48,4 +46,4 @@ echo "Test Complete"
 # HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-################################################################################ 
+################################################################################

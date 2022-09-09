@@ -1,30 +1,40 @@
-#!/bin/sh -e
+#!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# test.sh
+# IAM/stacks/Groups/deploy.sh
 # author: @teriradichel @2ndsightlab
+# Description: Deploy all groups
 ##############################################################
-#Before you run this code you need to set up AWS CLI profiles for the following:
 
-#test all the things
+echo "-------------- Deploy Groups -------------------"
 
-cd IAM
-./test.sh
-cd ..
+source group_functions.sh
 
-cd KMS
-./test.sh
-cd ..
+profile="iam"
 
-cd Jobs
-./test.sh
-cd ..
+deploy_group 'KMSAdmins' $profile
+deploy_group 'NetworkAdmins' $profile
+deploy_group 'SecurityMetricsOperators' $profile
+deploy_group 'Developers' $profile
 
-cd Lambda
-./test.sh
-cd ..
+users='IAMAdmin,IAMAdmin2'
+group='IAMAdmins'
+add_users_to_group "$users" $group $profile
 
-echo "Test Complete"
+users='KMSAdmin'
+group='KMSAdmins'
+add_users_to_group "$users" $group $profile
 
+users='NetworkAdmin'
+group='NetworkAdmins'
+add_users_to_group "$users" $group $profile
+
+users='SecurityMetricsOperator'
+group='SecurityMetricsOperators'
+add_users_to_group "$users" $group $profile
+
+users='Developer'
+group='Developers'
+add_users_to_group "$users" $group $profile
 
 #################################################################################
 # Copyright Notice
@@ -49,3 +59,4 @@ echo "Test Complete"
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
+

@@ -1,29 +1,35 @@
-#!/bin/sh -e
-# https://github.com/tradichel/SecurityMetricsAutomation
-# test.sh
-# author: @teriradichel @2ndsightlab
+#!/bin/bash -e
+# KMS/stacks/Key/key_functions.sh 
+# author: @tradichel @2ndsightlab
 ##############################################################
-#Before you run this code you need to set up AWS CLI profiles for the following:
+deploy_key(){
 
-#test all the things
+  profile=$1
+	encryptarn=$2
+	decryptarn=$3
+	keyalias=$4
+	desc="$5"
 
-cd IAM
-./test.sh
-cd ..
+  function=${FUNCNAME[0]}
+  validate_param "profile" $profile $function
+  validate_param "desc" $desc $function
+  validate_param "encryptarn" $encryptarn $function
+  validate_param "decryptarn" $decryptarn $function
+	validate_param "keyalias" $keyalias $function
 
-cd KMS
-./test.sh
-cd ..
+  template='cfn/Key.yaml'
+  resourcetype='Key'
+	service='KMS'
 
-cd Jobs
-./test.sh
-cd ..
+	desc='\"$desc\"'
 
-cd Lambda
-./test.sh
-cd ..
+	echo $desc
 
-echo "Test Complete"
+	parameters='["EncryptArnParam='$encryptarn'","DecryptArnParam='$decryptarn'","KeyAliasParam='$keyalias'","DescParam='$desc'"]'
+	
+	deploy_stack $profile $service $keyalias $resourcetype $template "$parameters"
+
+}
 
 
 #################################################################################
@@ -49,3 +55,4 @@ echo "Test Complete"
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
+~                                                                                     

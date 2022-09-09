@@ -1,29 +1,22 @@
-#!/bin/sh -e
-# https://github.com/tradichel/SecurityMetricsAutomation
-# test.sh
-# author: @teriradichel @2ndsightlab
+# https://github.com/tradichel/SecurityMetricsAutomation/blob/main/iam/batch_job_role/cfn/role_batch_job.yaml
+# IAM/stacks/role/cfn/Policy/SecurityMetricsOperatorsGroupRolePolicy.yaml
+# author: @tradichel @2ndsightlab
+# description: policy for IAM administrators
 ##############################################################
-#Before you run this code you need to set up AWS CLI profiles for the following:
-
-#test all the things
-
-cd IAM
-./test.sh
-cd ..
-
-cd KMS
-./test.sh
-cd ..
-
-cd Jobs
-./test.sh
-cd ..
-
-cd Lambda
-./test.sh
-cd ..
-
-echo "Test Complete"
+Resources:
+  SecurityMetricsOperatorsGroupPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: SecurityMetricsOperatorsGroupPolicy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: 'cloudformation:*'
+            Resource:
+              - !Sub "arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/Batch-SecurityMetrics-*"
+      Roles: 
+        - "SecurityMetricsOperatorsGroup"
 
 
 #################################################################################
@@ -49,3 +42,5 @@ echo "Test Complete"
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
+~                                                                                     
+

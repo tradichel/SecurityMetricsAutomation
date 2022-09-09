@@ -1,30 +1,46 @@
-#!/bin/sh -e
+#!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# test.sh
+# Jobs/stacks/IAMJobs/DeployBatchJobCredentials/deploy.sh
 # author: @teriradichel @2ndsightlab
+# description: test script for DeployBatchJobCreds functionality
 ##############################################################
-#Before you run this code you need to set up AWS CLI profiles for the following:
 
-#test all the things
+#this will change later when this code becomes and actual batch job
+#for now just testing the fucntionality of the CF templates
+#the IAM admins will be allowed to run this job
+#the IAM admins will also be allowed to provide the MFA to exec jobs
 
-cd IAM
-./test.sh
-cd ..
+echo "-------------- Deploy Job: DeployBatchJobCredentials -------------------"
+echo ""
+echo "In order to run this template you will need to set up an AWS CLI profile"
+echo "named deploycreds and allow the IAMAdmin to assume the role."
+echo "OK? CTRL-C to Exit. Enter to continue."
+echo ""
+echo "------------------------------------------------------------------------"
 
-cd KMS
-./test.sh
-cd ..
+source ../../../../Functions/shared_functions.sh
 
-cd Jobs
-./test.sh
-cd ..
+profile="iam"
+servicename="IAM"
 
-cd Lambda
-./test.sh
-cd ..
+resource="DeployBatchJobCredentialsIAMJobPolicy"
+resourcetype="Policy"
+template='cfn/'$resource'.yaml'
+	
+deploy_stack $profile $servicename $resource $resourcetype $template
 
-echo "Test Complete"
+profile="deploycreds"
+resource="SecurityMetricsBatchJobCredentials"
+template='cfn/BatchJobCredentials.yaml' 
+resourcetype=Secret
+parameters='["UserNameParam='SecurityMetricsOperator'"]
+deploy_stack $profile $servicename $resource $resourcetype $template $parameters
 
+resource="IAMBatchJobCredentials"
+template='cfn/BatchJobCredentials.yaml'
+resourcetype=Secret
+parameters='["UserNameParam='IAMUser'"]
+deploy_stack $profile $servicename $resource $resourcetype $template $parameters
 
 #################################################################################
 # Copyright Notice

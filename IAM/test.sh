@@ -1,29 +1,60 @@
-#!/bin/sh -e
+#!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
 # test.sh
-# author: @teriradichel @2ndsightlab
+# author: @tradichel @2ndsightlab
 ##############################################################
-#Before you run this code you need to set up AWS CLI profiles for the following:
+#!/bin/bash -e
 
-#test all the things
+echo "Running stacks with the AWS CLI Profile default"
 
-cd IAM
-./test.sh
-cd ..
+profile="default"
 
-cd KMS
-./test.sh
-cd ..
+cd stacks/User
+./deploy_first_iam_admin.sh
+cd ../..
 
-cd Jobs
-./test.sh
-cd ..
+cd stacks/Group
+./deploy_iam_group.sh
+cd ../..
 
-cd Lambda
-./test.sh
-cd ..
+cd stacks/Role
+./deploy_iam_role.sh
+cd ../..
 
-echo "Test Complete"
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo " IAM User is deployed."
+echo " Have you added a virtual MFA device to this user?"
+echo " Have you set up an AWS CLI Profile named iam?"
+echo " Exit and See README.md if you haven't."
+echo " Ctrl-C to exit. Enter to proceed."
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+read ok
+
+echo "Running the remaining stacks with the AWS CLI Profile iam"
+profile="iam"
+
+cd stacks/User
+./deploy.sh
+cd ../..
+
+cd stacks/Group
+./deploy.sh
+cd ../..
+
+cd stacks/Role
+./deploy.sh
+cd ../..
+
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo " Set up MFA for these users before proceeding:"
+echo " KMSAdmin, NetworkAdmin, Developer, SecurityMetricsOperator"
+echo ""
+echo " Create these AWS CLI proiles beore proceeding:"
+echo " kms, network, dev, securitymetrics"
+echo ""
+echo " Ctrl-C to exit. Enter to proceed."
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+read ok
 
 
 #################################################################################
@@ -49,3 +80,4 @@ echo "Test Complete"
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
+~                                                                                     

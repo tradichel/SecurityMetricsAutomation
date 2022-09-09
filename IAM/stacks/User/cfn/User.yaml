@@ -1,30 +1,27 @@
-#!/bin/sh -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# test.sh
-# author: @teriradichel @2ndsightlab
+# IAM/stacks/User/cfn/User.yaml
+# author: @tradichel @2ndsightlab
+# description: CloudFormation template to create an IAM user
 ##############################################################
-#Before you run this code you need to set up AWS CLI profiles for the following:
+Parameters:
+  NameParam:
+    Type: String
 
-#test all the things
+Resources:
+  User:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: !Ref NameParam
 
-cd IAM
-./test.sh
-cd ..
-
-cd KMS
-./test.sh
-cd ..
-
-cd Jobs
-./test.sh
-cd ..
-
-cd Lambda
-./test.sh
-cd ..
-
-echo "Test Complete"
-
+Outputs:
+  UserOutput:
+    Value: !Ref User
+    Export:
+     Name: !Sub ${NameParam}UserExport
+  UserARNOutput:
+    Value: !GetAtt User.Arn
+    Export:
+      Name: !Sub ${NameParam}UserArnExport
 
 #################################################################################
 # Copyright Notice
@@ -48,4 +45,4 @@ echo "Test Complete"
 # HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-################################################################################ 
+################################################################################

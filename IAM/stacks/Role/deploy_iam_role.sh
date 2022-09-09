@@ -1,30 +1,18 @@
-#!/bin/sh -e
+# !/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# test.sh
+# IAM/stacks/Role/deploy_iam_group.sh
 # author: @teriradichel @2ndsightlab
+# Description: Deploy all roles
 ##############################################################
-#Before you run this code you need to set up AWS CLI profiles for the following:
 
-#test all the things
+echo "-------------- Deploy IAM Admin Role -------------------"
 
-cd IAM
-./test.sh
-cd ..
+source role_functions.sh
 
-cd KMS
-./test.sh
-cd ..
+#need to install the first IAM role before can use it in a cli profile
+if [ "$1" == "" ]; then profile="default"; else profile="$1"; fi
 
-cd Jobs
-./test.sh
-cd ..
-
-cd Lambda
-./test.sh
-cd ..
-
-echo "Test Complete"
-
+deploy_group_role 'IAMAdmins' $profile
 
 #################################################################################
 # Copyright Notice
@@ -49,3 +37,4 @@ echo "Test Complete"
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
+

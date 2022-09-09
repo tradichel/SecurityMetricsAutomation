@@ -1,30 +1,22 @@
-#!/bin/sh -e
+#!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# test.sh
+# IAM/stacks/Groups/deploy_iam_group.sh
 # author: @teriradichel @2ndsightlab
+# Description: Deploy all groups
 ##############################################################
-#Before you run this code you need to set up AWS CLI profiles for the following:
 
-#test all the things
+echo "-------------- Deploy IAM Groups -------------------"
 
-cd IAM
-./test.sh
-cd ..
+source group_functions.sh
 
-cd KMS
-./test.sh
-cd ..
+#Someone needes to install the first IAM admin group and policy
+if [ "$1" == "" ]; then profile="default"; else profile="$1"; fi
 
-cd Jobs
-./test.sh
-cd ..
+deploy_group 'IAMAdmins' $profile
 
-cd Lambda
-./test.sh
-cd ..
-
-echo "Test Complete"
-
+users='IAMAdmin'
+group='IAMAdmins'
+add_users_to_group "$users" $group $profile
 
 #################################################################################
 # Copyright Notice
@@ -49,3 +41,4 @@ echo "Test Complete"
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
+

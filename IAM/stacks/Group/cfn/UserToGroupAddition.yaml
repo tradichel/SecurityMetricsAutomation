@@ -1,0 +1,16 @@
+# https://github.com/tradichel/SecurityMetricsAutomation
+# IAM/stacks/cfn/UserToGroupAddition.yaml
+# author: @tradichel @2ndsightlab
+##############################################################
+Parameters:
+  UserNamesParam:
+    Type: CommaDelimitedList
+  GroupNameParam:
+    Type: String
+
+Resources:
+  UserToGroup:
+    Type: AWS::IAM::UserToGroupAddition
+    Properties: 
+      GroupName: !Ref GroupNameParam
+      Users: !Ref UserNamesParam

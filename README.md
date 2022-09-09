@@ -15,6 +15,31 @@ Got a question? Schedule a call with me through [IANS Research](https://www.ians
 
 Thank you!
 
+About this code:
+
+This code creates a framework for running AWS Batch Jobs (a working progress) that will hopefully require MFA to executewhen we are done. Not only does this code execute batch jobs the blog series walks through the architectural decisions to set up a security cloud environment with segregation of duties, zero trust networking, encryption, and eventually proper networking and organizational policies.
+
+Note that this framework does not use SSO due to limitations explained in the blog series, nor does it use a Yubikey for MFA due to the increase attack vectors also explained in the blog series.
+
+Testing the code:
+
+1. Create an AWS CLI profile named "iam" that has permission to use CoudForamtion and create IAM resources.
+
+[Using an AWS CLI Profile with MFA](
+https://medium.com/cloud-security/using-an-aws-cli-profile-with-mfa-a1ca79289031
+)
+
+2. Run the test.sh scirpt in the root directory. When it asks you if you have set up a kms profile, hit Ctrl-C to exit.
+
+3. Add a virtual MFA device to the users created by the test script. At the time of this writing IAMAdmin and KMSAdmin are in use but in the future all users created by the test script will need MFA.
+
+4. Modify your iam AWS CLI profile to use credentials and MFA from the IAMAdmin user created by the test script.
+
+5. Set up an AWS CLI profile name "kms" using the MFA and credentials from the KMSAdmin user created by the script.
+
+6. Execute the test.sh script again and continue through all the tests.
+
+ 
 #################################################################################
 
 Copyright Notice
