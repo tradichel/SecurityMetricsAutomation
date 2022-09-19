@@ -14,7 +14,19 @@ Resources:
           - Effect: Allow
             Action: 'cloudformation:*'
             Resource:
-              - !Sub "arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/Batch-Dev-*"
+              - !Sub "arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/Network-*"
+          - Effect: 'Allow'
+            Action: 'ec2:*'
+            Resource: '*'
+          - Effect: 'Allow'
+            Action: 
+              - logs:CreateLogGroup
+              - logs:PutRetentionPolicy
+              - logs:DescribeLogGroups
+            Resource: '*' 
+          - Effect: 'Allow'
+            Action: 'iam:PassRole'
+            Resource: !ImportValue VPCFlowLogsRoleRoleArn  
       Roles: 
         - "NetworkAdminsGroup"
 
@@ -22,7 +34,7 @@ Resources:
 #################################################################################
 # Copyright Notice
 # All Rights Reserved.
-# All materials (the “Materials”) in this repository are protected by copyright 
+# All materials (the ?Materials?) in this repository are protected by copyright 
 # under U.S. Copyright laws and are the property of 2nd Sight Lab. They are provided 
 # pursuant to a royalty free, perpetual license the person to whom they were presented 
 # by 2nd Sight Lab and are solely for the training and education by 2nd Sight Lab.
@@ -42,5 +54,3 @@ Resources:
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
-                                                                                     
-

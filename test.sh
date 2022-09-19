@@ -11,6 +11,10 @@ cd IAM
 ./test.sh
 cd ..
 
+cd Network
+./test.sh
+cd ..
+
 cd KMS
 ./test.sh
 cd ..

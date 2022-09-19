@@ -33,13 +33,18 @@ profile="deploycreds"
 resource="SecurityMetricsBatchJobCredentials"
 template='cfn/BatchJobCredentials.yaml' 
 resourcetype=Secret
-parameters='["UserNameParam='SecurityMetricsOperator'"]
+parameters=$(add_parameter "UserNameParam" 'SecurityMetricsOperator')
 deploy_stack $profile $servicename $resource $resourcetype $template $parameters
 
+# 9/19/22 - For some reason CloudForamtion starated forcing me to add Delete permisisons
+# to the above policy for this stack to properly update. I do NOT want this user to 
+# have delete permissions but to get this to deploy for now I added it to the above
+# policy. Will address this later and only run this stack if it does not already
+# exist.
 resource="IAMBatchJobCredentials"
 template='cfn/BatchJobCredentials.yaml'
 resourcetype=Secret
-parameters='["UserNameParam='IAMUser'"]
+parameters=$(add_parameter "UserNameParam" 'IAMAdmin')
 deploy_stack $profile $servicename $resource $resourcetype $template $parameters
 
 #################################################################################

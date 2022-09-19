@@ -23,14 +23,15 @@ deploy_user() {
 
 	template="cfn/User.yaml"
  	resourcetype='User'
-  parameters='NameParam='$username
+  parameters=$(add_parameter "NameParam" $username)	
 	
 	function=${FUNCNAME[0]}
   validate_param "profile" $profile $function
   validate_param "username" $username $function
   validate_param "template" $template $function
   validate_param "parameters" $parameters $function
-  deploy_iam_stack $profile $username $resourcetype $template $parameters
+  servicename="IAM"
+	deploy_stack $profile $servicename $username $resourcetype $template $parameters
 
 }
 

@@ -9,6 +9,8 @@ source key_functions.sh
 #must run this as a kms admin user
 profile="kms"
 
+echo "------Key for batch job credentials -----"
+
 desc="KMS Key for Batch Job Credentials"
 keyalias="BatchJobCredentials"
 
@@ -24,7 +26,7 @@ fi
 
 #get the decryption ARN for our key policy 
 stack='IAM-Role-TriggerBatchJobLambdaRole'
-exportname='TriggerBatchJobLambdaRoleArn'
+exportname='TriggerBatchJobLambdaRoleRoleArn'
 decryptarn=$(get_stack_export $stack $exportname)
 
 if [ "$decryptarn" == "" ]; then
@@ -32,7 +34,37 @@ if [ "$decryptarn" == "" ]; then
   exit
 fi
 
-deploy_key $profile $encryptarn $decryptarn $keyalias "$desc"
+service="secretsmanager"
+deploy_key $profile $encryptarn $decryptarn $keyalias $service $desc
+
+echo "------Key for batch job trigger -----"
+
+desc="KMS Key for Batch Job Trigger"
+keyalias="TriggerBatchJob"
+
+#get the encryption ARN for our key policy 
+stack='IAM-Role-GenerateBatchJobIdLambdaRole'
+exportname='GenerateBatchJobIdLambdaRoleRoleArn'
+encryptarn=$(get_stack_export $stack $exportname)
+  
+if [ "$encryptarn" == "" ]; then
+  echo 'Export '$exportname ' for stack '$stack' did not return a value'
+  exit
+fi
+
+#get the decryption ARN for our key policy 
+stack='IAM-Role-TriggerBatchJobLambdaRole'
+exportname='TriggerBatchJobLambdaRoleRoleArn'
+decryptarn=$(get_stack_export $stack $exportname)
+
+if [ "$decryptarn" == "" ]; then
+  echo 'Export '$exportname ' for stack '$stack' did not return a value'
+  exit
+fi
+
+service="systemsmanager"
+deploy_key $profile $encryptarn $decryptarn $keyalias $service $desc
+
 
 #################################################################################
 # Copyright Notice

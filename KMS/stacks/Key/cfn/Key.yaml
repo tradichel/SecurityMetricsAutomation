@@ -17,6 +17,10 @@ Parameters:
       - "false"
   DescParam:
     Type: String
+  TimestampParam:
+    Type: String
+    Description: Force an update since AWS overwrites roles and CF doesn't recognize the change
+    
 
 Resources:
   KMSKey:
@@ -104,7 +108,7 @@ Outputs:
     Export:
      Name: !Sub ${KeyAliasParam}KeyArnExport
   ForceUpdate:
-    Value: "Change me again to force update"
+    Value: !Sub "${TimestampParam}"
 
 #################################################################################
 # Copyright Notice

@@ -1,36 +1,41 @@
-# !/bin/bash -e
-# https://github.com/tradichel/SecurityMetricsAutomation
-# IAM/stacks/Role/deploy.sh
-# author: @teriradichel @2ndsightlab
-# Description: Depiloy all roles
+#!/bin/bash -e
+# KMS/stacks/Key/key_functions.sh 
+# author: @tradichel @2ndsightlab
 ##############################################################
 
-echo "-------------- Deploy Roles -------------------"
+deploy_key(){
 
-source role_functions.sh
+  profile=$1
+	encryptarn=$2
+	decryptarn=$3
+	keyalias=$4
+	conditionservice=$5
+	desc="$6"
 
-profile="iam"
-deploy_group_role 'KMSAdmins' $profile
-deploy_group_role 'NetworkAdmins' $profile
-deploy_group_role 'SecurityMetricsOperators' $profile
-deploy_group_role 'AppDeployment' $profile
+  function=${FUNCNAME[0]}
+  validate_param "profile" $profile $function
+  validate_param "desc" $desc $function
+  validate_param "encryptarn" $encryptarn $function
+  validate_param "decryptarn" $decryptarn $function
+	validate_param "keyalias" $keyalias $function
 
-jobname="DeployBatchJobCredentials"
-jobtype="IAM"
-deploy_batch_role $jobname $jobtype $profile
+  template='cfn/Key.yaml'
+  resourcetype='Key'
+	service='KMS'
+	timestamp="$(date)"
 
-lambdaname='TriggerBatchJob'
-deploy_lambda_role $lambdaname $profile
+  parameters=$(add_parameter "EncryptArnParam" $encryptarn)
+  parameters=$(add_parameter "DecryptArnParam" $decryptarn "$parameters")
+  parameters=$(add_parameter "KeyAliasParam" $keyalias "$parameters")
+  parameters=$(add_parameter "TimestampParam" "$timestamp" "$parameters")
+  parameters=$(add_parameter "ServiceParam" $conditionservice "$parameters")
+  parameters=$(add_parameter "DescParam" "$desc" "$parameters")
 
-lambdaname='GenerateBatchJobId'
-deploy_lambda_role $lambdaname $profile
 
-awsservice='VPCFlowLogs'
-rolename=$awsservice'Role'
-deploy_aws_service_role $rolename $awsservice $profile
+	deploy_stack $profile $service $keyalias $resourcetype $template "$parameters"
 
-policyname='VPCFlowLogsPolicy'
-deploy_role_policy $policyname $profile
+}
+
 
 #################################################################################
 # Copyright Notice
@@ -55,4 +60,4 @@ deploy_role_policy $policyname $profile
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
-
+                                                                                     

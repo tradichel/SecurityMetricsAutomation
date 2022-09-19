@@ -9,11 +9,27 @@ source ../../../Functions/shared_functions.sh
 
 #must set up AWS CLI profile named kms to run this code
 profile="kms"
-alias="BatchCredentialKey"
+
+echo "--------- Batch Credential Key Alias ---------------"
+alias="BatchJobCredentials"
 
 #get the key id from the key stack
-stack='KMS-Key-BatchJobCredentials'
-exportname='BatchJobCredentialsKeyIDExport'
+stack='KMS-Key-'$alias
+exportname=$alias'KeyIDExport'
+keyid=$(get_stack_export $stack $exportname)
+
+if [ "$keyid" == "" ]; then
+  echo 'Export '$exportname ' for stack '$stack' did not return a value'
+  exit
+fi
+
+deploy_key_alias $profile $keyid $alias
+
+echo "----------- Trigger Batch Job SSM Parameter -----------"
+
+alias="TriggerBatchJob"
+stack='KMS-Key-'$alias
+exportname=$alias'KeyIDExport'
 keyid=$(get_stack_export $stack $exportname)
 
 if [ "$keyid" == "" ]; then

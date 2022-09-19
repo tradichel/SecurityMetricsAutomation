@@ -1,36 +1,28 @@
-# !/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# IAM/stacks/Role/deploy.sh
-# author: @teriradichel @2ndsightlab
-# Description: Depiloy all roles
+# IAM/stacks/role/cfn/Policy/AppDeployGroupRolePolicy.yaml
+# author: @tradichel @2ndsightlab
+# description: policy for IAM administrators
 ##############################################################
-
-echo "-------------- Deploy Roles -------------------"
-
-source role_functions.sh
-
-profile="iam"
-deploy_group_role 'KMSAdmins' $profile
-deploy_group_role 'NetworkAdmins' $profile
-deploy_group_role 'SecurityMetricsOperators' $profile
-deploy_group_role 'AppDeployment' $profile
-
-jobname="DeployBatchJobCredentials"
-jobtype="IAM"
-deploy_batch_role $jobname $jobtype $profile
-
-lambdaname='TriggerBatchJob'
-deploy_lambda_role $lambdaname $profile
-
-lambdaname='GenerateBatchJobId'
-deploy_lambda_role $lambdaname $profile
-
-awsservice='VPCFlowLogs'
-rolename=$awsservice'Role'
-deploy_aws_service_role $rolename $awsservice $profile
-
-policyname='VPCFlowLogsPolicy'
-deploy_role_policy $policyname $profile
+Resources:
+  AppDeployGroupRolePolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: AppDeploymentGroupRolePolicy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: 'cloudformation:*'
+            Resource:
+              - !Sub arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/AppDeploy-*
+          - Effect: Allow
+            Action: 'lambda:*'
+            Resource: '*'
+          - Effect: Allow
+            Action: iam:PassRole
+            Resource: !Sub arn:aws:iam::${AWS::AccountId}:role/GenerateBatchJobIdLambdaRole
+      Roles: 
+        - "AppDeploymentGroup"
 
 #################################################################################
 # Copyright Notice
@@ -55,4 +47,4 @@ deploy_role_policy $policyname $profile
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
-
+                                                                                     

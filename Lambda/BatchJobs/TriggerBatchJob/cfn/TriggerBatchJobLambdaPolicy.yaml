@@ -14,7 +14,7 @@ Resources:
             Action:
               - secretsmanager:GetSecretValue
             Resource:
-              - !ImportValue SecurityMetricsOperatorBatchJobCredsSecretArnExport
+              - !ImportValue SecurityMetricsOperatorBatchJobCredsSecretArn
           - Effect: Allow
             Action:
               - kms:Decrypt

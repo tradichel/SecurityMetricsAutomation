@@ -1,68 +1,15 @@
-#!/bin/bash -e
+#!/bin/bash
 # https://github.com/tradichel/SecurityMetricsAutomation
-# IAM/stacks/Group/group_functions.sh
+# Network/test.sh
 # author: @teriradichel @2ndsightlab
-# Description: Functions to deploy a group and add users to groups
+# description: Test network deployment scripts
 ##############################################################
-source "../../../Functions/shared_functions.sh"
 
-servicename='IAM'
+cd stacks
+./deploy.sh
+cd ..
 
-deploy_group(){
 
-	groupname=$1
-	profile=$2
-	
-	function=${FUNCNAME[0]}
-	validate_param "groupname" $groupname $function
-	validate_param "profile" $profile $function
-
-	resourcetype='Group'
-	template='cfn/Group.yaml'
-	parameters=$(add_parameter "NameParam" $groupname)
-
-	deploy_stack $profile $servicename $groupname $resourcetype $template "$parameters"
-	
-	policyname=$groupname'GroupPolicy'
-	deploy_group_policy $policyname $profile
-
-}
-
-deploy_group_policy(){
-
-	policyname=$1
-	profile=$2
-
-  function=${FUNCNAME[0]}
- 	validate_param "policy_name" $policyname $function
-	validate_param "profile" $profile $function
-
-	parameters=$(add_parameter "NameParam" $policyname)
-	template='cfn/Policy/'$policyname'.yaml'
-	resourcetype='Policy'
-	deploy_stack $profile $servicename $policyname $resourcetype $template "$parameters"
-
-}
-
-add_users_to_group() {
-
-  usernames="$1"
-	groupname="$2"
-  profile="$3"
-
-  function=${FUNCNAME[0]}
-  validate_param "usernames" $usernames $function
-	validate_param "groupname" $groupname $function
-	validate_param "profile" $profile $function
-
-	template='cfn/UserToGroupAddition.yaml'
-	name='AddUsersTo'$groupname
-	resourcetype='UserToGroupAddition'
-	parameters=$(add_parameter "UserNamesParam" $usernames)
-	parameters=$(add_parameter "GroupNameParam" $groupname $parameters)
-	deploy_stack $profile $servicename $name $resourcetype $template "$parameters"
-
-}
 
 #################################################################################
 # Copyright Notice
@@ -87,4 +34,5 @@ add_users_to_group() {
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
+
 

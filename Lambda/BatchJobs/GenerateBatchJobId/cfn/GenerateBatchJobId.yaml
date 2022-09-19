@@ -1,0 +1,90 @@
+# https://github.com/tradichel/SecurityMetricsAutomation
+# Lambda/BatchJobs/GenrateBatchJobId.yaml
+# author: @teriradichel @2ndsightlab
+##############################################################
+AWSTemplateFormatVersion: "2010-09-09"
+
+Resources:
+  GenerateBatchJobIDLambdaFunction:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Environment:
+        Variables: 
+          KeyId: !ImportValue TriggerBatchJobKeyIDExport
+      Code:
+        ZipFile: |
+          import string
+          import secrets
+          import boto3
+          import os
+
+          def handler(event,context):
+        
+            #retrieve the batch job parameter
+            #NOTE! this is currently insecure - see my blog post on Lamba Parameters, XSS, and Injection!
+
+            batch_job_name=event['BatchJobName']
+
+            if batch_job_Name !="BatchJobPOC":
+              return {
+                'body': "Invalid Batch Job",
+                'headers': {
+                  'Content-Type': 'text/plain'
+                },
+                'statusCode': 422
+              }
+          
+            #generate a unique batch job id
+            alphabet = string.ascii_letters + string.digits
+            batch_job_id = ''.join(secrets.choice(alphabet) for i in range(8))
+
+            #save the batch job parameter
+            ssm = boto3.client('ssm')
+            param_name="batch-job-" + batch_job_id
+            param_value=batch_job_name
+            param_type="SecureString"
+            key_id= os.environ['KeyId']
+            ssm.put_parameter(Name=param_name,Value=param_value,Type=param_type,KeyId=key_id)
+
+            return {
+              'body': "Batch Job Id Generated",
+              'headers': {
+                'Content-Type': 'text/plain'
+              },
+              'statusCode': 200
+            }
+
+      Description: "Generate a batch job ID"
+      FunctionName: GenerateBatchJobIDLambda
+      Role: !ImportValue GenerateBatchJobIdLambdaRoleRoleArn
+      Runtime: "python3.9"
+      Handler: "index.handler"
+
+Outputs:
+  GenerateBatchJobIDLambdaFunctionOutput:
+    Value: !GetAtt "GenerateBatchJobIDLambdaFunction.Arn"
+
+
+#################################################################################
+# Copyright Notice
+# All Rights Reserved.
+# All materials (the “Materials”) in this repository are protected by copyright 
+# under U.S. Copyright laws and are the property of 2nd Sight Lab. They are provided 
+# pursuant to a royalty free, perpetual license the person to whom they were presented 
+# by 2nd Sight Lab and are solely for the training and education by 2nd Sight Lab.
+#
+# The Materials may not be copied, reproduced, distributed, offered for sale, published, 
+# displayed, performed, modified, used to create derivative works, transmitted to 
+# others, or used or exploited in any way, including, in whole or in part, as training 
+# materials by or for any third party.
+#
+# The above copyright notice and this permission notice shall be included in all 
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+################################################################################

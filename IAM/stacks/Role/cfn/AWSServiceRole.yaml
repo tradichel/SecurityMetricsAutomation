@@ -1,38 +1,50 @@
-# !/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# IAM/stacks/Role/deploy.sh
+# IAM/stacks/Role/AWSServiceRole.yaml
 # author: @teriradichel @2ndsightlab
-# Description: Depiloy all roles
+# Description: generic template to deploy a Lambda role
 ##############################################################
+Parameters:
+  NameParam:
+    Type: String
+  AWSServiceParam:
+    Type: String
+    AllowedValues: ['Lambda','VPCFlowLogs']
 
-echo "-------------- Deploy Roles -------------------"
+Mappings:
+  ServiceMap:
+    VPCFlowLogs:
+      service: 'vpc-flow-logs.amazonaws.com'
+    Lambda:
+      service: 'lambda.amazonaws.com'
 
-source role_functions.sh
+Resources:
+  ServiceRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: 
+        !Sub ${NameParam}
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Action: "sts:AssumeRole"
+            Principal:
+               Service: 
+                  - !FindInMap
+                      - ServiceMap
+                      - !Ref AWSServiceParam
+                      - service
+Outputs:
+  ServiceRoleOutput:
+    Value: !Ref ServiceRole
+    Export:
+     Name: !Sub ${NameParam}
+  ServiceRoleArnOutput:
+    Value: !GetAtt ServiceRole.Arn
+    Export:
+     Name: !Sub ${NameParam}RoleArn
 
-profile="iam"
-deploy_group_role 'KMSAdmins' $profile
-deploy_group_role 'NetworkAdmins' $profile
-deploy_group_role 'SecurityMetricsOperators' $profile
-deploy_group_role 'AppDeployment' $profile
-
-jobname="DeployBatchJobCredentials"
-jobtype="IAM"
-deploy_batch_role $jobname $jobtype $profile
-
-lambdaname='TriggerBatchJob'
-deploy_lambda_role $lambdaname $profile
-
-lambdaname='GenerateBatchJobId'
-deploy_lambda_role $lambdaname $profile
-
-awsservice='VPCFlowLogs'
-rolename=$awsservice'Role'
-deploy_aws_service_role $rolename $awsservice $profile
-
-policyname='VPCFlowLogsPolicy'
-deploy_role_policy $policyname $profile
-
-#################################################################################
+##################################################################################
 # Copyright Notice
 # All Rights Reserved.
 # All materials (the “Materials”) in this repository are protected by copyright 
@@ -55,4 +67,3 @@ deploy_role_policy $policyname $profile
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
-

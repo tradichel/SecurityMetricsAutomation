@@ -6,11 +6,12 @@
 ##############################################################
 
 source "../../../Functions/shared_functions.sh"
+servicename="IAM"
 
 deploy_group_role(){
 
-	groupname=$1
-	profile=$2
+	groupname="$1"
+	profile="$2"
 	
 	function=${FUNCNAME[0]}
 	validate_param "groupname" $groupname $function
@@ -27,10 +28,12 @@ deploy_group_role(){
 
 	resourcetype='Role'
 	template='cfn/GroupRole.yaml'
-	parameters='GroupNameParam='$groupname' GroupUsers='$users	
+	p=$(add_parameter "GroupNameParam" $groupname)
+	p=$(add_parameter "GroupUsers" $users "$p") 
 	stackname=$groupname'Role'
-	deploy_iam_stack $profile $stackname $resourcetype $template "$parameters"
-	
+
+	deploy_stack $profile $servicename $stackname $resourcetype $template "$p"
+
 	policyname=$groupname'GroupRolePolicy'
 	deploy_role_policy $policyname $profile
 
@@ -45,10 +48,11 @@ deploy_role_policy(){
  	validate_param "policyname" $policyname $function
 	validate_param "profile" $profile $function
 
-	parameters='NameParam='$policyname
+  p=$(add_parameter "NameParam" $policyname)
 	template='cfn/Policy/'$policyname'.yaml'
 	resourcetype='Policy'
-	deploy_iam_stack $profile $policyname $resourcetype $template "$parameters"
+
+	deploy_stack $profile $servicename $policyname $resourcetype $template "$p"
 
 }
 
@@ -66,42 +70,47 @@ deploy_batch_role(){
 
   resourcetype='Role'
   template='cfn/BatchJobRole.yaml'
-  parameters='["JobNameParam='$jobname'","BatchJobTypeParam='$jobtype'"]'  
+	p=$(add_parameter "JobNameParam" $jobname)
+  p=$(add_parameter "BatchTypeParam" $jobtype $p)  
 	rolename=$jobname$jobtype'BatchRole'
-  deploy_iam_stack $profile $rolename $resourcetype $template "$parameters"
+
+  deploy_stack $profile $servicename $rolename $resourcetype $template "$p"
 
 }
 
 deploy_lambda_role(){
 
-  lambdaname=$1
-  profile=$2
+	lambda="$1"
+	profile="$2"
 
   function=${FUNCNAME[0]}
-  validate_param "lambdaname" $lambdaname $function
+  validate_param "lambda" $lambda $function
   validate_param "profile" $profile $function
 
-  resourcetype='Role'
-  template='cfn/LambdaRole.yaml'
-  parameters='LambdaNameParam='$lambdaname
-  rolename=$lambdaname'LambdaRole'
-  deploy_iam_stack $profile $rolename $resourcetype $template "$parameters"
+	rolename=$lambda'LambdaRole'	
+	awsservice="Lambda"
+	
+	deploy_aws_service_role $rolename $awsservice $profile
 
 }
 
-get_role_arn_export (){
+deploy_aws_service_role(){
 
-	#need to move some code for export retrieval to stack functions
-  rolepname=$1
+  rolename=$1
+	awsservice=$2
+  profile=$3
 
-	function=${FUNCNAME[0]}
-	validate_param $rolename $function
+  function=${FUNCNAME[0]}
+  validate_param "rolename" $rolename $function
+  validate_param "awsservice" $awsservice $function
+  validate_param "profile" $profile $function
 
-  roleexport=$rolename'ArnExport'
-  stack='IAM-Role-'$groupname
-  qry="Stacks[0].Outputs[?ExportName=='$roleexport'].OutputValue"
-  rolearn=$(aws cloudformation describe-stacks --stack-name $stack --query $qry --output text)
-  echo $grouparn
+  resourcetype='Role'
+  template='cfn/AWSServiceRole.yaml'
+  p=$(add_parameter "NameParam" $rolename)
+  p=$(add_parameter "AWSServiceParam" $awsservice $p)
+  
+	deploy_stack $profile $servicename $rolename $resourcetype $template "$p"
 
 }
 

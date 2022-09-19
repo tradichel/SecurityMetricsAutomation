@@ -14,27 +14,27 @@ profile="iam"
 deploy_group 'KMSAdmins' $profile
 deploy_group 'NetworkAdmins' $profile
 deploy_group 'SecurityMetricsOperators' $profile
-deploy_group 'Developers' $profile
+deploy_group 'AppDeployment' $profile
 
 users='IAMAdmin,IAMAdmin2'
 group='IAMAdmins'
-add_users_to_group "$users" $group $profile
+add_users_to_group $users $group $profile
 
 users='KMSAdmin'
 group='KMSAdmins'
-add_users_to_group "$users" $group $profile
+add_users_to_group $users $group $profile
 
 users='NetworkAdmin'
 group='NetworkAdmins'
-add_users_to_group "$users" $group $profile
+add_users_to_group $users $group $profile
 
 users='SecurityMetricsOperator'
 group='SecurityMetricsOperators'
-add_users_to_group "$users" $group $profile
+add_users_to_group $users $group $profile
 
 users='Developer'
-group='Developers'
-add_users_to_group "$users" $group $profile
+group='AppDeployment'
+add_users_to_group $users $group $profile
 
 #################################################################################
 # Copyright Notice

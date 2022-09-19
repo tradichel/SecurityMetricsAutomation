@@ -31,6 +31,8 @@ get_stack_export(){
 
 }
 
+#pass in parameters in this format, with quotes:
+#"key=value","key=value","key="value"
 deploy_stack () {
 
   profile="$1"
@@ -38,7 +40,9 @@ deploy_stack () {
   resourcename="$3"
   resourcetype="$4"
   template="$5"
-  parameters="$6"
+
+	#adding brackets here to avoid repetitive code elsewhere
+  parameters="[$6]"
 
   func=${FUNCNAME[0]}
   validate_param 'profile' $profile $func
@@ -72,17 +76,15 @@ deploy_stack () {
 
 }
 
-deploy_iam_stack () {
+add_parameter () {
 
-  servicename="IAM"
-	
-  profile="$1"
-  resourcename="$2"
-  resourcetype="$3"
-  template="$4"
-  parameters="$5"
+  key="$1"
+  value="$2"
+  params="$3"
 
-  deploy_stack $1 $servicename $2 $3 $4 $5
+  p="\"$key=$value\""
+  if [ "$params" == "" ]; then echo $p; exit; fi
+	echo $params,$p
 
 }
 

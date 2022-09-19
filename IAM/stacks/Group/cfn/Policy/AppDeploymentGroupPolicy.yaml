@@ -1,36 +1,28 @@
-# !/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# IAM/stacks/Role/deploy.sh
-# author: @teriradichel @2ndsightlab
-# Description: Depiloy all roles
+# IAM/stacks/Group/cfn/Policy/NetworkAdminGroupPolicy.yaml
+# author: @tradichel @2ndsightlab
 ##############################################################
+Parameters:
+  NameParam:
+    Type: String
 
-echo "-------------- Deploy Roles -------------------"
+Resources:
+  ApppDeploymentGroupPolicy:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyName: !Ref NameParam
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: 'sts:AssumeRole'
+            Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/AppDeploymentRole'
+            Condition:
+              "Bool":
+                "aws:MultiFactorAuthPresent": "true"
+      Groups:
+        - !ImportValue AppDeploymentExport
 
-source role_functions.sh
-
-profile="iam"
-deploy_group_role 'KMSAdmins' $profile
-deploy_group_role 'NetworkAdmins' $profile
-deploy_group_role 'SecurityMetricsOperators' $profile
-deploy_group_role 'AppDeployment' $profile
-
-jobname="DeployBatchJobCredentials"
-jobtype="IAM"
-deploy_batch_role $jobname $jobtype $profile
-
-lambdaname='TriggerBatchJob'
-deploy_lambda_role $lambdaname $profile
-
-lambdaname='GenerateBatchJobId'
-deploy_lambda_role $lambdaname $profile
-
-awsservice='VPCFlowLogs'
-rolename=$awsservice'Role'
-deploy_aws_service_role $rolename $awsservice $profile
-
-policyname='VPCFlowLogsPolicy'
-deploy_role_policy $policyname $profile
 
 #################################################################################
 # Copyright Notice
@@ -54,5 +46,4 @@ deploy_role_policy $policyname $profile
 # HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-################################################################################ 
-
+################################################################################

@@ -2,13 +2,15 @@
 # KMS/stacks/Key/key_functions.sh 
 # author: @tradichel @2ndsightlab
 ##############################################################
+
 deploy_key(){
 
   profile=$1
 	encryptarn=$2
 	decryptarn=$3
 	keyalias=$4
-	desc="$5"
+	conditionservice=$5
+	desc="$6"
 
   function=${FUNCNAME[0]}
   validate_param "profile" $profile $function
@@ -20,13 +22,17 @@ deploy_key(){
   template='cfn/Key.yaml'
   resourcetype='Key'
 	service='KMS'
+	timestamp="$(date)"
+  timestamp=$(echo $timestamp | sed 's/ //g')
 
-	desc='\"$desc\"'
+  parameters=$(add_parameter "EncryptArnParam" $encryptarn)
+  parameters=$(add_parameter "DecryptArnParam" $decryptarn "$parameters")
+  parameters=$(add_parameter "KeyAliasParam" $keyalias "$parameters")
+  parameters=$(add_parameter "TimestampParam" $timestamp "$parameters")
+  parameters=$(add_parameter "ServiceParam" $conditionservice "$parameters")
+  parameters=$(add_parameter "DescParam" "$desc" "$parameters")
 
-	echo $desc
 
-	parameters='["EncryptArnParam='$encryptarn'","DecryptArnParam='$decryptarn'","KeyAliasParam='$keyalias'","DescParam='$desc'"]'
-	
 	deploy_stack $profile $service $keyalias $resourcetype $template "$parameters"
 
 }

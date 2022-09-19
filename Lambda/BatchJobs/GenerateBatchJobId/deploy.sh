@@ -1,38 +1,30 @@
+#!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# IAM/stacks/Role/LambdaRole.yaml
+# Jobs/stacks/Lambda/BatchJobs/GenerateBatchJobId/deploy.sh
 # author: @teriradichel @2ndsightlab
-# Description: generic template to deploy a Lambda role
+# description: deploy Lambda function to Trigger a Batch Job
 ##############################################################
-Parameters:
-  LambdaNameParam:
-    Type: String
 
-Resources:
-  LambdaRole:
-    Type: 'AWS::IAM::Role'
-    Properties:
-      RoleName: 
-        !Sub ${LambdaNameParam}LambdaRole
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: "Allow"
-            Action: "sts:AssumeRole"
-            Principal:
-               Service: "lambda.amazonaws.com"
+source ../../../Functions/shared_functions.sh
 
-Outputs:
-  lambdaroleoutput:
-    Value: !Ref LambdaRole
-    Export:
-     Name: !Sub ${LambdaNameParam}LambdaRole
+profile="iam"
 
-  lambdarolarneoutput:
-    Value: !GetAtt LambdaRole.Arn
-    Export:
-     Name: !Sub ${LambdaNameParam}LambdaRoleArn
+servicename="IAM"
+resource="GenerateBatchJobIdPolicy"
+resourcetype="Policy"
+template='cfn/'$resource'.yaml'
 
-##################################################################################
+deploy_stack $profile $servicename $resource $resourcetype $template
+
+profile="appdeploy"
+servicename="AppDeploy"
+resource="GenerateBatchJobId"
+resourcetype="Lambda"
+template='cfn/'$resource'.yaml'
+
+deploy_stack $profile $servicename $resource $resourcetype $template
+
+#################################################################################
 # Copyright Notice
 # All Rights Reserved.
 # All materials (the “Materials”) in this repository are protected by copyright 
