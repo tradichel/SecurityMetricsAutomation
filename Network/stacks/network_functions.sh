@@ -5,22 +5,20 @@
 # description: shared network functions
 ##############################################################
 
-
 source "../../Functions/shared_functions.sh"
 servicename="Network"
+profile=$servicename
 
 deploy_vpc (){
 
   prefix="$1"
 	cidr="$2"
 	vpctype="$3"
-  profile="$4"
 
   function=${FUNCNAME[0]}
   validate_param "prefix" $prefix $function
   validate_param "cidr" $cidr $function
   validate_param "vpctype" $vpctype $function
-  validate_param "profile" $profile $function
 
   vpcname=$prefix$vpctype'VPC'
 
@@ -28,9 +26,18 @@ deploy_vpc (){
   template='cfn/VPC.yaml'
   p=$(add_parameter "NameParam" $vpcname)
  	p=$(add_parameter "CIDRParam" $cidr $p)
-  p=$(add_parameter "VPCTypeParam" $vpctype $p)
 	
   deploy_stack $profile $servicename $vpcname $resourcetype $template "$p"
+
+	#deploy raoute table
+  resourcetype='RouteTable'
+  template='cfn/RouteTable.yaml'
+	rtname=$vpcname'RouteTable'
+  p=$(add_parameter "NameParam" $rtname)
+  p=$(add_parameter "VPCExportParam" $vpcname $p)
+  p=$(add_parameter "RouteTypeParam" $vpctype $p)
+
+  deploy_stack $profile $servicename $rtname $resourcetype $template "$p"
 
 	fix_vpc_route_table $vpcname
 
@@ -40,24 +47,28 @@ fix_vpc_route_table(){
 
 	vpcname="$1"
 
-	newrtname=$vpcname'RouteTable'
-
   function=${FUNCNAME[0]}
   validate_param "vpcname" $vpcname $function
 
-	vpcid=$(aws ec2 describe-vpcs \
-					--filter Name=tag:Name,Values=$vpcname \
-					--query Vpcs[*].VpcId --output text)
+	newrtname=$vpcname'RouteTable'
+
+	# get the vpc output id from this stack:
+  # Network-VPC-$vpcname
+
+	stack='Network-VPC-'$vpcname
+	exportname=$vpcname
+	vpcid=$(get_stack_export $stack $exportname)
+
+  stack='Network-RouteTable-'$vpcname'RouteTable'
+  exportname=$vpcname'RouteTable'
+  newrtid=$(get_stack_export $stack $exportname)
 
 	mainrtid=$(aws ec2 describe-route-tables \
 						--filters Name=vpc-id,Values=$vpcid Name=association.main,Values=true \
-						--query RouteTables[].RouteTableId --output text)
-
-  newrtid=$(aws ec2 describe-route-tables \
-					--filters Name=vpc-id,Values=$vpcid Name=tag:Name,Values=$newrtname \
-					--query RouteTables[].RouteTableId --output text) 
+						--query RouteTables[0].RouteTableId --output text)
 
   if [ "$mainrtid" != "$newrtid" ]; then		
+  	echo "Updating VPC: $vpcid main route table $mainrtid to new route table: $newrtid"
 		associd=$(aws ec2 describe-route-tables \
 					--filters Name=vpc-id,Values=$vpcid Name=association.main,Values=true \
 					--query RouteTables[0].Associations[0].RouteTableAssociationId --output text)
@@ -67,6 +78,65 @@ fix_vpc_route_table(){
 
 }
 
+get_vpc_id_by_name(){
+
+	vpcdname="$1"
+
+ 	vpcid=$(aws ec2 describe-vpcs \
+          --filter Name=tag:Name,Values=$vpcname \
+          --query Vpcs[*].VpcId --output text)
+	echo $vpcid
+
+}
+
+deploy_subnets(){
+
+  vpc="$1"
+	vpccidr="$2"
+	subnetcount=$3
+	firstzoneindex=$4
+	cidrbits=$5
+
+  function=${FUNCNAME[0]}
+  validate_param "vpc" $vpc $function
+	validate_param "vpccidr" $vpccidr $function
+  validate_param "subnetcount" $subnetcount $function
+  validate_param "firstzoneindex" $firstzoneindex $function
+  validate_param "cidrbits" $cidrbits $function
+
+  #assuming all the subnets use the same NACL here
+	template="cfn/NACL.yaml"
+	naclname=$vpcname'NACL'
+	resourcetype='NACL'
+	p=$(add_parameter "NameParam" $naclname)
+	p=$(add_parameter "VPCExportParam" $vpcexportname $p)
+	deploy_stack $profile $servicename $naclname $resourcetype $template "$p"
+  
+	resourcetype='Subnet'
+  template='cfn/Subnet.yaml'
+	i=0
+
+  while (( $i < $subnetcount ));
+  do
+	
+	 index=$i	
+	 #why not to use bash on the next line
+   i=$((($i+1)))
+   subnetname=$vpc'Subnet'$i
+	  
+	 p=$(add_parameter "NameParam" $subnetname)
+   p=$(add_parameter "VPCExportParam" $vpc $p)
+   p=$(add_parameter "ZoneIndexParam" $index $p)
+   p=$(add_parameter "VPCCidrExportParam" $vpccidr $p)
+   p=$(add_parameter "SubnetCountParam" $i $p)
+   p=$(add_parameter "CidrBitsParam" $cidrbits $p)
+   p=$(add_parameter "SubnetIndexParam" $index $p)   
+ 
+	deploy_stack $profile $servicename $subnetname $resourcetype $template "$p"
+
+	done
+
+}
 
 #################################################################################
 # Copyright Notice

@@ -9,20 +9,33 @@
 
 source network_functions.sh
 
-profile="network"
-
 vpcprefix="RemoteAccess"
 cidr="10.10.0.0/24"
 vpctype="Public"
 
-deploy_vpc $vpcprefix $cidr $vpctype $profile
+deploy_vpc $vpcprefix $cidr $vpctype
+
+cidrbits=5
+vpc=$vpcprefix$vpctype'VPC'
+cidr=$vpcprefix$vpctype'VPCCIDR'
+count=1
+firstzone=0
+
+deploy_subnets $vpc $cidr $count $firstzone $cidrbits
 
 vpcprefix="BatchJobs"
 cidr="10.20.0.0/24"
 vpctype="Private"
 
-deploy_vpc $vpcprefix $cidr $vpctype $profile
+deploy_vpc $vpcprefix $cidr $vpctype
 
+cidrbits=5
+vpc=$vpcprefix$vpctype'VPC'
+cidr=$vpcprefix$vpctype'VPCCIDR'
+count=2
+firstzone=0
+
+deploy_subnets $vpc $cidr $count $firstzone $cidrbits
 
 #################################################################################
 # Copyright Notice
