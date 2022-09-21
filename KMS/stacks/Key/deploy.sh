@@ -6,9 +6,7 @@
 source ../../../Functions/shared_functions.sh
 source key_functions.sh
 
-#must run this as a kms admin user
-profile="kms"
-
+echo "------Create a CLI profile named 'KMS' before running these scripts ---'
 echo "------Key for batch job credentials -----"
 
 desc="KMS Key for Batch Job Credentials"
@@ -35,7 +33,7 @@ if [ "$decryptarn" == "" ]; then
 fi
 
 service="secretsmanager"
-deploy_key $profile $encryptarn $decryptarn $keyalias $service $desc
+deploy_key $encryptarn $decryptarn $keyalias $service $desc
 
 echo "------Key for batch job trigger -----"
 
@@ -63,7 +61,7 @@ if [ "$decryptarn" == "" ]; then
 fi
 
 service="systemsmanager"
-deploy_key $profile $encryptarn $decryptarn $keyalias $service $desc
+deploy_key $encryptarn $decryptarn $keyalias $service $desc
 
 
 #################################################################################

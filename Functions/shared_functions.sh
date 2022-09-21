@@ -50,6 +50,8 @@ deploy_stack () {
   validate_param 'resourcetype' $resourcetype $func
   validate_param 'template' $template $func
 
+  echo "params $parameters"
+
 	#not all stacks have parameters
   #validate_param 'parameters' $parameters $func
  

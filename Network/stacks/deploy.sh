@@ -20,8 +20,9 @@ vpc=$vpcprefix$vpctype'VPC'
 cidr=$vpcprefix$vpctype'VPCCIDR'
 count=1
 firstzone=0
+nacltemplate='cfn/NACLRules/RemoteAccessInbound.yaml'
 
-deploy_subnets $vpc $cidr $count $firstzone $cidrbits
+deploy_subnets $vpc $cidr $count $firstzone $cidrbits $nacltemplate
 
 vpcprefix="BatchJobs"
 cidr="10.20.0.0/24"
@@ -34,8 +35,8 @@ vpc=$vpcprefix$vpctype'VPC'
 cidr=$vpcprefix$vpctype'VPCCIDR'
 count=2
 firstzone=0
-
-deploy_subnets $vpc $cidr $count $firstzone $cidrbits
+nacltemplate='cfn/NACLRules/HTTPOutbound.yaml'
+deploy_subnets $vpc $cidr $count $firstzone $cidrbits $nacltemplate
 
 #################################################################################
 # Copyright Notice

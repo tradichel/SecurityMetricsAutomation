@@ -5,11 +5,8 @@
 ##############################################################
 
 source keyalias_functions.sh
-source ../../../Functions/shared_functions.sh
 
-#must set up AWS CLI profile named kms to run this code
-profile="kms"
-
+echo "----Create an AWS CLI Profile named 'KMS' before running this script---"
 echo "--------- Batch Credential Key Alias ---------------"
 alias="BatchJobCredentials"
 
@@ -23,7 +20,7 @@ if [ "$keyid" == "" ]; then
   exit
 fi
 
-deploy_key_alias $profile $keyid $alias
+deploy_key_alias $keyid $alias
 
 echo "----------- Trigger Batch Job SSM Parameter -----------"
 
@@ -37,7 +34,7 @@ if [ "$keyid" == "" ]; then
   exit
 fi
 
-deploy_key_alias $profile $keyid $alias
+deploy_key_alias $keyid $alias
 
 #################################################################################
 # Copyright Notice

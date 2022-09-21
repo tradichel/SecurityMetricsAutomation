@@ -96,6 +96,7 @@ deploy_subnets(){
 	subnetcount=$3
 	firstzoneindex=$4
 	cidrbits=$5
+	naclrulestemplate=$6
 
   function=${FUNCNAME[0]}
   validate_param "vpc" $vpc $function
@@ -103,19 +104,25 @@ deploy_subnets(){
   validate_param "subnetcount" $subnetcount $function
   validate_param "firstzoneindex" $firstzoneindex $function
   validate_param "cidrbits" $cidrbits $function
+  validate_param "naclrulestemplate" $naclrulestemplate $function
+
 
   #assuming all the subnets use the same NACL here
 	template="cfn/NACL.yaml"
-	naclname=$vpcname'NACL'
+	naclname=$vpc'NACL'
 	resourcetype='NACL'
 	p=$(add_parameter "NameParam" $naclname)
-	p=$(add_parameter "VPCExportParam" $vpcexportname $p)
-	deploy_stack $profile $servicename $naclname $resourcetype $template "$p"
+	p=$(add_parameter "VPCExportParam" $vpc $p)
+	deploy_stack $profile $servicename $naclname $resourcetype "$template" "$p"
   
-	resourcetype='Subnet'
-  template='cfn/Subnet.yaml'
-	i=0
+	#add nacl rules
+	resourcetype="NetworkACLEntry"
+	name=$naclname'Entries'
+ 	p=$(add_parameter "NACLExportParam" $naclname)
+  deploy_stack $profile $servicename $name $resourcetype $naclrulestemplate "$p"
 
+	i=0
+ 
   while (( $i < $subnetcount ));
   do
 	
@@ -123,7 +130,9 @@ deploy_subnets(){
 	 #why not to use bash on the next line
    i=$((($i+1)))
    subnetname=$vpc'Subnet'$i
-	  
+	
+   resourcetype='Subnet'
+   template='cfn/Subnet.yaml'  
 	 p=$(add_parameter "NameParam" $subnetname)
    p=$(add_parameter "VPCExportParam" $vpc $p)
    p=$(add_parameter "ZoneIndexParam" $index $p)
@@ -132,7 +141,17 @@ deploy_subnets(){
    p=$(add_parameter "CidrBitsParam" $cidrbits $p)
    p=$(add_parameter "SubnetIndexParam" $index $p)   
  
-	deploy_stack $profile $servicename $subnetname $resourcetype $template "$p"
+	 deploy_stack $profile $servicename $subnetname $resourcetype $template "$p"
+
+	template=cfn/SubnetAssociation.yaml
+	resourcetype='SubnetAssociation'
+
+  timestamp="$(date)"
+  t=$(echo $timestamp | sed 's/ //g')
+  p=$(add_parameter "SubnetIdExportParam" $subnetname)
+  p=$(add_parameter "NACLIdExportParam" $naclname $p) 
+	p=$(add_parameter "TimestampParam" $t $p)
+	deploy_stack $profile $servicename $subnetname$naclname $resourcetype $template "$p"
 
 	done
 

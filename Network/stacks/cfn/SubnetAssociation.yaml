@@ -1,42 +1,32 @@
-#!/bin/bash -e
-# KMS/stacks/Key/key_functions.sh 
-# author: @tradichel @2ndsightlab
+# https://github.com/tradichel/SecurityMetricsAutomation
+# Network/stacks/cfn/SubnetAssociation.yaml
+# author: @teriradichel @2ndsightlab
 ##############################################################
+Parameters: 
+  SubnetIdExportParam:
+    Type: String
+  NACLIdExportParam:
+    Type: String
+  TimestampParam:
+    Type: String
+    Description: Force an update since AWS doesn't recognize the parameter value changes
 
-profile="KMS"
-service=$profile
+Resources:
+  SubnetAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId:
+        Fn::ImportValue:
+          !Sub "${NACLIdExportParam}"
+      SubnetId:
+        Fn::ImportValue:
+          !Sub "${SubnetIdExportParam}"
 
-deploy_key(){
-
-	encryptarn=$2
-	decryptarn=$3
-	keyalias=$4
-	conditionservice=$5
-	desc="$6"
-
-  function=${FUNCNAME[0]}
-  validate_param "desc" $desc $function
-  validate_param "encryptarn" $encryptarn $function
-  validate_param "decryptarn" $decryptarn $function
-	validate_param "keyalias" $keyalias $function
-
-  template='cfn/Key.yaml'
-  resourcetype='Key'
-	timestamp="$(date)"
-  timestamp=$(echo $timestamp | sed 's/ //g')
-
-  parameters=$(add_parameter "EncryptArnParam" $encryptarn)
-  parameters=$(add_parameter "DecryptArnParam" $decryptarn "$parameters")
-  parameters=$(add_parameter "KeyAliasParam" $keyalias "$parameters")
-  parameters=$(add_parameter "TimestampParam" $timestamp "$parameters")
-  parameters=$(add_parameter "ServiceParam" $conditionservice "$parameters")
-  parameters=$(add_parameter "DescParam" "$desc" "$parameters")
-
-
-	deploy_stack $profile $service $keyalias $resourcetype $template "$parameters"
-
-}
-
+Outputs:
+  NACLOutput:
+    Value: !Ref SubnetAssociation
+  ForceUpdate:
+    Value: !Sub "${TimestampParam}"
 
 #################################################################################
 # Copyright Notice
@@ -61,4 +51,5 @@ deploy_key(){
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
-                                                                                     
+
+
