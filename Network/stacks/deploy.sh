@@ -24,10 +24,22 @@ nacltemplate='cfn/NACLRules/RemoteAccessInbound.yaml'
 
 deploy_subnets $vpc $cidr $count $firstzone $cidrbits $nacltemplate
 
+echo "Enter the remote access cidr (IP with /32 at the end for a single IP address):"
+read allowcidr
+
+prefix="SSH"
+desc="SSHRemoteAccess-CantPassSpacesToCLIFixLater"
+template="cfn/SGRules/SSH.yaml"
+deploy_security_group $vpc $prefix $desc $template $allowcidr
+
+prefix="RDP"
+desc="RDPRemoteAccess-CantPassSpacesToCLIFixLater"
+template="cfn/SGRules/RDP.yaml"
+deploy_security_group $vpc $prefix $desc $template $allowcidr
+
 vpcprefix="BatchJobs"
 cidr="10.20.0.0/24"
 vpctype="Private"
-
 deploy_vpc $vpcprefix $cidr $vpctype
 
 cidrbits=5
@@ -37,6 +49,16 @@ count=2
 firstzone=0
 nacltemplate='cfn/NACLRules/HTTPOutbound.yaml'
 deploy_subnets $vpc $cidr $count $firstzone $cidrbits $nacltemplate
+
+prefix="TriggerBatchJobLambda"
+desc=$prefix
+template="cfn/SGRules/NoAccess.yaml"
+deploy_security_group $vpc $prefix $desc $template
+
+prefix="GenBatchJobIdLambda"
+desc=$prefix
+template="cfn/SGRules/NoAccess.yaml"
+deploy_security_group $vpc $prefix $desc $template
 
 #################################################################################
 # Copyright Notice

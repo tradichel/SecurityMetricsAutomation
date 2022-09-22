@@ -1,65 +1,30 @@
 # https://github.com/tradichel/SecurityMetricsAutomation
-# Network/stacks/cfn/NACLrules/RemoteAccessInbound.yaml
+# Network/stacks/cfn/SecurityGroup.yaml
 # author: @teriradichel @2ndsightlab
 ##############################################################
-
-Parameters:
-  NACLExportParam:
+Parameters: 
+  NameParam:
     Type: String
-  EphemeralPortStartParam:
+  VPCExportParam:
     Type: String
-    Default: "1024"
-  AllowCidrParam:
+  GroupDescriptionParam:
     Type: String
-    Default: 0.0.0.0/0
 
 Resources:
-
-  NACLIngress22:
-    Type: AWS::EC2::NetworkAclEntry
+  SG:
+    Type: AWS::EC2::SecurityGroup
     Properties:
-      CidrBlock: !Ref AllowCidrParam
-      Egress: False
-      NetworkAclId:
+      GroupName: !Ref NameParam
+      GroupDescription: !Ref GroupDescriptionParam
+      VpcId: 
         Fn::ImportValue:
-          !Sub "${NACLExportParam}"
-      PortRange: 
-        From: 22
-        To: 22
-      Protocol: 6
-      RuleAction: Allow
-      RuleNumber: 200
+          !Sub ${VPCExportParam}
 
-  NACLIngress3389:
-    Type: AWS::EC2::NetworkAclEntry
-    Properties:
-      CidrBlock: !Ref AllowCidrParam
-      Egress: False
-      NetworkAclId:
-        Fn::ImportValue:
-          !Sub "${NACLExportParam}"
-      PortRange: 
-        From: 3389
-        To: 3389
-      Protocol: 6
-      RuleAction: Allow
-      RuleNumber: 201
-
-  NACLEgressEphemeral:
-    Type: AWS::EC2::NetworkAclEntry
-    Properties:
-      CidrBlock: !Ref AllowCidrParam
-      Egress: True
-      NetworkAclId:
-        Fn::ImportValue:
-          !Sub "${NACLExportParam}"
-      PortRange:
-        From: !Ref EphemeralPortStartParam
-        To: 65535
-      Protocol: 6
-      RuleAction: Allow
-      RuleNumber: 200
-
+Outputs:
+  SGOutput:
+    Value: !Ref SG
+    Export:
+      Name: !Ref NameParam
 
 #################################################################################
 # Copyright Notice
@@ -83,4 +48,6 @@ Resources:
 # HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-################################################################################                                             
+################################################################################ 
+
+

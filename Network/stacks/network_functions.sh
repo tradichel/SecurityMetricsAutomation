@@ -89,6 +89,34 @@ get_vpc_id_by_name(){
 
 }
 
+deploy_security_group() {
+
+	vpc="$1"
+	prefix="$2"
+	desc="3"
+	rulestemplate="$4"
+	cidr="$5"
+	
+	template="cfn/SecurityGroup.yaml"
+	resourcetype="SecurityGroup"	
+	sgname=$vpc'-'$prefix
+	p=$(add_parameter "NameParam" $sgname)
+	p=$(add_parameter "VPCExportParam" $vpc $p)
+	p=$(add_parameter "GroupDescriptionParam" "$desc" $p)
+	
+	deploy_stack $profile $servicename $sgname $resourcetype $template "$p"
+
+	name=$sgname'Rules'
+	template=$rulestemplate
+  p=$(add_parameter "NameParam" $name)
+  p=$(add_parameter "SGExportParam" $sgname $p)
+	#cidr for remote access to AWS only at this time
+  if [ "$cidr" != "" ]; then p=$(add_parameter "AllowCidrParam" "$cidr" $p); fi
+	resourcetype='SGRules'
+	deploy_stack $profile $servicename $name $resourcetype $template "$p"
+	
+}
+
 deploy_subnets(){
 
   vpc="$1"
@@ -180,7 +208,3 @@ deploy_subnets(){
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
-
-
-
-
