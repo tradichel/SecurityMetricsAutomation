@@ -29,7 +29,7 @@ deploy_vpc (){
 	
   deploy_stack $profile $servicename $vpcname $resourcetype $template "$p"
 
-	#deploy raoute table
+	#deploy route table
   resourcetype='RouteTable'
   template='cfn/RouteTable.yaml'
 	rtname=$vpcname'RouteTable'
@@ -40,6 +40,8 @@ deploy_vpc (){
   deploy_stack $profile $servicename $rtname $resourcetype $template "$p"
 
 	fix_vpc_route_table $vpcname
+
+	clean_up_default_sg $vpcname
 
 }
 
@@ -78,9 +80,9 @@ fix_vpc_route_table(){
 
 }
 
-get_vpc_id_by_name(){
+get_vpc_id_by_name() {
 
-	vpcdname="$1"
+  vpcname="$1"
 
  	vpcid=$(aws ec2 describe-vpcs \
           --filter Name=tag:Name,Values=$vpcname \
@@ -89,11 +91,36 @@ get_vpc_id_by_name(){
 
 }
 
+clean_up_default_sg(){
+
+  vpcname="$1"
+
+  vpcid=$(get_vpc_id_by_name $vpcname)
+
+  sgid=$(aws ec2 describe-security-groups \
+        --filter Name=group-name,Values=default Name=vpc-id,Values=$vpcid \
+        --query SecurityGroups[*].GroupId --output text)
+
+  sgname=$vpcname'-Default'
+
+  aws ec2 create-tags \
+    --resources $sgid \
+    --tags 'Key="Name",Value="'$sgname'"'
+
+  name=$sgname'-Rules'
+  template='cfn/SGRules/NoAccess.yaml'
+	exportparam=$vpcname'DefaultSecurityGroup'
+  p=$(add_parameter "SGExportParam" $exportparam)
+  resourcetype='SGRules'
+  deploy_stack $profile $servicename $name $resourcetype $template "$p"
+
+}
+
 deploy_security_group() {
 
 	vpc="$1"
 	prefix="$2"
-	desc="3"
+	desc="$3"
 	rulestemplate="$4"
 	cidr="$5"
 	
@@ -106,7 +133,7 @@ deploy_security_group() {
 	
 	deploy_stack $profile $servicename $sgname $resourcetype $template "$p"
 
-	name=$sgname'Rules'
+	name=$sgname'-Rules'
 	template=$rulestemplate
   p=$(add_parameter "NameParam" $name)
   p=$(add_parameter "SGExportParam" $sgname $p)
@@ -137,7 +164,7 @@ deploy_subnets(){
 
   #assuming all the subnets use the same NACL here
 	template="cfn/NACL.yaml"
-	naclname=$vpc'NACL'
+	naclname=$vpc'-NACL'
 	resourcetype='NACL'
 	p=$(add_parameter "NameParam" $naclname)
 	p=$(add_parameter "VPCExportParam" $vpc $p)
@@ -157,7 +184,7 @@ deploy_subnets(){
 	 index=$i	
 	 #why not to use bash on the next line
    i=$((($i+1)))
-   subnetname=$vpc'Subnet'$i
+   subnetname=$vpc'-Subnet'$i
 	
    resourcetype='Subnet'
    template='cfn/Subnet.yaml'  

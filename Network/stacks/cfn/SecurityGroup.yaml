@@ -19,6 +19,9 @@ Resources:
       VpcId: 
         Fn::ImportValue:
           !Sub ${VPCExportParam}
+      Tags:
+      - Key: Name
+        Value: !Ref NameParam
 
 Outputs:
   SGOutput:

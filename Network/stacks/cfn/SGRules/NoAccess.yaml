@@ -15,8 +15,18 @@ Resources:
       GroupId:
         Fn::ImportValue:
           !Sub "${SGExportParam}"
-        IpProtocol: -1
+      IpProtocol: -1
 
+  IngressLocalhost:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      CidrIp: 127.0.0.1/32
+      Description: 'Force removal of any inbound rules.'
+      GroupId:
+        Fn::ImportValue:
+          !Sub "${SGExportParam}"
+      IpProtocol: -1
+    
 
 #################################################################################
 # Copyright Notice
