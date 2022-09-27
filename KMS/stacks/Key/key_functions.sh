@@ -3,24 +3,26 @@
 # author: @tradichel @2ndsightlab
 ##############################################################
 
+source ../../../Functions/shared_functions.sh
+
 profile="KMS"
-service=$profile
 
 deploy_key(){
 
-	encryptarn=$2
-	decryptarn=$3
-	keyalias=$4
-	conditionservice=$5
-	desc="$6"
+	encryptarn=$1
+	decryptarn=$2
+	keyalias=$3
+	conditionservice=$4
+	desc="$5"
 
   function=${FUNCNAME[0]}
   validate_param "desc" $desc $function
   validate_param "encryptarn" $encryptarn $function
   validate_param "decryptarn" $decryptarn $function
 	validate_param "keyalias" $keyalias $function
-
-  template='cfn/Key.yaml'
+  validate_param "conditionservice" $conditionservice $function
+  
+	template='cfn/Key.yaml'
   resourcetype='Key'
 	timestamp="$(date)"
   timestamp=$(echo $timestamp | sed 's/ //g')
@@ -32,8 +34,7 @@ deploy_key(){
   parameters=$(add_parameter "ServiceParam" $conditionservice "$parameters")
   parameters=$(add_parameter "DescParam" "$desc" "$parameters")
 
-
-	deploy_stack $profile $service $keyalias $resourcetype $template "$parameters"
+	deploy_stack $profile $profile $keyalias $resourcetype $template "$parameters"
 
 }
 

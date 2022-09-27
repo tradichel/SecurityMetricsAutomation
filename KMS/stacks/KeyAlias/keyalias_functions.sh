@@ -3,24 +3,25 @@
 # KMS/stacks/KeyAlias/keyalias_functions.sh
 # author: @teriradichel @2ndsightlab
 ##############################################################
+source ../../../Functions/shared_functions.sh
+
 profile="KMS"
-service=$profile
 
 deploy_key_alias(){
 
-  keyid=$2
-  alias=$3
+  keyid="$1"
+  alias="$2"
 
   function=${FUNCNAME[0]}
   validate_param "keyid" $keyid $function
   validate_param "alias" $alias $function
 
-	parameters=$(add_parameter "KeyIdParam" $keyid)
-  parameters=$(add_parameter "KeyAliasParam" $alias, parameters)
+	parameters=$(add_parameter "KeyIdParam" "$keyid")
+  parameters=$(add_parameter "KeyAliasParam" $alias $parameters)
   template='cfn/KeyAlias.yaml'
   resourcetype='KeyAlias'
   	
-	deploy_stack $profile $service $alias $resourcetype $template "$parameters"
+	deploy_stack $profile $profile $alias $resourcetype $template "$parameters"
 
 }
 

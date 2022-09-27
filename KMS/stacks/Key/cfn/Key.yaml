@@ -20,7 +20,15 @@ Parameters:
   TimestampParam:
     Type: String
     Description: Force an update since AWS overwrites roles and CF doesn't recognize the change
-    
+  ServiceParam:
+    Type: String
+    AllowedValues:
+      - "secretsmanager"
+      - "parameterstore"
+      - "ec2"
+Conditions:
+  ServiceIsNotSecretsManager:
+    !Not [!Equals [!Ref ServiceParam, secretsmangaer]]
 
 Resources:
   KMSKey:
@@ -80,22 +88,36 @@ Resources:
               - 'kms:GenerateDataKey'
               - 'kms:GenerateDataKeyWithoutPlaintext'
               - 'kms:Decrypt'
-            Resource: '*'
             Condition:
-              "StringEquals":
-                "kms:ViaService":
-                    - !Sub "secretsmanager.${AWS::Region}.amazonaws.com"
+              !If
+                - ServiceIsNotSecretsManager
+                -
+                  "StringEquals":
+                    "eventSource":
+                      "kms.amazonaws.com"
+                -
+                  "StringEquals":
+                    "kms:ViaService":
+                      - !Sub "secretsmanager.${AWS::Region}.amazonaws.com"
+            Resource: "*"
           - Sid: Decrypt
             Effect: Allow
             Principal:
               AWS:
-              - !Ref DecryptArnParam
+                - !Ref DecryptArnParam
             Action:
               - 'kms:Decrypt'
             Condition:
-              "StringEquals":
-                "kms:ViaService":
-                    - !Sub "secretsmanager.${AWS::Region}.amazonaws.com"
+              !If
+                - ServiceIsNotSecretsManager
+                - 
+                  "StringEquals":
+                    "eventSource": 
+                      "kms.amazonaws.com"
+                - 
+                  "StringEquals":
+                    "kms:ViaService":
+                      - !Sub "secretsmanager.${AWS::Region}.amazonaws.com"
             Resource: "*"
 
 Outputs:

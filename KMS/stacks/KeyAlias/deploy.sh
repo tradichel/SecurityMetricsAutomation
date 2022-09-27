@@ -7,6 +7,7 @@
 source keyalias_functions.sh
 
 echo "----Create an AWS CLI Profile named 'KMS' before running this script---"
+
 echo "--------- Batch Credential Key Alias ---------------"
 alias="BatchJobCredentials"
 
@@ -15,24 +16,23 @@ stack='KMS-Key-'$alias
 exportname=$alias'KeyIDExport'
 keyid=$(get_stack_export $stack $exportname)
 
-if [ "$keyid" == "" ]; then
-  echo 'Export '$exportname ' for stack '$stack' did not return a value'
-  exit
-fi
-
 deploy_key_alias $keyid $alias
 
-echo "----------- Trigger Batch Job SSM Parameter -----------"
+echo "----------- Trigger Batch Job Key Alias -----------"
 
 alias="TriggerBatchJob"
 stack='KMS-Key-'$alias
 exportname=$alias'KeyIDExport'
 keyid=$(get_stack_export $stack $exportname)
 
-if [ "$keyid" == "" ]; then
-  echo 'Export '$exportname ' for stack '$stack' did not return a value'
-  exit
-fi
+deploy_key_alias $keyid $alias
+
+echo "----------- Developer VM Key Alias -----------"
+
+alias="DeveloperVMs"
+stack='KMS-Key-'$alias
+exportname=$alias'KeyIDExport'
+keyid=$(get_stack_export $stack $exportname)
 
 deploy_key_alias $keyid $alias
 

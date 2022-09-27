@@ -6,63 +6,57 @@
 source ../../../Functions/shared_functions.sh
 source key_functions.sh
 
-echo "------Create a CLI profile named 'KMS' before running these scripts ---'
+echo "------Create a CLI profile named 'KMS' before running these scripts ---"
+
 echo "------Key for batch job credentials -----"
 
 desc="KMS Key for Batch Job Credentials"
 keyalias="BatchJobCredentials"
+conditionservice="secretsmanager"
 
 #get the encryption ARN for our key policy 
 stack='IAM-Role-DeployBatchJobCredentialsIAMBatchRole'
 exportname='DeployBatchJobCredentialsIAMBatchJobRoleArn'
 encryptarn=$(get_stack_export $stack $exportname)
   
-if [ "$encryptarn" == "" ]; then
-  echo 'Export '$exportname ' for stack '$stack' did not return a value'
-  exit
-fi
-
 #get the decryption ARN for our key policy 
 stack='IAM-Role-TriggerBatchJobLambdaRole'
 exportname='TriggerBatchJobLambdaRoleRoleArn'
 decryptarn=$(get_stack_export $stack $exportname)
 
-if [ "$decryptarn" == "" ]; then
-  echo 'Export '$exportname ' for stack '$stack' did not return a value'
-  exit
-fi
-
-service="secretsmanager"
-deploy_key $encryptarn $decryptarn $keyalias $service $desc
+deploy_key $encryptarn $decryptarn $keyalias $conditionservice $desc
 
 echo "------Key for batch job trigger -----"
 
 desc="KMS Key for Batch Job Trigger"
 keyalias="TriggerBatchJob"
+conditionservice="parameterstore"
 
 #get the encryption ARN for our key policy 
 stack='IAM-Role-GenerateBatchJobIdLambdaRole'
 exportname='GenerateBatchJobIdLambdaRoleRoleArn'
 encryptarn=$(get_stack_export $stack $exportname)
   
-if [ "$encryptarn" == "" ]; then
-  echo 'Export '$exportname ' for stack '$stack' did not return a value'
-  exit
-fi
-
 #get the decryption ARN for our key policy 
 stack='IAM-Role-TriggerBatchJobLambdaRole'
 exportname='TriggerBatchJobLambdaRoleRoleArn'
 decryptarn=$(get_stack_export $stack $exportname)
 
-if [ "$decryptarn" == "" ]; then
-  echo 'Export '$exportname ' for stack '$stack' did not return a value'
-  exit
-fi
+deploy_key $encryptarn $decryptarn $keyalias $conditionservice $desc
 
-service="systemsmanager"
-deploy_key $encryptarn $decryptarn $keyalias $service $desc
+echo "------Key for dev EC2 instances -----"
 
+desc="KMS Key to encrypt developer virtual machines (EC2 instances)"
+keyalias="DeveloperVMs"
+conditionservice="ec2"
+
+#get the developer role arn
+stack='IAM-Role-AppDeploymentRole'
+exportname='AppDeploymentRoleArnExport'
+encryptarn=$(get_stack_export $stack $exportname)
+decryptarn=$encryptarn
+
+deploy_key $encryptarn $decryptarn $keyalias $conditionservice $desc
 
 #################################################################################
 # Copyright Notice

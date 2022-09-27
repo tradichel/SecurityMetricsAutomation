@@ -3,7 +3,7 @@
 # KMS/scripts/delete_alias.sh
 # author: @teriradichel @2ndsightlab
 ##############################################################
-profile=kms
+profile="KMS"
 aliasname="$1"
 
 aws kms delete-alias --alias-name $aliasname --profile $profile
@@ -31,4 +31,4 @@ aws kms delete-alias --alias-name $aliasname --profile $profile
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
-~                                                                                     
+                                                                                     
