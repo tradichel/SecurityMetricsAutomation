@@ -36,6 +36,8 @@ Outputs:
     Value: !GetAtt GroupRole.Arn
     Export:
      Name: !Sub ${GroupNameParam}RoleArnExport
+  ForceUpdate:
+    Value: !Sub ${GroupNameParam}"Update"
 
 #################################################################################
 # Copyright Notice

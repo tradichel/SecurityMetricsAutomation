@@ -1,27 +1,15 @@
+#!/bin/bash
 # https://github.com/tradichel/SecurityMetricsAutomation
-# IAM/stacks/Group/cfn/Policy/BatchAdminGroupPolicy.yaml
-# author: @tradichel @2ndsightlab
+# VMs/test.sh
+# author: @teriradichel @2ndsightlab
+# description: Test VM deployment scripts
 ##############################################################
-Parameters:
-  NameParam:
-    Type: String
 
-Resources:
-  BatchAdminGroupPolicy:
-    Type: 'AWS::IAM::Policy'
-    Properties:
-      PolicyName: !Ref NameParam
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action: 'sts:AssumeRole'
-            Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/Batch*'
-            Condition:
-              "Bool":
-                "aws:MultiFactorAuthPresent": "true"
-      Groups:
-        - !ImportValue BatchAdminsExport
+cd stacks
+./deploy.sh
+cd ..
+
+
 
 #################################################################################
 # Copyright Notice
@@ -45,4 +33,6 @@ Resources:
 # HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-################################################################################
+################################################################################ 
+
+

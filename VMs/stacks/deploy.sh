@@ -1,28 +1,19 @@
 #!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# Jobs/stacks/Lambda/BatchJobs/GenerateBatchJobId/deploy.sh
-# author: @teriradichel @2ndsightlab
-# description: deploy Lambda function to Trigger a Batch Job
+# KMS/stacks/EC2/deploy.sh
+# description: deploy Developer EC2 instance
 ##############################################################
+source vm_functions.sh
+echo "------ Create AppDeploy profile to deploy VM -----"
+echo "------ Deploy a developer VM -----"
+user="Developer"
+ec2type="t4g.small"
+ami=$(get_latest_ami)
 
-source ../../../Functions/shared_functions.sh
+echo "Latest AMI: "$ami
 
-profile="iam"
-
-servicename="IAM"
-resource="GenerateBatchJobIdPolicy"
-resourcetype="Policy"
-template='cfn/'$resource'.yaml'
-
-deploy_stack $profile $servicename $resource $resourcetype $template
-
-profile="appdeploy"
-servicename="AppDeploy"
-resource="GenerateBatchJobId"
-resourcetype="Lambda"
-template='cfn/'$resource'.yaml'
-
-deploy_stack $profile $servicename $resource $resourcetype $template
+#get latest AWS Linux AMI:
+deploy_vm $user $ec2type $ami
 
 #################################################################################
 # Copyright Notice

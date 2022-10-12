@@ -1,27 +1,21 @@
+#!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# IAM/stacks/Group/cfn/Policy/NetworkAdminGroupPolicy.yaml
-# author: @tradichel @2ndsightlab
+# Jobs/stacks/Lambda/BatchJobs/TriggerBatchJob/deploy.sh
+# author: @teriradichel @2ndsightlab
+# description: deploy Lambda function to Trigger a Batch Job
 ##############################################################
-Parameters:
-  NameParam:
-    Type: String
 
-Resources:
-  ApppDeploymentGroupPolicy:
-    Type: 'AWS::IAM::Policy'
-    Properties:
-      PolicyName: !Ref NameParam
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action: 'sts:AssumeRole'
-            Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/AppDeploymentRole'
-            Condition:
-              "Bool":
-                "aws:MultiFactorAuthPresent": "true"
-      Groups:
-        - !ImportValue AppDeploymentExport
+source ../../../../Functions/shared_functions.sh
+
+profile="IAM"
+
+resource="TriggerBatchJobLambdaPolicy"
+resourcetype="Policy"
+template='cfn/'$resource'.yaml'
+
+deploy_stack $profile $resource $resourcetype $template
+
+echo "To Do: Deploy Lambda"
 
 
 #################################################################################
@@ -46,4 +40,4 @@ Resources:
 # HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-################################################################################
+################################################################################ 

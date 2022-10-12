@@ -5,42 +5,41 @@
 # Description: Functions to deploy a group and add users to groups
 ##############################################################
 source "../../../Functions/shared_functions.sh"
-
-servicename='IAM'
+profile='IAM'
 
 deploy_group(){
 
 	groupname=$1
-	profile=$2
-	
+	profile_override="$2"
+
 	function=${FUNCNAME[0]}
 	validate_param "groupname" $groupname $function
-	validate_param "profile" $profile $function
+
+	if [ "$profile_override" != "" ]; then
+		profile=$profile_override
+	fi
 
 	resourcetype='Group'
 	template='cfn/Group.yaml'
 	parameters=$(add_parameter "NameParam" $groupname)
 
-	deploy_stack $profile $servicename $groupname $resourcetype $template "$parameters"
+	deploy_stack $profile $groupname $resourcetype $template "$parameters"
 	
-	policyname=$groupname'GroupPolicy'
-	deploy_group_policy $policyname $profile
+	deploy_group_policy $groupname $profile
 
 }
 
 deploy_group_policy(){
 
 	policyname=$1
-	profile=$2
 
   function=${FUNCNAME[0]}
  	validate_param "policy_name" $policyname $function
-	validate_param "profile" $profile $function
-
+	
 	parameters=$(add_parameter "NameParam" $policyname)
-	template='cfn/Policy/'$policyname'.yaml'
+	template='cfn/GroupPolicy.yaml'
 	resourcetype='Policy'
-	deploy_stack $profile $servicename $policyname $resourcetype $template "$parameters"
+	deploy_stack $profile $policyname $resourcetype $template "$parameters"
 
 }
 
@@ -48,19 +47,17 @@ add_users_to_group() {
 
   usernames="$1"
 	groupname="$2"
-  profile="$3"
-
+  
   function=${FUNCNAME[0]}
   validate_param "usernames" $usernames $function
 	validate_param "groupname" $groupname $function
-	validate_param "profile" $profile $function
-
+	
 	template='cfn/UserToGroupAddition.yaml'
 	name='AddUsersTo'$groupname
 	resourcetype='UserToGroupAddition'
 	parameters=$(add_parameter "UserNamesParam" $usernames)
 	parameters=$(add_parameter "GroupNameParam" $groupname $parameters)
-	deploy_stack $profile $servicename $name $resourcetype $template "$parameters"
+	deploy_stack $profile $name $resourcetype $template "$parameters"
 
 }
 

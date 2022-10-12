@@ -1,4 +1,4 @@
-# !/bin/bash -e
+#!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
 # IAM/stacks/Role/role_functions.sh
 # author: @teriradichel @2ndsightlab
@@ -6,20 +6,25 @@
 ##############################################################
 
 source "../../../Functions/shared_functions.sh"
-servicename="IAM"
+profile='IAM'
 
 deploy_group_role(){
 
 	groupname="$1"
-	profile="$2"
-	
+	profile_override="$2"
+		
 	function=${FUNCNAME[0]}
 	validate_param "groupname" $groupname $function
-	validate_param "profile" $profile $function
+
+	if [ "$profile_override" != "" ]; then
+		profile=$profile_override
+	fi
 
 	#retrieve a list of user ARNs in the group
-  users=$(aws iam get-group --group-name $groupname \
+  users=$(aws iam get-group --group-name $groupname --profile $profile \
 			--query Users[*].Arn --output text | sed 's/\t/,/g')
+
+	echo "Users: " $users
 
 	if [ "$users" == "" ]; then
 		echo 'No users in group '$groupname' so the group role will not be created.'
@@ -32,7 +37,7 @@ deploy_group_role(){
 	p=$(add_parameter "GroupUsers" $users "$p") 
 	stackname=$groupname'Role'
 
-	deploy_stack $profile $servicename $stackname $resourcetype $template "$p"
+	deploy_stack $profile $stackname $resourcetype $template "$p"
 
 	policyname=$groupname'GroupRolePolicy'
 	deploy_role_policy $policyname $profile
@@ -42,17 +47,15 @@ deploy_group_role(){
 deploy_role_policy(){
 
 	policyname=$1
-	profile=$2
 
   function=${FUNCNAME[0]}
  	validate_param "policyname" $policyname $function
-	validate_param "profile" $profile $function
 
   p=$(add_parameter "NameParam" $policyname)
 	template='cfn/Policy/'$policyname'.yaml'
 	resourcetype='Policy'
 
-	deploy_stack $profile $servicename $policyname $resourcetype $template "$p"
+	deploy_stack $profile $policyname $resourcetype $template "$p"
 
 }
 
@@ -61,12 +64,10 @@ deploy_batch_role(){
 
 	jobname=$1
   jobtype=$2
-  profile=$3
-
+  
   function=${FUNCNAME[0]}
   validate_param "jobname" $rolepname $function
   validate_param "jobtype" $jobtype $function
-  validate_param "profile" $profile $function
 
   resourcetype='Role'
   template='cfn/BatchJobRole.yaml'
@@ -74,23 +75,21 @@ deploy_batch_role(){
   p=$(add_parameter "BatchTypeParam" $jobtype $p)  
 	rolename=$jobname$jobtype'BatchRole'
 
-  deploy_stack $profile $servicename $rolename $resourcetype $template "$p"
+  deploy_stack $profile $rolename $resourcetype $template "$p"
 
 }
 
 deploy_lambda_role(){
 
 	lambda="$1"
-	profile="$2"
-
   function=${FUNCNAME[0]}
-  validate_param "lambda" $lambda $function
-  validate_param "profile" $profile $function
 
+  validate_param "lambda" $lambda $function
+ 
 	rolename=$lambda'LambdaRole'	
 	awsservice="Lambda"
 	
-	deploy_aws_service_role $rolename $awsservice $profile
+	deploy_aws_service_role $rolename $awsservice
 
 }
 
@@ -98,19 +97,17 @@ deploy_aws_service_role(){
 
   rolename=$1
 	awsservice=$2
-  profile=$3
-
+  
   function=${FUNCNAME[0]}
   validate_param "rolename" $rolename $function
   validate_param "awsservice" $awsservice $function
-  validate_param "profile" $profile $function
-
+ 
   resourcetype='Role'
   template='cfn/AWSServiceRole.yaml'
   p=$(add_parameter "NameParam" $rolename)
   p=$(add_parameter "AWSServiceParam" $awsservice $p)
   
-	deploy_stack $profile $servicename $rolename $resourcetype $template "$p"
+	deploy_stack $profile $rolename $resourcetype $template "$p"
 
 }
 

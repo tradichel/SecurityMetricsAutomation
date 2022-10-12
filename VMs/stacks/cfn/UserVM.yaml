@@ -1,0 +1,58 @@
+# https://github.com/tradichel/SecurityMetricsAutomation
+# IAM/stacks/User/cfn/User.yaml
+# author: @tradichel @2ndsightlab
+##############################################################
+Parameters:
+  NameParam:
+    Type: String
+  AMI:
+    Description: AMI Parameter
+    Type: String
+  InstanceType:
+    Description: Instance type for AMI
+    Type: String
+  SubnetExportParam:
+    Type: String
+    Default: 'RemoteAccessPublicVPC-Subnet1'
+  SGExportParam:
+    Type: String
+    Default: 'RemoteAccessPublicVPC-SSH'
+  KMSKeyIdExportParam:
+    Type: String
+    Default: 'DeveloperComputeResourcesKeyIDExport'
+
+Resources:
+  VM:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref AMI
+      InstanceType: !Ref InstanceType
+      SubnetId:
+        Fn::ImportValue:
+          !Sub "${SubnetExportParam}"
+      SecurityGroupIds:
+        - Fn::ImportValue:
+            !Sub "${SGExportParam}"
+      KeyName: !Ref NameParam
+      Tags:
+        -
+          Key: "Name"
+          Value: !Sub "${NameParam}-${InstanceType}-${AMI}"
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeType: gp2
+            VolumeSize: '40'
+            DeleteOnTermination: 'false'
+            Encrypted: 'true'
+            KmsKeyId:
+              Fn::ImportValue:
+                !Sub "${KMSKeyIdExportParam}"
+                                                
+Outputs:
+  VMOutput:
+    Value: !Ref VM
+    Export:
+      Name: !Sub ${NameParam}-${AMI}
+
+

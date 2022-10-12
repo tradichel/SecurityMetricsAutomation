@@ -34,6 +34,11 @@ Resources:
           -
             Effect: Allow
             Action:
+             - "iam:GetGroup"
+            Resource: "*"
+          -
+            Effect: Allow
+            Action:
              - "kms:CreateKey"
              - "kms:CreateAlias"
             Resource: "*"

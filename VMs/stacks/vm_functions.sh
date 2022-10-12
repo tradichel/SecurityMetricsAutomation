@@ -1,32 +1,61 @@
 #!/bin/bash -e
-# https://github.com/tradichel/SecurityMetricsAutomation
-# KMS/stacks/KeyAlias/deploy.sh
-# author: @teriradichel @2ndsightlab
+# VMs/stacks/vm_functions.sh 
+# author: @tradichel @2ndsightlab
 ##############################################################
 
-source keyalias_functions.sh
+source ../../Functions/shared_functions.sh
 
-echo "----Create an AWS CLI Profile named 'KMS' before running this script---"
+profile="AppDeploy"
 
-echo "--------- Batch Credential Key Alias ---------------"
-alias="BatchJobCredentials"
-keyid=$(get_key_id $alias)
-deploy_key_alias $keyid $alias
+get_latest_ami(){
 
-echo "----------- Trigger Batch Job Key Alias -----------"
-alias="TriggerBatchJob"
-keyid=$(get_key_id $alias)
-deploy_key_alias $keyid $alias
+	arch="$1"
 
-echo "----------- Developer Secrets Key Alias -----------"
-alias="DeveloperSecrets"
-keyid=$(get_key_id $alias)
-deploy_key_alias $keyid $alias
+	if [ "$arch" == "" ]; then arch="arm64"; fi
+	
+	if [ "$arch" == "arm64" ]; then
+		#get latest linux arm ami
+		param='ami.linux.arm.base.baseami.arm64'
+		ami=$(aws ec2 describe-images \
+    	--owners amazon \
+    	--filters "Name=name,Values=amzn2-ami-hvm*" \
+      	 "Name=root-device-type,Values=ebs" \
+       		"Name=architecture,Values=$arch" \
+    	--query 'Images[*].[ImageId,CreationDate,Name]' \
+    	--output text \
+    	| sort -r -k2 | head -1 | cut -f1)
+		ami=$(echo $ami | sed 's/ //g')
+		echo $ami
+		exit
+	fi
+	
+	echo 'Architection '$arch' is not handled by this function' 1>&2
+  exit 1
 
-echo "----------- Developer VM Key Alias -----------"
-alias="DeveloperComputeResources"
-keyid=$(get_key_id $alias)
-deploy_key_alias $keyid $alias
+}
+
+deploy_vm(){
+
+	user="$1"
+	ec2type="$2"
+	ami="$3"
+
+  function=${FUNCNAME[0]}
+  validate_param "user" $user $function
+  validate_param "ec2type" $ec2type $function
+  validate_param "ami" $ami $function
+
+	template='cfn/UserVM.yaml'
+  resourcetype='EC2'
+
+  parameters=$(add_parameter "NameParam" $user)
+  parameters=$(add_parameter "AMI" $ami "$parameters")
+  parameters=$(add_parameter "InstanceType" $ec2type "$parameters")
+
+	deploy_stack $profile $user $resourcetype $template "$parameters"
+
+}
+
 
 #################################################################################
 # Copyright Notice
@@ -51,3 +80,4 @@ deploy_key_alias $keyid $alias
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
+                                                                                     

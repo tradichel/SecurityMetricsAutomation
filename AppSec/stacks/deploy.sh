@@ -1,32 +1,19 @@
 #!/bin/bash -e
-# https://github.com/tradichel/SecurityMetricsAutomation
-# KMS/stacks/KeyAlias/deploy.sh
+# https://github.com/tradichel/SecurityMetricsAutomation/
+# AppSec/stacks/deploy.sh
 # author: @teriradichel @2ndsightlab
+# description: Functions for user creation
 ##############################################################
+source appsec_functions.sh
 
-source keyalias_functions.sh
+echo "An CLI Profile named AppSec is required to run this code."
+profile="AppSec"
 
-echo "----Create an AWS CLI Profile named 'KMS' before running this script---"
+#create user specific secrets for developers
+kmskeyid=$(get_stack_export "KMS-Key-DeveloperResources" "DeveloperResourcesKeyIDExport")
+username="Developer"
 
-echo "--------- Batch Credential Key Alias ---------------"
-alias="BatchJobCredentials"
-keyid=$(get_key_id $alias)
-deploy_key_alias $keyid $alias
-
-echo "----------- Trigger Batch Job Key Alias -----------"
-alias="TriggerBatchJob"
-keyid=$(get_key_id $alias)
-deploy_key_alias $keyid $alias
-
-echo "----------- Developer Secrets Key Alias -----------"
-alias="DeveloperSecrets"
-keyid=$(get_key_id $alias)
-deploy_key_alias $keyid $alias
-
-echo "----------- Developer VM Key Alias -----------"
-alias="DeveloperComputeResources"
-keyid=$(get_key_id $alias)
-deploy_key_alias $keyid $alias
+create_secret $username $kmskeyid
 
 #################################################################################
 # Copyright Notice
@@ -50,4 +37,4 @@ deploy_key_alias $keyid $alias
 # HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-################################################################################ 
+################################################################################  

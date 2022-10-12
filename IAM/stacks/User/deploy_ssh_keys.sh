@@ -1,27 +1,12 @@
-# https://github.com/tradichel/SecurityMetricsAutomation
-# IAM/stacks/Group/cfn/Policy/NetworkAdminGroupPolicy.yaml
-# author: @tradichel @2ndsightlab
+#!/bin/bash -e
+# https://github.com/tradichel/SecurityMetricsAutomation/
+# IAM/stacks/User/deploy_ssh_keys.sh
+# author: @teriradichel @2ndsightlab
+# description: Functions for user creation
 ##############################################################
-Parameters:
-  NameParam:
-    Type: String
+source user_functions.sh
 
-Resources:
-  NetworkAdminGroupPolicy:
-    Type: 'AWS::IAM::Policy'
-    Properties:
-      PolicyName: !Ref NameParam
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action: 'sts:AssumeRole'
-            Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/Network*'
-            Condition:
-              "Bool":
-                "aws:MultiFactorAuthPresent": "true"
-      Groups:
-        - !ImportValue NetworkAdminsExport
+create_ssh_key "Developer"
 
 
 #################################################################################
@@ -46,4 +31,4 @@ Resources:
 # HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-################################################################################
+################################################################################  

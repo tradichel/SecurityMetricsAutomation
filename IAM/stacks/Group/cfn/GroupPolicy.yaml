@@ -5,23 +5,26 @@
 Parameters:
   NameParam:
     Type: String
+    Description: "Group Name"
 
 Resources:
   DevelopersGroupPolicy:
     Type: 'AWS::IAM::Policy'
     Properties:
-      PolicyName: !Ref NameParam
+      PolicyName: !Sub ${NameParam}GroupPolicy
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
           - Effect: Allow
             Action: 'sts:AssumeRole'
-            Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/Developer*'
+            Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:role/${NameParam}*'
             Condition:
               "Bool":
                 "aws:MultiFactorAuthPresent": "true"
       Groups:
-        - !ImportValue DevelopersExport
+        -
+          Fn::ImportValue:
+            !Sub ${NameParam}Export
 
 # #################################################################################
 # Copyright Notice

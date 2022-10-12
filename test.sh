@@ -19,11 +19,23 @@ cd KMS
 ./test.sh
 cd ..
 
+cd AppSec
+./test.sh
+cd ..
+
 cd Jobs
 ./test.sh
 cd ..
 
 cd Lambda
+./test.sh
+cd ..
+
+cd IAM
+./test_ssh.sh
+cd ..
+
+cd VMs
 ./test.sh
 cd ..
 

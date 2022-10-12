@@ -11,14 +11,11 @@ Resources:
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
-          - Effect: Allow
-            Action: 'cloudformation:*'
-            Resource:
-              - !Sub "arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/Batch-Dev-*"
+          - Effect: Deny
+            Action: '*'
+            Resource: '*'
       Roles: 
         - "DevelopersGroup"
-
-
 
 #################################################################################
 # Copyright Notice

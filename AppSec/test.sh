@@ -1,32 +1,15 @@
-#!/bin/bash -e
+#!/bin/bash
 # https://github.com/tradichel/SecurityMetricsAutomation
-# KMS/stacks/KeyAlias/deploy.sh
+# AppSec/test.sh
 # author: @teriradichel @2ndsightlab
+# description: Test Secrets deployment scripts
 ##############################################################
 
-source keyalias_functions.sh
+cd stacks
+./deploy.sh
+cd ..
 
-echo "----Create an AWS CLI Profile named 'KMS' before running this script---"
 
-echo "--------- Batch Credential Key Alias ---------------"
-alias="BatchJobCredentials"
-keyid=$(get_key_id $alias)
-deploy_key_alias $keyid $alias
-
-echo "----------- Trigger Batch Job Key Alias -----------"
-alias="TriggerBatchJob"
-keyid=$(get_key_id $alias)
-deploy_key_alias $keyid $alias
-
-echo "----------- Developer Secrets Key Alias -----------"
-alias="DeveloperSecrets"
-keyid=$(get_key_id $alias)
-deploy_key_alias $keyid $alias
-
-echo "----------- Developer VM Key Alias -----------"
-alias="DeveloperComputeResources"
-keyid=$(get_key_id $alias)
-deploy_key_alias $keyid $alias
 
 #################################################################################
 # Copyright Notice
@@ -51,3 +34,5 @@ deploy_key_alias $keyid $alias
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
+
+

@@ -1,13 +1,22 @@
 #!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# test.sh
+# IAM/test.sh
 # author: @tradichel @2ndsightlab
-##############################################################
-#!/bin/bash -e
+#############################################################
 
-echo "Running stacks with the AWS CLI Profile default"
-
-profile="default"
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo " Have you set up a role profile named IAM? "
+echo " Create an AWS IAM Profile named IAM as explained "
+echo " in the blog series. You can use any user in "
+echo " a new AWS account to run this initial set up to "
+echo " execute this initial portion of the script to "
+echo " create the IAM admin user, group, and role. "
+echo " Then the script will pause so you can change "
+echo " your AWS CLI configuration to use the new IAM "
+echo " Admin role created by this script. "
+echo " Ctrl-C to exit. Enter to proceed."
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+read ok
 
 cd stacks/User
 ./deploy_first_iam_admin.sh
@@ -24,14 +33,19 @@ cd ../..
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 echo " IAM User is deployed."
 echo " Have you added a virtual MFA device to this user?"
-echo " Have you set up an AWS CLI Profile named iam?"
+echo " Have you set up an AWS CLI Profile named IAM?"
 echo " Exit and See README.md if you haven't."
+echo " Once you are sure your new IAM admin user and "
+echo " role are working properly, delete any temporary "
+echo " manually created users. Add two MFA keys to your " 
+echo " root account and store them away in a safe place. "
+echo " NOTE: you can now add two Yubikeys to an AWS SSO "
+echo " User but I haven't checked if you can do that for "
+echo " a root account. Also read the blog post on why "
+echo " I use virtual MFA for AWS CLI profiles."
 echo " Ctrl-C to exit. Enter to proceed."
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 read ok
-
-echo "Running the remaining stacks with the AWS CLI Profile iam"
-profile="iam"
 
 cd stacks/User
 ./deploy.sh
@@ -46,11 +60,10 @@ cd stacks/Role
 cd ../..
 
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-echo " Set up MFA for these users before proceeding:"
-echo " KMSAdmin, NetworkAdmin, Developer, SecurityMetricsOperator"
-echo ""
+echo " Set up MFA for al users before proceeding:"
+echo " "
 echo " Create these AWS CLI proiles beore proceeding:"
-echo " kms, network, dev, securitymetrics"
+echo " IAM, KMS, AppDeploy, AppSec, Network, deploycreds"
 echo ""
 echo " Ctrl-C to exit. Enter to proceed."
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -61,7 +74,7 @@ read ok
 # Copyright Notice
 # All Rights Reserved.
 # All materials (the “Materials”) in this repository are protected by copyright 
-# under U.S. Copyright laws and are the property of 2nd Sight Lab. They are provided 
+# undeir U.S. Copyright laws and are the property of 2nd Sight Lab. They are provided 
 # pursuant to a royalty free, perpetual license the person to whom they were presented 
 # by 2nd Sight Lab and are solely for the training and education by 2nd Sight Lab.
 #

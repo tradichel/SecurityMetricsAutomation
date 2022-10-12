@@ -4,15 +4,11 @@
 # author: @teriradichel @2ndsightlab
 # Description: Deploy all roles
 ##############################################################
+source role_functions.sh
 
 echo "-------------- Deploy IAM Admin Role -------------------"
 
-source role_functions.sh
-
-#need to install the first IAM role before can use it in a cli profile
-if [ "$1" == "" ]; then profile="default"; else profile="$1"; fi
-
-deploy_group_role 'IAMAdmins' $profile
+deploy_group_role 'IAMAdmins'
 
 #################################################################################
 # Copyright Notice

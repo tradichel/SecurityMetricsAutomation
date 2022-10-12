@@ -44,19 +44,46 @@ decryptarn=$(get_stack_export $stack $exportname)
 
 deploy_key $encryptarn $decryptarn $keyalias $conditionservice $desc
 
-echo "------Key for dev EC2 instances -----"
+echo "------Key for Developer Secrets -----"
 
-desc="KMS Key to encrypt developer virtual machines (EC2 instances)"
-keyalias="DeveloperVMs"
-conditionservice="ec2"
+group="Developers"
+users=$(get_users_in_group $group $profile)
+decryptarns=$users
 
-#get the developer role arn
+desc="KMS Key to encrypt developer resources in secrets manager"
+keyalias="DeveloperSecrets"
+conditionservice="secretsmanager"
+
+#get the encryption ARNs for our key policy 
+stack='IAM-Role-IAMAdminsRole'
+exportname='IAMAdminsRoleArnExport'
+encryptarn1=$(get_stack_export $stack $exportname)
+
+stack='IAM-Role-AppSecRole'
+exportname='AppSecRoleArnExport'
+encryptarn2=$(get_stack_export $stack $exportname)
+
+encryptarns=$encryptarn1','$encryptarn2
+
+#get the developer group role to decrypt arn
+deploy_key $encryptarns $decryptarns $keyalias $conditionservice $desc
+
+echo "------Key for Developer Non-Secrets Resources -----"
+
+desc="KMS Key to encrypt developer resources that are not in Secrets Manager"
+keyalias="DeveloperComputeResources"
+conditionservice="kms"
+
+#get the encryption ARN for our key policy 
 stack='IAM-Role-AppDeploymentRole'
 exportname='AppDeploymentRoleArnExport'
-encryptarn=$(get_stack_export $stack $exportname)
-decryptarn=$encryptarn
+encryptarns=$(get_stack_export $stack $exportname)
 
-deploy_key $encryptarn $decryptarn $keyalias $conditionservice $desc
+#get the developer group role to decrypt arn
+group="Developers"
+users=$(get_users_in_group $group $profile)
+decryptarns=$users
+deploy_key $encryptarns $decryptarns $keyalias $conditionservice $desc
 
 #################################################################################
 # Copyright Notice

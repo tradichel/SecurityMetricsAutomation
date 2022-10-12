@@ -1,27 +1,64 @@
 # https://github.com/tradichel/SecurityMetricsAutomation
-# IAM/stacks/User/cfn/User.yaml
-# author: @tradichel @2ndsightlab
-# description: CloudFormation template to create an IAM user
+# Lambda/BatchJobs/TriggerBatchJob.yaml
+# author: @teriradichel @2ndsightlab
 ##############################################################
+
+#####NOT TESTED#####
+AWSTemplateFormatVersion: "2010-09-09"
 Parameters:
-  NameParam:
-    Type: String
+  FunctionNameParam:
+    Type: "String"
+  KeyId:
+    Type: "String"
 
 Resources:
-  User:
-    Type: AWS::IAM::User
+
+  LambdaFunction:
+    Type: "AWS::Lambda::Function"
     Properties:
-      UserName: !Ref NameParam
-      
+      Code:
+        ZipFile: |
+          import os
+          import boto3
+          def handler(event,context):
+            client=boto3.client("secretsmanager")
+            response=client.get_secret_value(SecretId='lab-3-3-secret')
+            bodyrepsonse = "Secret from AWS Secrets Manager: {}".format(response['SecretString'])
+            return {
+              'body': bodyrepsonse,
+              'headers': {
+                'Content-Type': 'text/plain'
+              },
+              'statusCode': 200
+            }
+      Description: "Lambda function lab 3.3"
+      Handler: "index.handler"
+      FunctionName: !Ref lambdaFunctionName
+      MemorySize: 128
+      Role: !GetAtt "lambdaIAMRole.Arn"
+      Runtime: "python3.9"
+      Timeout: 10
+
+  LambdaApiGatewayInvoke:
+    Type: "AWS::Lambda::Permission"
+    DependsOn:
+      - lambdaFunction
+    Properties:
+      Action: "lambda:InvokeFunction"
+      FunctionName: !GetAtt "lambdaFunction.Arn"
+      Principal: "apigateway.amazonaws.com"
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${apiGateway}/*/POST/"
+
+  LambdaLogGroup:
+    Type: "AWS::Logs::LogGroup"
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${lambdaFunctionName}"
+      RetentionInDays: 90
+
 Outputs:
-  UserOutput:
-    Value: !Ref User
-    Export:
-     Name: !Sub ${NameParam}UserExport
-  UserARNOutput:
-    Value: !GetAtt User.Arn
-    Export:
-      Name: !Sub ${NameParam}UserArnExport
+  LambdaArn:
+    Value: !GetAtt "lambdaFunction.Arn"
+
 
 #################################################################################
 # Copyright Notice

@@ -1,23 +1,45 @@
 #!/bin/bash -e
-# https://github.com/tradichel/SecurityMetricsAutomation
-# Jobs/stacks/Lambda/BatchJobs/TriggerBatchJob/deploy.sh
+# https://github.com/tradichel/SecurityMetricsAutomation/
+# AppSec/stacks/appsec_functions.sh
 # author: @teriradichel @2ndsightlab
-# description: deploy Lambda function to Trigger a Batch Job
+# description: Functions for user creation
 ##############################################################
+source ../../Functions/shared_functions.sh
 
-source ../../../Functions/shared_functions.sh
+profile="AppSec"
 
-profile="iam"
-servicename="IAM"
+create_secret(){
 
-resource="TriggerBatchJobLambdaPolicy"
-resourcetype="Policy"
-template='cfn/'$resource'.yaml'
+	secretname="$1"
+	kmskeyid="$2"
+	value="$3"
 
-deploy_stack $profile $servicename $resource $resourcetype $template
+	if [ "$value" == "" ]; then value="temp-value-for-secret-creation"; fi
 
-echo "To Do: Deploy Lambda"
+  func=${FUNCNAME[0]}
+  validate_param 'secretname' $secretname $func
+  validate_param 'kmskeyid' $kmskeyid $func
 
+  #create secret
+  resourcetype='Secret'
+  template='cfn/UserSecret.yaml'
+  parameters=$(add_parameter "NameParam" $secretname)
+  parameters=$(add_parameter "KMSKeyID" $kmskeyid $parameters)
+  deploy_stack $profile $secretname $resourcetype $template $parameters
+
+	#get the secret id
+  stack='IAM-Secret-'$secretname'Secret'
+  output=$secretname'SecretExport'
+  secretid=$(get_stack_export $stackname $output)
+
+  resourcetype='SecretResourcePolicy'
+  template='cfn/UserSecretResourcePolicy.yaml'
+  parameters=$(add_parameter "NameParam" $secretname)
+  parameters=$(add_parameter "Secret" $secretid $parameters)
+  resource=$keyname'SecretResourcePolicy'
+  deploy_stack $profile $resource $resourcetype $template $parameters
+
+}
 
 #################################################################################
 # Copyright Notice
@@ -41,4 +63,4 @@ echo "To Do: Deploy Lambda"
 # HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-################################################################################ 
+################################################################################  

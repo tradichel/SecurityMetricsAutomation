@@ -4,9 +4,9 @@
 # author: @teriradichel @2ndsightlab
 ##############################################################
 
-cd BatchJobs/TriggerBatchJob/
+cd stacks/BatchJobs/TriggerBatchJob/
 ./deploy.sh 
-cd ../..
+cd ../../..
 
 
 #################################################################################

@@ -5,16 +5,18 @@
 # Description: Deploy all users
 ##############################################################
 
+echo "You must have an AWS CLI profile named IAM configured to run this scirpt"
+
 echo "-------------- Deploy User -------------------"
 
 source user_functions.sh
 
-profile="iam"
-deploy_user 'IAMAdmin2' $profile
-deploy_user 'KMSAdmin' $profile
-deploy_user 'SecurityMetricsOperator' $profile
-deploy_user 'NetworkAdmin' $profile
-deploy_user 'Developer' $profile
+deploy_user 'IAMAdmin2'
+deploy_user 'KMSAdmin'
+deploy_user 'SecurityMetricsOperator'
+deploy_user 'NetworkAdmin'
+deploy_user 'Developer'
+deploy_user 'AppSec'
 
 #################################################################################
 # Copyright Notice

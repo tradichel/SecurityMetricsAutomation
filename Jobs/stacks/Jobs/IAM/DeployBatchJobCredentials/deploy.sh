@@ -18,23 +18,21 @@ echo "OK? CTRL-C to Exit. Enter to continue."
 echo ""
 echo "------------------------------------------------------------------------"
 
-source ../../../../Functions/shared_functions.sh
+source ../../../../../Functions/shared_functions.sh
 
-profile="iam"
-servicename="IAM"
-
+profile="IAM"
 resource="DeployBatchJobCredentialsIAMJobPolicy"
 resourcetype="Policy"
 template='cfn/'$resource'.yaml'
 	
-deploy_stack $profile $servicename $resource $resourcetype $template
+deploy_stack $profile $resource $resourcetype $template
 
 profile="deploycreds"
-resource="SecurityMetricsBatchJobCredentials"
+resource="BatchJobCredentials"
 template='cfn/BatchJobCredentials.yaml' 
 resourcetype=Secret
 parameters=$(add_parameter "UserNameParam" 'SecurityMetricsOperator')
-deploy_stack $profile $servicename $resource $resourcetype $template $parameters
+deploy_stack $profile $resource $resourcetype $template $parameters
 
 # 9/19/22 - For some reason CloudForamtion starated forcing me to add Delete permisisons
 # to the above policy for this stack to properly update. I do NOT want this user to 
@@ -45,7 +43,7 @@ resource="IAMBatchJobCredentials"
 template='cfn/BatchJobCredentials.yaml'
 resourcetype=Secret
 parameters=$(add_parameter "UserNameParam" 'IAMAdmin')
-deploy_stack $profile $servicename $resource $resourcetype $template $parameters
+deploy_stack $profile $resource $resourcetype $template $parameters
 
 #################################################################################
 # Copyright Notice

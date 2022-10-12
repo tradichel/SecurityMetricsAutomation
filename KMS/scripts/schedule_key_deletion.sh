@@ -3,11 +3,10 @@
 # KMS/scripts/schedule_key_deletion.sh
 # author: @teriradichel @2ndsightlab
 ##############################################################
-profile="kms"
+profile="KMS"
 
 #use to schedule key deletion
 keyid="$1"
-profile="kms"
 
 aws kms schedule-key-deletion --key-id $keyid --pending-window-in-days 7 --profile $profile
 
@@ -35,4 +34,4 @@ aws kms schedule-key-deletion --key-id $keyid --pending-window-in-days 7 --profi
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
-~                                                                                     
+                                                                                     

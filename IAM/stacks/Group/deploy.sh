@@ -9,32 +9,41 @@ echo "-------------- Deploy Groups -------------------"
 
 source group_functions.sh
 
-profile="iam"
-
-deploy_group 'KMSAdmins' $profile
-deploy_group 'NetworkAdmins' $profile
-deploy_group 'SecurityMetricsOperators' $profile
-deploy_group 'AppDeployment' $profile
+deploy_group 'KMSAdmins'
+deploy_group 'NetworkAdmins'
+deploy_group 'SecurityMetricsOperators'
+deploy_group 'AppDeployment'
+deploy_group 'Developers'
+deploy_group 'AppSec'
 
 users='IAMAdmin,IAMAdmin2'
 group='IAMAdmins'
-add_users_to_group $users $group $profile
+add_users_to_group $users $group
 
 users='KMSAdmin'
 group='KMSAdmins'
-add_users_to_group $users $group $profile
+add_users_to_group $users $group
 
 users='NetworkAdmin'
 group='NetworkAdmins'
-add_users_to_group $users $group $profile
+add_users_to_group $users $group
 
 users='SecurityMetricsOperator'
 group='SecurityMetricsOperators'
-add_users_to_group $users $group $profile
+add_users_to_group $users $group
 
 users='Developer'
 group='AppDeployment'
-add_users_to_group $users $group $profile
+add_users_to_group $users $group
+
+users='Developer'
+group='Developers'
+add_users_to_group $users $group
+
+users='AppSec'
+group='AppSec'
+add_users_to_group $users $group
+
 
 #################################################################################
 # Copyright Notice

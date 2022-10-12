@@ -1,36 +1,39 @@
-# !/bin/bash -e
+#!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
 # IAM/stacks/Role/deploy.sh
 # author: @teriradichel @2ndsightlab
 # Description: Depiloy all roles
 ##############################################################
 
+#run the script to deploy the first IAM user in this same directory before running this script.
 echo "-------------- Deploy Roles -------------------"
+echo "You must have a CLI profile named "IAM" configured to run this script"
 
 source role_functions.sh
 
-profile="iam"
-deploy_group_role 'KMSAdmins' $profile
-deploy_group_role 'NetworkAdmins' $profile
-deploy_group_role 'SecurityMetricsOperators' $profile
-deploy_group_role 'AppDeployment' $profile
+deploy_group_role 'KMSAdmins'
+deploy_group_role 'NetworkAdmins'
+deploy_group_role 'SecurityMetricsOperators'
+deploy_group_role 'AppDeployment'
+deploy_group_role 'Developers'
+deploy_group_role 'AppSec'
 
 jobname="DeployBatchJobCredentials"
 jobtype="IAM"
-deploy_batch_role $jobname $jobtype $profile
+deploy_batch_role $jobname $jobtype
 
 lambdaname='TriggerBatchJob'
-deploy_lambda_role $lambdaname $profile
+deploy_lambda_role $lambdaname
 
 lambdaname='GenerateBatchJobId'
-deploy_lambda_role $lambdaname $profile
+deploy_lambda_role $lambdaname
 
 awsservice='VPCFlowLogs'
 rolename=$awsservice'Role'
-deploy_aws_service_role $rolename $awsservice $profile
+deploy_aws_service_role $rolename $awsservice
 
 policyname='VPCFlowLogsPolicy'
-deploy_role_policy $policyname $profile
+deploy_role_policy $policyname
 
 #################################################################################
 # Copyright Notice

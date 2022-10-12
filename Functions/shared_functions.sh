@@ -1,5 +1,5 @@
 # https://github.com/tradichel/SecurityMetricsAutomation
-# Functions/share_functions.sh
+# Functions/shared_functions.sh
 # author: @teriradichel @2ndsightlab
 ##############################################################
 validate_param(){
@@ -27,6 +27,11 @@ get_stack_export(){
   qry="Stacks[0].Outputs[?ExportName=='$exportname'].OutputValue"
   value=$(aws cloudformation describe-stacks --stack-name $stackname --query $qry --output text)
 
+  if [ "$value" == "" ]; then
+    echo 'Export '$exportname' for stack '$stackname' did not return a value' 1>&2
+    exit 1
+  fi
+
   echo $value
 
 }
@@ -36,13 +41,12 @@ get_stack_export(){
 deploy_stack () {
 
   profile="$1"
-	servicename="$2"
-  resourcename="$3"
-  resourcetype="$4"
-  template="$5"
+  resourcename="$2"
+  resourcetype="$3"
+  template="$4"
 
 	#adding brackets here to avoid repetitive code elsewhere
-  parameters="[$6]"
+  parameters="[$5]"
 
   func=${FUNCNAME[0]}
   validate_param 'profile' $profile $func
@@ -50,12 +54,9 @@ deploy_stack () {
   validate_param 'resourcetype' $resourcetype $func
   validate_param 'template' $template $func
 
-  echo "params $parameters"
-
 	#not all stacks have parameters
-  #validate_param 'parameters' $parameters $func
  
-  stackname=$servicename'-'$resourcetype'-'$resourcename
+  stackname=$profile'-'$resourcetype'-'$resourcename
 
   echo "-------------- $stackname -------------------"
 
@@ -63,12 +64,11 @@ deploy_stack () {
 			--stack-name $stackname 
       --template-file $template "
 
-  if [ "$servicename" == "IAM" ]; then
+  if [ "$profile" == "IAM" ] || [ "$profile" == "deploycreds" ]; then
 		 c=$c' --capabilities CAPABILITY_NAMED_IAM '
 	fi
 
 	if [ "$parameters" != "" ]; then 
-  	echo "Parameters: $parameters"
   	c=$c' --parameter-overrides '$parameters
 	fi
 
@@ -87,6 +87,22 @@ add_parameter () {
   p="\"$key=$value\""
   if [ "$params" == "" ]; then echo $p; exit; fi
 	echo $params,$p
+
+}
+
+get_users_in_group() {
+	groupname="$1"
+	profile="$2"
+
+ 	func=${FUNCNAME[0]}
+  validate_param 'groupname' $groupname $func
+  validate_param 'profile' $profile $func
+
+	#retrieve a list of user ARNs in the group
+  users=$(aws iam get-group --group-name $groupname --profile $profile \
+      --query Users[*].Arn --output text | sed 's/\t/./g')
+
+	echo $users
 
 }
 

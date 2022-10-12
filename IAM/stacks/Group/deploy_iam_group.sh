@@ -5,18 +5,15 @@
 # Description: Deploy all groups
 ##############################################################
 
-echo "-------------- Deploy IAM Groups -------------------"
-
 source group_functions.sh
 
-#Someone needes to install the first IAM admin group and policy
-if [ "$1" == "" ]; then profile="default"; else profile="$1"; fi
+echo "-------------- Deploy IAM Admin Group -------------------"
 
-deploy_group 'IAMAdmins' $profile
+deploy_group 'IAMAdmins'
 
 users='IAMAdmin'
 group='IAMAdmins'
-add_users_to_group "$users" $group $profile
+add_users_to_group "$users" $group
 
 #################################################################################
 # Copyright Notice

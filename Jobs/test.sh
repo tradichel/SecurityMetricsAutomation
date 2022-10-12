@@ -4,7 +4,7 @@
 # author: @teriradichel @2ndsightlab
 ##############################################################
 
-cd stacks/IAMJobs/DeployBatchJobCredentials/
+cd stacks/Jobs/IAM/DeployBatchJobCredentials/
 ./deploy.sh
 cd ../../..
 

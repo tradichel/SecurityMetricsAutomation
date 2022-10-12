@@ -21,7 +21,22 @@ deploy_key_alias(){
   template='cfn/KeyAlias.yaml'
   resourcetype='KeyAlias'
   	
-	deploy_stack $profile $profile $alias $resourcetype $template "$parameters"
+	deploy_stack $profile $alias $resourcetype $template "$parameters"
+
+}
+
+get_key_id () {
+
+	alias="$1"
+
+  function=${FUNCNAME[0]}
+  validate_param "alias" $alias $function
+
+	stack='KMS-Key-'$alias
+	exportname=$alias'KeyIDExport'
+	keyid=$(get_stack_export $stack $exportname)
+
+	echo $keyid
 
 }
 

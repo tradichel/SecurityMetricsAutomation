@@ -4,7 +4,7 @@
 # author: @teriradichel @2ndsightlab
 ##############################################################
 profile="KMS"
-aliasname="$1"
+aliasname="alias/$1"
 
 aws kms delete-alias --alias-name $aliasname --profile $profile
 

@@ -6,35 +6,83 @@
 ##############################################################
 source ../../../Functions/shared_functions.sh
 
+profile="IAM"
+
 deploy_user() {
 
 	username=$1
-	profile=$2
+	profile_override="$2"
 
-	if [ "$username" == "" ]; then
-			echo "Username must be provided."
-			exit	
-	fi
-
-  if [ "$profile" == "" ]; then
-      echo "Profile must be provided."
-      exit 
-  fi
-
-	template="cfn/User.yaml"
- 	resourcetype='User'
-  parameters=$(add_parameter "NameParam" $username)	
+  if [ "$profile_ovverride" != "" ]; then profile=$profile_override; fi
 	
 	function=${FUNCNAME[0]}
-  validate_param "profile" $profile $function
   validate_param "username" $username $function
-  validate_param "template" $template $function
-  validate_param "parameters" $parameters $function
-  servicename="IAM"
-	deploy_stack $profile $servicename $username $resourcetype $template $parameters
+
+  template="cfn/User.yaml"
+  resourcetype='User'
+  parameters=$(add_parameter "NameParam" $username)
+  
+	deploy_stack $profile $username $resourcetype $template $parameters
+	
+}
+
+#using default profile to deploy first IAM user in an account
+deploy_first_iam_admin() {
+
+  username=$1
+
+  function=${FUNCNAME[0]}
+  validate_param "username" $username $function
+
+  deploy_user $username
+
+	echo "First IAM user created. Next step: Create a CLI profile named IAM to run IAM scripts from here on out."
 
 }
 
+create_ssh_key(){
+
+	#name of ssh key, secret, and user
+	keyname="$1"
+
+	echo "--------------CREATE SSH KEY PAIR: $key-------------------"
+	keys=$(aws ec2 describe-key-pairs)
+
+	if [[ "$keys" == *"$keyname"* ]]; then
+  	echo "Key pair found."
+  	echo "Delete and re-create? (y)"
+  	read createkey	
+		if [ "$createkey" == "y" ]; then
+			aws ec2 delete-key-pair --key-name $keyname --profile $profile
+		else
+			exit
+		fi
+	fi
+	
+	#create keypair
+  key=$(aws ec2 create-key-pair --key-name $keyname --profile $profile)
+  keypem=$(echo $key | jq -r ".KeyMaterial")
+	kmskeyid=$(get_stack_export "KMS-Key-DeveloperSecrets" "DeveloperSecretsKeyIDExport")
+  
+	#update the secret	
+	cmd="aws secretsmanager update-secret --secret-id $keyname \
+			--kms-key-id $kmskeyid --secret-string \"$keypem\" --profile $profile"
+
+  secret=$(eval $cmd)
+	
+	#get secret id
+	stackname='AppSec-Secret-'$keyname
+	output=$keyname'SecretExport'
+	secretid=$(get_stack_export $stackname $output)
+	
+	#update user iam policy to allow access to secret
+  resourcetype='Policy'
+  template='cfn/UserSecretPolicy.yaml'
+  parameters=$(add_parameter "NameParam" $keyname)
+	resource=$keyname'UserSecretPolicy'
+  deploy_stack $profile $resource $resourcetype $template $parameters
+	
+}
 
 #################################################################################
 # Copyright Notice

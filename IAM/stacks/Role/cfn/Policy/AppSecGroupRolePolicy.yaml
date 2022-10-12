@@ -1,25 +1,28 @@
-# https://github.com/tradichel/SecurityMetricsAutomation
-# IAM/stacks/role/cfn/Policy/IAMAdminsGroupRolePolicy.yaml
+# https://github.com/tradichel/SecurityMetricsAutomation/blob/main/iam/batch_job_role/cfn/role_batch_job.yaml
+# IAM/stacks/role/cfn/Policy/DevelopersGroupRolePolicy.yaml
 # author: @tradichel @2ndsightlab
 # description: policy for IAM administrators
 ##############################################################
 Resources:
-  IAMAdminsGroupRolePolicy:
+  AppSecGroupRolePolicy:
     Type: 'AWS::IAM::ManagedPolicy'
     Properties:
-      ManagedPolicyName: IAMAdminsGroupRolePolicy
+      ManagedPolicyName: AppSecGroupRolePolicy
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
+          - Effect: Deny
+            Action: 'secretsmanager:GetSecretValue'
+            Resource: '*'
           - Effect: Allow
-            Action: 'iam:*'
+            Action: 'secretsmanager:*'
             Resource: '*'
           - Effect: Allow
             Action: 'cloudformation:*'
             Resource:
-              - !Sub "arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/IAM-*"
+              - !Sub arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/AppSec-*
           - Effect: Allow
-            Action: 
+            Action:
               - 'ec2:CreateKeyPair'
               - 'ssm:PutParameter'
               - 'ec2:DeleteKeyPair'
@@ -35,13 +38,9 @@ Resources:
               - 'kms:GenerateDataKey'
             Resource:
               Fn::ImportValue:
-                DeveloperSecretsKeyArnExport 
-            
+                DeveloperSecretsKeyArnExport
       Roles: 
-        - "IAMAdminsGroup"
-Outputs:
-  ForceUpdate:
-    Value: "update"
+        - "AppSecGroup"
 
 #################################################################################
 # Copyright Notice
@@ -67,4 +66,3 @@ Outputs:
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
                                                                                      
-

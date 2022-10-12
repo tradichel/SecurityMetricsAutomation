@@ -2,18 +2,14 @@
 # https://github.com/tradichel/SecurityMetricsAutomation
 # IAM/stacks/User/deploy_first_iam_admin.sh
 # author: @teriradichel @2ndsightlab
-# Description: Deploy all users
+# Description: Deploy first IAM admin and role, then
+# chagne CLI configuration to use this IAM user for deployments.
 ##############################################################
-
-echo "-------------- Deploy First IAM User -------------------"
 
 source user_functions.sh
 
-#Someone needes to install the first IAM admins
-if [ "$1" == "" ]; then profile="default"; else profile="$1"; fi
-
-echo 'Deploying with AWS CLI profile: '$profile
-deploy_user 'IAMAdmin' $profile
+echo "-------------- Deploy First IAM Admin and Role -------------------"
+deploy_first_iam_admin 'IAMAdmin'
 
 #################################################################################
 # Copyright Notice

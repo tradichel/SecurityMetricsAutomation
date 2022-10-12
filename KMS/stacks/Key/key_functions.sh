@@ -34,7 +34,7 @@ deploy_key(){
   parameters=$(add_parameter "ServiceParam" $conditionservice "$parameters")
   parameters=$(add_parameter "DescParam" "$desc" "$parameters")
 
-	deploy_stack $profile $profile $keyalias $resourcetype $template "$parameters"
+	deploy_stack $profile $keyalias $resourcetype $template "$parameters"
 
 }
 
