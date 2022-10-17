@@ -60,14 +60,23 @@ Resources:
               - kms:ScheduleKeyDeletion
               - kms:CancelKeyDeletion
             Resource: "*"
-          - Sid: Describe Key Only
+
+          #Note: I do NOT want to give my admin permission to delete keys.
+          #However, there is a problem with the KMS implementation. If you
+          #Delete your KMS aministrator used in the above statement, then
+          #You will not be able to modify or delete the key because AWS
+          #changes the ARN to some invalid value (the user ID I think) 
+          #without any warning or confirmation by the customer.
+          - Sid: Describe,Delete Key Only
             Effect: Allow
             Principal:
               AWS:
                 - !Sub arn:aws:iam::${AWS::AccountId}:root
             Action:
               - kms:DescribeKey
+              - "kms:Delete*"
             Resource: "*"
+
           - Sid: Get key policy
             Effect: Allow
             Principal:

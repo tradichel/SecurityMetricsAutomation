@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
 # AppSec/test.sh
 # author: @teriradichel @2ndsightlab

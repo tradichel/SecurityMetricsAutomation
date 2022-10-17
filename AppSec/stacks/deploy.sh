@@ -10,7 +10,16 @@ echo "An CLI Profile named AppSec is required to run this code."
 profile="AppSec"
 
 #create user specific secrets for developers
-kmskeyid=$(get_stack_export "KMS-Key-DeveloperResources" "DeveloperResourcesKeyIDExport")
+keyalias="DeveloperSecrets"
+
+#using shared function that looks up key export
+kmskeyid=$(get_kms_key_id $keyalias)
+
+if [ "$kmskeyid" == "" ]; then 
+	echo "KMS key id is not set." 1>&2
+	exit 1
+fi
+
 username="Developer"
 
 create_secret $username $kmskeyid

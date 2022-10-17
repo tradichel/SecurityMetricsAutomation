@@ -18,7 +18,7 @@ deploy_group_role 'AppDeployment'
 deploy_group_role 'Developers'
 deploy_group_role 'AppSec'
 
-jobname="DeployBatchJobCredentials"
+jobname="DeployJobCredentials"
 jobtype="IAM"
 deploy_batch_role $jobname $jobtype
 

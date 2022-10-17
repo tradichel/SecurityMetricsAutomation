@@ -26,12 +26,6 @@ Resources:
               - 'ec2:DescribeInstances'
             Resource: '*'
           - Effect: Allow
-            Action: 
-              - 'kms:GenerateDataKeyWithoutPlaintext'
-            Resource: 
-              - Fn::ImportValue:
-                  DeveloperComputeResourcesKeyArnExport
-          - Effect: Allow
             Action: iam:PassRole
             Resource: !Sub arn:aws:iam::${AWS::AccountId}:role/GenerateBatchJobIdLambdaRole
       Roles: 

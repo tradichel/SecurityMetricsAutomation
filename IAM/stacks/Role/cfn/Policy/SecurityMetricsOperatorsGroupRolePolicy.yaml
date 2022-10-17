@@ -15,7 +15,7 @@ Resources:
             Action: '*'
             Resource: '*'
       Roles: 
-        - "AppDeploymentGroup"
+        - "SecurityMetricsOperatorsGroup"
 
 #################################################################################
 # Copyright Notice

@@ -9,11 +9,13 @@ source group_functions.sh
 
 echo "-------------- Deploy IAM Admin Group -------------------"
 
-deploy_group 'IAMAdmins'
+profile='ROOT'
 
-users='IAMAdmin'
+deploy_group 'IAMAdmins' $profile
+
+users='IAMAdmin,IAMAdmin2'
 group='IAMAdmins'
-add_users_to_group "$users" $group
+add_users_to_group "$users" $group $profile
 
 #################################################################################
 # Copyright Notice

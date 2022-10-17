@@ -15,8 +15,8 @@ keyalias="BatchJobCredentials"
 conditionservice="secretsmanager"
 
 #get the encryption ARN for our key policy 
-stack='IAM-Role-DeployBatchJobCredentialsIAMBatchRole'
-exportname='DeployBatchJobCredentialsIAMBatchJobRoleArn'
+stack='IAM-Role-DeployJobCredentialsIAMBatchRole'
+exportname='DeployJobCredentialsRoleArn'
 encryptarn=$(get_stack_export $stack $exportname)
   
 #get the decryption ARN for our key policy 
@@ -27,7 +27,6 @@ decryptarn=$(get_stack_export $stack $exportname)
 deploy_key $encryptarn $decryptarn $keyalias $conditionservice $desc
 
 echo "------Key for batch job trigger -----"
-
 desc="KMS Key for Batch Job Trigger"
 keyalias="TriggerBatchJob"
 conditionservice="parameterstore"
@@ -55,7 +54,7 @@ keyalias="DeveloperSecrets"
 conditionservice="secretsmanager"
 
 #get the encryption ARNs for our key policy 
-stack='IAM-Role-IAMAdminsRole'
+stack='ROOT-Role-IAMAdminsRole'
 exportname='IAMAdminsRoleArnExport'
 encryptarn1=$(get_stack_export $stack $exportname)
 

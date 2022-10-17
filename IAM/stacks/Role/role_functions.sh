@@ -16,25 +16,24 @@ deploy_group_role(){
 	function=${FUNCNAME[0]}
 	validate_param "groupname" $groupname $function
 
-	if [ "$profile_override" != "" ]; then
-		profile=$profile_override
-	fi
+	if [ "$profile_override" != "" ]; then profile=$profile_override; fi
 
 	#retrieve a list of user ARNs in the group
   users=$(aws iam get-group --group-name $groupname --profile $profile \
 			--query Users[*].Arn --output text | sed 's/\t/,/g')
-
-	echo "Users: " $users
 
 	if [ "$users" == "" ]; then
 		echo 'No users in group '$groupname' so the group role will not be created.'
 		exit
 	fi
 
+	timestamp=$(get_timestamp)
+
 	resourcetype='Role'
 	template='cfn/GroupRole.yaml'
 	p=$(add_parameter "GroupNameParam" $groupname)
 	p=$(add_parameter "GroupUsers" $users "$p") 
+  p=$(add_parameter "TimestampParam" $timestamp "$p")
 	stackname=$groupname'Role'
 
 	deploy_stack $profile $stackname $resourcetype $template "$p"
@@ -59,7 +58,6 @@ deploy_role_policy(){
 
 }
 
-
 deploy_batch_role(){
 
 	jobname=$1
@@ -72,7 +70,7 @@ deploy_batch_role(){
   resourcetype='Role'
   template='cfn/BatchJobRole.yaml'
 	p=$(add_parameter "JobNameParam" $jobname)
-  p=$(add_parameter "BatchTypeParam" $jobtype $p)  
+  p=$(add_parameter "BatchJobTypeParam" $jobtype $p)  
 	rolename=$jobname$jobtype'BatchRole'
 
   deploy_stack $profile $rolename $resourcetype $template "$p"

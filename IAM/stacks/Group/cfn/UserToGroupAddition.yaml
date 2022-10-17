@@ -7,6 +7,9 @@ Parameters:
     Type: CommaDelimitedList
   GroupNameParam:
     Type: String
+  TimestampParam:
+    Type: String
+    Description: Force an update since AWS overwrites roles and CF doesn't recognize the change
 
 Resources:
   UserToGroup:
@@ -14,6 +17,10 @@ Resources:
     Properties: 
       GroupName: !Ref GroupNameParam
       Users: !Ref UserNamesParam
+
+Outputs:
+  ForceUpdate:
+    Value: !Sub "${TimestampParam}"
 
 #################################################################################
 # Copyright Notice

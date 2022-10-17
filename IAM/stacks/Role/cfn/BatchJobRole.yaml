@@ -20,16 +20,16 @@ Parameters:
 Mappings:
   BatchJobRoleMap:
     IAM:
-      roleprefix: IAMBatchJobRole
+      roleprefix: Batch-IAM-
       assumeroleuser: IAMAdmin  
     KMS:
-      roleprefix: KMSBatchJobRole
+      roleprefix: Batch-KMS-
       assumeroleuser: KMSAdmin
     Network:
-      roleprefix: NetworkJobRole
+      roleprefix: Batch-Network-
       assumeroleuser: NetworkAdmin
     SecurityMetrics:
-      roleprefix: SecurityMetricsJobRole
+      roleprefix: Batch-SecurityMetrics-
       assumeroleuser: SecurityMetricsAdmin
 
 Resources:
@@ -68,11 +68,11 @@ Outputs:
   BatchJobRoleOutput:
     Value: !Ref BatchJobRole
     Export:
-     Name: !Sub ${JobNameParam}${BatchJobTypeParam}BatchJobRole
+     Name: !Sub ${JobNameParam}Role
   BatchJobRoleArnOutput:
     Value: !GetAtt BatchJobRole.Arn
     Export:
-     Name: !Sub ${JobNameParam}${BatchJobTypeParam}BatchJobRoleArn
+     Name: !Sub ${JobNameParam}RoleArn
 
 #################################################################################
 # Copyright Notice

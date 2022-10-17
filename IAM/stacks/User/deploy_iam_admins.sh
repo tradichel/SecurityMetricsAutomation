@@ -1,15 +1,16 @@
 #!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# IAM/test_ssh.sh
-# author: @tradichel @2ndsightlab
-# description: Test the SSH creation script. Before
-# running this script, need to create all users and
-# run the KMS test script
+# IAM/stacks/User/deploy_first_iam_admin.sh
+# author: @teriradichel @2ndsightlab
+# Description: Deploy first IAM admin and role, then
+# chagne CLI configuration to use this IAM user for deployments.
 ##############################################################
 
-cd stacks/User
-./deploy_ssh_keys.sh
-cd ../..
+source user_functions.sh
+
+echo "-------------- Deploy First IAM Admin and Role -------------------"
+deploy_iam_admin 'IAMAdmin'
+deploy_iam_admin 'IAMAdmin2'
 
 #################################################################################
 # Copyright Notice
@@ -34,4 +35,4 @@ cd ../..
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
-                                                                                    
+

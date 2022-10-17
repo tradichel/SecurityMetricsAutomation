@@ -52,11 +52,14 @@ add_users_to_group() {
   validate_param "usernames" $usernames $function
 	validate_param "groupname" $groupname $function
 	
+	timestamp=$(get_timestamp)
+
 	template='cfn/UserToGroupAddition.yaml'
 	name='AddUsersTo'$groupname
 	resourcetype='UserToGroupAddition'
 	parameters=$(add_parameter "UserNamesParam" $usernames)
 	parameters=$(add_parameter "GroupNameParam" $groupname $parameters)
+  parameters=$(add_parameter "TimestampParam" $timestamp $parameters)
 	deploy_stack $profile $name $resourcetype $template "$parameters"
 
 }

@@ -1,3 +1,4 @@
+#!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
 # Functions/shared_functions.sh
 # author: @teriradichel @2ndsightlab
@@ -32,7 +33,30 @@ get_stack_export(){
     exit 1
   fi
 
-  echo $value
+	echo $value
+
+}
+
+get_kms_key_id(){
+	alias="$1"
+
+  func=${FUNCNAME[0]}
+  validate_param 'alias' $alias $func
+
+	keystack='KMS-Key-'$alias
+	keyexport=$alias'KeyIDExport'
+
+	kmskeyid=$(get_stack_export $keystack $keyexport)
+	echo $kmskeyid
+
+}
+
+get_stack_status() {
+
+	stackname="$1"
+
+  echo $(aws cloudformation describe-stacks --stack-name $stackname \
+     --query Stacks[0].StackStatus --output text 2>/dev/null || true) 
 
 }
 
@@ -53,10 +77,20 @@ deploy_stack () {
   validate_param 'resourcename' $resourcename $func
   validate_param 'resourcetype' $resourcetype $func
   validate_param 'template' $template $func
-
 	#not all stacks have parameters
- 
+
   stackname=$profile'-'$resourcetype'-'$resourcename
+	status=$(get_stack_status $stackname)
+	
+	if [ "$status" == "ROLLBACK_COMPLETE" ]; then
+		aws cloudformation delete-stack --stack-name $stackname
+	  
+    while [ "$(get_stack_status $stackname)" == "DELETE_IN_PROGRESS" ]
+    do
+			 sleep 5
+		done
+	
+	fi
 
   echo "-------------- $stackname -------------------"
 
@@ -64,7 +98,7 @@ deploy_stack () {
 			--stack-name $stackname 
       --template-file $template "
 
-  if [ "$profile" == "IAM" ] || [ "$profile" == "deploycreds" ]; then
+  if [ "$profile" == "IAM" ] || [ "$profile" == "ROOT" ] || [ "$profile" == "AppSec" ]; then
 		 c=$c' --capabilities CAPABILITY_NAMED_IAM '
 	fi
 
@@ -75,6 +109,14 @@ deploy_stack () {
 	echo $c
 
 	($c)
+
+}
+
+get_timestamp() {
+
+  timestamp="$(date)"
+  timestamp=$(echo $timestamp | sed 's/ //g')
+	echo $timestamp
 
 }
 

@@ -1,25 +1,25 @@
-#!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# Jobs/stacks/Lambda/BatchJobs/GenerateBatchJobId/deploy.sh
-# author: @teriradichel @2ndsightlab
-# description: deploy Lambda function to Trigger a Batch Job
+# IAM/stacks/role/cfn/Policy/IAMAdminsGroupRoleKMSPolicy.yaml
+# author: @tradichel @2ndsightlab
+# description: policy for IAM administrators
 ##############################################################
-
-source ../../../../Functions/shared_functions.sh
-
-profile="IAM"
-resource="GenerateBatchJobIdPolicy"
-resourcetype="Policy"
-template='cfn/'$resource'.yaml'
-
-deploy_stack $profile $resource $resourcetype $template
-
-profile="AppDeploy"
-resource="GenerateBatchJobId"
-resourcetype="Lambda"
-template='cfn/'$resource'.yaml'
-
-deploy_stack $profile $resource $resourcetype $template
+Resources:
+  IAMAdminsGroupRoleKMSPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: IAMAdminsGroupRoleKMSPolicy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'kms:Decrypt'
+              - 'kms:GenerateDataKey'
+            Resource:
+              Fn::ImportValue:
+                DeveloperSecretsKeyArnExport             
+      Roles: 
+        - "IAMAdminsGroup"
 
 #################################################################################
 # Copyright Notice
@@ -44,3 +44,5 @@ deploy_stack $profile $resource $resourcetype $template
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
+                                                                                     
+

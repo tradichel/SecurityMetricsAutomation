@@ -16,10 +16,6 @@ deploy_group 'AppDeployment'
 deploy_group 'Developers'
 deploy_group 'AppSec'
 
-users='IAMAdmin,IAMAdmin2'
-group='IAMAdmins'
-add_users_to_group $users $group
-
 users='KMSAdmin'
 group='KMSAdmins'
 add_users_to_group $users $group

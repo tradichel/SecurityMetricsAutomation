@@ -6,20 +6,56 @@
 Parameters:
   NameParam:
     Type: String
+  ConsoleAccess:
+    Type: String
+    AllowedValues:
+      - true
+      - false
+    Default: false
+
+Conditions:
+  ConsoleAllowed: !Equals
+    - !Ref ConsoleAccess
+    - true
 
 Resources:
+
+  Passwrd:
+    Type: 'AWS::SecretsManager::Secret'
+    Condition: ConsoleAllowed
+    Properties:
+      Name: !Sub ${NameParam}-Password
+      GenerateSecretString:
+        SecretStringTemplate:
+              !Join
+                - ''
+                - - '{"username": "'
+                  - !Ref NameParam
+                  - '"}'
+        GenerateStringKey: password
+        PasswordLength: 20
+
   User:
     Type: AWS::IAM::User
     Properties:
       UserName: !Ref NameParam
-      
+      LoginProfile:
+        Fn::If: 
+          - ConsoleAllowed
+          - 
+            Password: !Sub "{{resolve:secretsmanager:${Passwrd}:SecretString:password}}"
+            PasswordResetRequired: true
+          - Ref: AWS::NoValue
+
 Outputs:
   UserOutput:
     Value: !Ref User
     Export:
      Name: !Sub ${NameParam}UserExport
+
   UserARNOutput:
-    Value: !GetAtt User.Arn
+    Value: 
+      !GetAtt User.Arn
     Export:
       Name: !Sub ${NameParam}UserArnExport
 

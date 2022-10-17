@@ -28,20 +28,12 @@ Resources:
               - 'secretsmanager:UpdateSecret'
               - 'secretsmanager:DeleteResourcePolicy'
               - 'secretsmanager:PutResourcePolicy'
-            Resource: '*'
-          - Effect: Allow
-            Action:
-              - 'kms:Decrypt'
-              - 'kms:GenerateDataKey'
-            Resource:
-              Fn::ImportValue:
-                DeveloperSecretsKeyArnExport 
-            
+              - 'secretsmanager:GetRandomPassword'
+              - 'secretsmanager:DeleteSecret'
+              - 'secretsmanager:GetSecretValue'
+            Resource: '*'           
       Roles: 
         - "IAMAdminsGroup"
-Outputs:
-  ForceUpdate:
-    Value: "update"
 
 #################################################################################
 # Copyright Notice

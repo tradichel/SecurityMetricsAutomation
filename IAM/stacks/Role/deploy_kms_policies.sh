@@ -1,13 +1,18 @@
 #!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# Lambda/test.sh
-# author: @teriradichel @2ndsightlab
+# IAM/stacks/Role/deploy.sh
+# author: @teriradichel @2nsightlab
+# Description: Depiloy all kms roles
+# after KMS stacks have created referenced KMS key outputs
 ##############################################################
 
-cd stacks/BatchJobAuth/TriggerBatchJob/
-./deploy.sh 
-cd ../../..
+echo "-------------- Deploy KMS Roles -------------------"
 
+source role_functions.sh
+
+deploy_role_policy 'AppSecGroupRoleKMSPolicy'
+deploy_role_policy 'IAMAdminsGroupRoleKMSPolicy'
+deploy_role_policy 'AppSecGroupRoleKMSPolicy'
 
 #################################################################################
 # Copyright Notice
@@ -32,3 +37,4 @@ cd ../../..
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
+

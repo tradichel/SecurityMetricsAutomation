@@ -1,13 +1,18 @@
 #!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# Lambda/test.sh
+# Jobs/stacks/IAMJobs/DeployBatchJobCredentials/deploy.sh
 # author: @teriradichel @2ndsightlab
+# description: deploy batch job
 ##############################################################
 
-cd stacks/BatchJobAuth/TriggerBatchJob/
-./deploy.sh 
-cd ../../..
+source ../../Functions/batch_appsec_functions.sh
+source ../../Functions/batch_appdeploy_functions.sh
 
+jobname='DeployJobCredentials'
+
+#going to change this up. commenting out for now
+#deploy_batch_job_policy $jobname
+#deploy_batch_job_secret $jobname "SecurityMetricsOperator"
 
 #################################################################################
 # Copyright Notice

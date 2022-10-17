@@ -8,7 +8,8 @@ source role_functions.sh
 
 echo "-------------- Deploy IAM Admin Role -------------------"
 
-deploy_group_role 'IAMAdmins'
+profile="ROOT"
+deploy_group_role 'IAMAdmins' $profile
 
 #################################################################################
 # Copyright Notice

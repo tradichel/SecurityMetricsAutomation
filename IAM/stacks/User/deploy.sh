@@ -4,19 +4,19 @@
 # author: @teriradichel @2ndsightlab
 # Description: Deploy all users
 ##############################################################
-
-echo "You must have an AWS CLI profile named IAM configured to run this scirpt"
-
-echo "-------------- Deploy User -------------------"
-
 source user_functions.sh
 
-deploy_user 'IAMAdmin2'
-deploy_user 'KMSAdmin'
-deploy_user 'SecurityMetricsOperator'
-deploy_user 'NetworkAdmin'
-deploy_user 'Developer'
-deploy_user 'AppSec'
+echo "You must have an AWS CLI profile named IAM configured to run this script"
+echo "-------------- Deploy User -------------------"
+
+console_access='true'
+deploy_user 'Developer' $console_access
+
+console_access='false'
+deploy_user 'KMSAdmin' $console_access
+deploy_user 'SecurityMetricsOperator' $console_access
+deploy_user 'NetworkAdmin' $console_access
+deploy_user 'AppSec' $console_access
 
 #################################################################################
 # Copyright Notice

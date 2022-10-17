@@ -1,7 +1,8 @@
-# https://github.com/tradichel/SecurityMetricsAutomation/blob/main/iam/batch_job_role/cfn/role_batch_job.yaml
-# IAM/stacks/role/cfn/Policy/DevelopersGroupRolePolicy.yaml
+# https://github.com/tradichel/SecurityMetricsAutomation
+# IAM/stacks/role/cfn/Policy/AppSecGroupRolePolicy.yaml
 # author: @tradichel @2ndsightlab
-# description: policy for IAM administrators
+# description: policy for AppSec administrators 
+# secrets management, resource policies, app roles
 ##############################################################
 Resources:
   AppSecGroupRolePolicy:
@@ -23,10 +24,6 @@ Resources:
               - !Sub arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/AppSec-*
           - Effect: Allow
             Action:
-              - 'ec2:CreateKeyPair'
-              - 'ssm:PutParameter'
-              - 'ec2:DeleteKeyPair'
-              - 'ec2:DescribeKeyPairs'
               - 'secretsmanager:CreateSecret'
               - 'secretsmanager:UpdateSecret'
               - 'secretsmanager:DeleteResourcePolicy'
@@ -34,11 +31,17 @@ Resources:
             Resource: '*'
           - Effect: Allow
             Action:
-              - 'kms:Decrypt'
-              - 'kms:GenerateDataKey'
+              - 'iam:CreatePolicy'
+              - 'iam:PutRolePolicy'
             Resource:
-              Fn::ImportValue:
-                DeveloperSecretsKeyArnExport
+              - !Sub 'arn:aws:iam::${AWS::AccountId}:role/Lambda*'
+              - !Sub 'arn:aws:iam::${AWS::AccountId}:role/Batch*'
+          - Effect: Allow
+            Action:
+              - iam:CreateAccessKey
+              - iam:DeleteAccessKey
+            Resource: '*'
+
       Roles: 
         - "AppSecGroup"
 

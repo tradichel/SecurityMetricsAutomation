@@ -10,33 +10,40 @@ profile="IAM"
 
 deploy_user() {
 
-	username=$1
-	profile_override="$2"
+	username="$1"
+	console_access="$2"
+	profile_override="$3"
 
   if [ "$profile_ovverride" != "" ]; then profile=$profile_override; fi
 	
 	function=${FUNCNAME[0]}
   validate_param "username" $username $function
+	validate_param "console_access" $console_access $function
 
   template="cfn/User.yaml"
   resourcetype='User'
   parameters=$(add_parameter "NameParam" $username)
   
+	if [ "$console_access" == "true" ]; then
+  	parameters=$(add_parameter "ConsoleAccess" "true" $parameters)
+	fi
+
 	deploy_stack $profile $username $resourcetype $template $parameters
 	
 }
 
 #using default profile to deploy first IAM user in an account
-deploy_first_iam_admin() {
+deploy_iam_admin() {
 
   username=$1
 
   function=${FUNCNAME[0]}
   validate_param "username" $username $function
 
-  deploy_user $username
-
-	echo "First IAM user created. Next step: Create a CLI profile named IAM to run IAM scripts from here on out."
+	profile="ROOT"
+	console_access="false"
+	
+  deploy_user $username $console_access $profile
 
 }
 

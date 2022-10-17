@@ -1,12 +1,21 @@
 #!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# Lambda/test.sh
+# Jobs/stacks/Lambda/BatchJobs/TriggerBatchJob/deploy.sh
 # author: @teriradichel @2ndsightlab
+# description: deploy Lambda function to Trigger a Batch Job
 ##############################################################
 
-cd stacks/BatchJobAuth/TriggerBatchJob/
-./deploy.sh 
-cd ../../..
+source ../../../../Functions/shared_functions.sh
+
+profile="AppSec"
+resource="TriggerBatchJobLambda"
+resourcetype="Policy"
+template='cfn/'$resource'.yaml'
+
+#going to switch this up - deploy later
+#deploy_stack $profile $resource $resourcetype $template
+
+echo "To Do: Deploy Lambda"
 
 
 #################################################################################

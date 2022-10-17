@@ -7,37 +7,88 @@
 
 #test all the things
 
-cd IAM
-./test.sh
-cd ..
+echo "Create IAM Admins? (Enter y to test, anything else to continue, CTRL-C to exit)"
+read ok
+if [ "$ok" == "y" ]; then
+  cd IAM/test
+  ./test_iam_admin.sh
+  cd ../..
+	exit
+fi
 
-cd Network
-./test.sh
-cd ..
+echo "Test IAM? (Enter y to test, anything else to continue, CTRL-C to exit)"
+read ok
+if [ "$ok" == "y" ]; then
+	cd IAM/test
+	./test.sh
+	cd ../..
+fi
 
-cd KMS
-./test.sh
-cd ..
 
-cd AppSec
-./test.sh
-cd ..
+echo "Test Network?  (Enter y to test, anything else to continue, CTRL-C to exit)"
+read ok
+if [ "$ok" == "y" ]; then
+	cd Network
+	./test.sh
+	cd ..
+fi
 
-cd Jobs
-./test.sh
-cd ..
+echo "Test KMS?  (Enter y to test, anything else to continue, CTRL-C to exit)"
+read ok
+if [ "$ok" == "y" ]; then
+	cd KMS
+	./test.sh
+	cd ..
+fi
 
-cd Lambda
-./test.sh
-cd ..
+echo "Test AppSec?  (Enter y to test, anything else to continue, CTRL-C to exit)"
+read ok
+if [ "$ok" == "y" ]; then
+	cd AppSec
+	./test.sh
+	cd ..
+fi
 
-cd IAM
-./test_ssh.sh
-cd ..
+echo "Test KMS IAM Role Policies?  (Enter y to test, anything else to continue, CTRL-C to exit)"
+read ok
+if [ "$ok" == "y" ]; then
 
-cd VMs
-./test.sh
-cd ..
+  cd IAM/test
+  ./test_kms_policies.sh
+  cd ../..
+fi
+
+echo "Test Jobs?  (Enter y to test, anything else to continue, CTRL-C to exit)"
+read ok
+if [ "$ok" == "y" ]; then
+	cd Jobs
+	./test.sh
+	cd ..
+fi
+
+echo "Test Lambda?  (Enter y to test, anything else to continue, CTRL-C to exit)"
+read ok
+if [ "$ok" == "y" ]; then
+	cd Lambda
+	./test.sh
+	cd ..
+fi
+
+echo "Test SSH key deployment?  (Enter y to test, anything else to continue, CTRL-C to exit)"
+read ok
+if [ "$ok" == "y" ]; then
+	cd IAM/test
+	./test_ssh.sh
+	cd ../..
+fi
+
+echo "Test VMs?  (Enter y to test, anything else to continue, CTRL-C to exit)"
+read ok
+if [ "$ok" == "y" ]; then
+	cd VMs
+	./test.sh
+	cd ..
+fi
 
 echo "Test Complete"
 

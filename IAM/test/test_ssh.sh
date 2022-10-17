@@ -1,13 +1,16 @@
 #!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# Lambda/test.sh
-# author: @teriradichel @2ndsightlab
+# IAM/test_ssh.sh
+# author: @tradichel @2ndsightlab
+# description: Test the SSH creation script. Before
+# running this script, need to create all users and
+# run the KMS test script
 ##############################################################
 
-cd stacks/BatchJobAuth/TriggerBatchJob/
-./deploy.sh 
-cd ../../..
-
+cd ..
+cd stacks/User
+./deploy_ssh_keys.sh
+cd ../../test
 
 #################################################################################
 # Copyright Notice
@@ -32,3 +35,4 @@ cd ../../..
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
+                                                                                    

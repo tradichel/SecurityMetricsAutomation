@@ -1,15 +1,26 @@
-#!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# IAM/stacks/User/deploy_first_iam_admin.sh
-# author: @teriradichel @2ndsightlab
-# Description: Deploy first IAM admin and role, then
-# chagne CLI configuration to use this IAM user for deployments.
+# IAM/stacks/role/cfn/Policy/AppDeployGroupRoleKMSPolicy.yaml
+# author: @tradichel @2ndsightlab
+# description: policy for app deployment role
+# to use KMS keys associated with compute resources
+# and applications
 ##############################################################
-
-source user_functions.sh
-
-echo "-------------- Deploy First IAM Admin and Role -------------------"
-deploy_first_iam_admin 'IAMAdmin'
+Resources:
+  AppDeployGroupRoleKMSPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: AppDeploymentGroupRoleKMSPolicy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: 
+              - 'kms:GenerateDataKeyWithoutPlaintext'
+            Resource: 
+              - Fn::ImportValue:
+                  DeveloperComputeResourcesKeyArnExport
+      Roles: 
+        - "AppDeploymentGroup"
 
 #################################################################################
 # Copyright Notice
@@ -34,4 +45,4 @@ deploy_first_iam_admin 'IAMAdmin'
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
-
+                                                                                     

@@ -6,8 +6,7 @@
 ##############################################################
 
 source "../../Functions/shared_functions.sh"
-servicename="Network"
-profile=$servicename
+profile="Network"
 
 deploy_vpc (){
 
@@ -27,7 +26,7 @@ deploy_vpc (){
   p=$(add_parameter "NameParam" $vpcname)
  	p=$(add_parameter "CIDRParam" $cidr $p)
 	
-  deploy_stack $profile $servicename $vpcname $resourcetype $template "$p"
+  deploy_stack $profile $vpcname $resourcetype $template "$p"
 
 	#deploy route table
   resourcetype='RouteTable'
@@ -37,7 +36,7 @@ deploy_vpc (){
   p=$(add_parameter "VPCExportParam" $vpcname $p)
   p=$(add_parameter "RouteTypeParam" $vpctype $p)
 
-  deploy_stack $profile $servicename $rtname $resourcetype $template "$p"
+  deploy_stack $profile $rtname $resourcetype $template "$p"
 
 	fix_vpc_route_table $vpcname
 
@@ -112,7 +111,7 @@ clean_up_default_sg(){
 	exportparam=$vpcname'DefaultSecurityGroup'
   p=$(add_parameter "SGExportParam" $exportparam)
   resourcetype='SGRules'
-  deploy_stack $profile $servicename $name $resourcetype $template "$p"
+  deploy_stack $profile $name $resourcetype $template "$p"
 
 }
 
@@ -131,7 +130,7 @@ deploy_security_group() {
 	p=$(add_parameter "VPCExportParam" $vpc $p)
 	p=$(add_parameter "GroupDescriptionParam" "$desc" $p)
 	
-	deploy_stack $profile $servicename $sgname $resourcetype $template "$p"
+	deploy_stack $profile $sgname $resourcetype $template "$p"
 
 	name=$sgname'-Rules'
 	template=$rulestemplate
@@ -140,7 +139,7 @@ deploy_security_group() {
 	#cidr for remote access to AWS only at this time
   if [ "$cidr" != "" ]; then p=$(add_parameter "AllowCidrParam" "$cidr" $p); fi
 	resourcetype='SGRules'
-	deploy_stack $profile $servicename $name $resourcetype $template "$p"
+	deploy_stack $profile $name $resourcetype $template "$p"
 	
 }
 
@@ -161,20 +160,19 @@ deploy_subnets(){
   validate_param "cidrbits" $cidrbits $function
   validate_param "naclrulestemplate" $naclrulestemplate $function
 
-
   #assuming all the subnets use the same NACL here
 	template="cfn/NACL.yaml"
 	naclname=$vpc'-NACL'
 	resourcetype='NACL'
 	p=$(add_parameter "NameParam" $naclname)
 	p=$(add_parameter "VPCExportParam" $vpc $p)
-	deploy_stack $profile $servicename $naclname $resourcetype "$template" "$p"
+	deploy_stack $profile $naclname $resourcetype "$template" "$p"
   
 	#add nacl rules
 	resourcetype="NetworkACLEntry"
 	name=$naclname'Entries'
  	p=$(add_parameter "NACLExportParam" $naclname)
-  deploy_stack $profile $servicename $name $resourcetype $naclrulestemplate "$p"
+  deploy_stack $profile $name $resourcetype $naclrulestemplate "$p"
 
 	i=0
  
@@ -196,7 +194,7 @@ deploy_subnets(){
    p=$(add_parameter "CidrBitsParam" $cidrbits $p)
    p=$(add_parameter "SubnetIndexParam" $index $p)   
  
-	 deploy_stack $profile $servicename $subnetname $resourcetype $template "$p"
+	 deploy_stack $profile $subnetname $resourcetype $template "$p"
 
 	template=cfn/SubnetAssociation.yaml
 	resourcetype='SubnetAssociation'
@@ -206,7 +204,7 @@ deploy_subnets(){
   p=$(add_parameter "SubnetIdExportParam" $subnetname)
   p=$(add_parameter "NACLIdExportParam" $naclname $p) 
 	p=$(add_parameter "TimestampParam" $t $p)
-	deploy_stack $profile $servicename $subnetname$naclname $resourcetype $template "$p"
+	deploy_stack $profile $subnetname$naclname $resourcetype $template "$p"
 
 	done
 
