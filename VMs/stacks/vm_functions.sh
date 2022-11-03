@@ -34,23 +34,57 @@ get_latest_ami(){
 
 }
 
+deploy_developer_vm(){
+  user="$1"
+  ec2type="$2"
+	ami=$3
+
+	#get the security group ids for our developer VM
+
+	stack='Network-SecurityGroup-RemoteAccessPublicVPC-SSH'
+	exportname='RemoteAccessPublicVPC-SSH'
+	remote_access_sg=$(get_stack_export $stack $exportname)
+
+  stack='Network-SecurityGroup-RemoteAccessPublicVPC-Github'
+  exportname='RemoteAccessPublicVPC-Github'
+  github_sg=$(get_stack_export $stack $exportname)
+
+  stack='Network-SecurityGroup-RemoteAccessPublicVPC-S3'
+  exportname='RemoteAccessPublicVPC-S3'
+  s3_sg=$(get_stack_export $stack $exportname)
+
+  stack='Network-SecurityGroup-RemoteAccessPublicVPC-VPCEndpointAccess'
+  exportname='RemoteAccessPublicVPC-VPCEndpointAccess'
+  vpce_sg=$(get_stack_export $stack $exportname)
+
+	sgids=$remote_access_sg','$s3_sg','$github_sg','$vpce_sg
+
+	echo 'Developer security groups: '$sgids
+	
+	deploy_vm $user $ec2type $ami $sgids
+
+}
+
 deploy_vm(){
 
 	user="$1"
 	ec2type="$2"
 	ami="$3"
+	sgids="$4"
 
   function=${FUNCNAME[0]}
   validate_param "user" $user $function
   validate_param "ec2type" $ec2type $function
   validate_param "ami" $ami $function
+	validate_param "sgids" $sgids $function
 
 	template='cfn/UserVM.yaml'
   resourcetype='EC2'
 
   parameters=$(add_parameter "NameParam" $user)
-  parameters=$(add_parameter "AMI" $ami "$parameters")
-  parameters=$(add_parameter "InstanceType" $ec2type "$parameters")
+  parameters=$(add_parameter "AMIParam" $ami "$parameters")
+  parameters=$(add_parameter "InstanceTypeParam" $ec2type "$parameters")
+  parameters=$(add_parameter "SecurityGroupIdsParam" "$sgids" "$parameters")
 
 	deploy_stack $profile $user $resourcetype $template "$parameters"
 

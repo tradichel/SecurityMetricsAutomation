@@ -1,36 +1,24 @@
-# https://github.com/tradichel/SecurityMetricsAutomation/blob/main/iam/batch_job_role/cfn/role_batch_job.yaml
-# IAM/stacks/role/cfn/Policy/AppSecGroupRoleKMSPolicy.yaml
-# author: @tradichel @2ndsightlab
-# description: policy for AppSec administrators 
-# secrets management, resource policies
-###############################################################
+# https://github.com/tradichel/SecurityMetricsAutomation
+# Network/stacks/cfn/PrefixList.yaml
+# author: @teriradichel @2ndsightlab
+# description: create an customer managed prefix list of 
+# ips to use in security group rulesets
+##############################################################
 Resources:
-  AppSecKMSGroupRolePolicy:
-    Type: 'AWS::IAM::ManagedPolicy'
+  PrefixList:
+    Type: AWS::EC2::PrefixList
     Properties:
-      ManagedPolicyName: AppSecGroupRoleKMSPolicy
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Deny
-            Action: 'secretsmanager:GetSecretValue'
-            Resource: '*'
-          - Effect: Allow
-            Action: 'secretsmanager:*'
-            Resource: '*'
-          - Effect: Allow
-            Action: 'cloudformation:*'
-            Resource:
-              - !Sub arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/AppSec-*
-          - Effect: Allow
-            Action:
-              - 'kms:Decrypt'
-              - 'kms:GenerateDataKey'
-            Resource:
-              - Fn::ImportValue:
-                  DeveloperSecretsKeyArnExport
-      Roles: 
-        - "AppSecGroup"
+      AddressFamily: "IPv4"
+      MaxEntries: 50
+      PrefixListName: [[name]]
+      Entries:
+[[ips]]
+
+Outputs:
+  PrefixListOutput:
+    Value: !Ref PrefixList
+    Export:
+      Name: [[name]]
 
 #################################################################################
 # Copyright Notice
@@ -55,4 +43,5 @@ Resources:
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
-                                                                                     
+
+

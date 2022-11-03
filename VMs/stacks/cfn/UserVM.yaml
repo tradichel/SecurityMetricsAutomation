@@ -1,58 +1,59 @@
 # https://github.com/tradichel/SecurityMetricsAutomation
-# IAM/stacks/User/cfn/User.yaml
+# IAM/stacks/VMs/cfn/UserVM.yaml
 # author: @tradichel @2ndsightlab
 ##############################################################
 Parameters:
   NameParam:
     Type: String
-  AMI:
+  AMIParam:
     Description: AMI Parameter
     Type: String
-  InstanceType:
+  InstanceTypeParam:
     Description: Instance type for AMI
     Type: String
   SubnetExportParam:
     Type: String
     Default: 'RemoteAccessPublicVPC-Subnet1'
-  SGExportParam:
-    Type: String
-    Default: 'RemoteAccessPublicVPC-SSH'
+  SecurityGroupIdsParam:
+    Type: CommaDelimitedList
   KMSKeyIdExportParam:
     Type: String
-    Default: 'DeveloperComputeResourcesKeyIDExport'
+    Default: 'DeveloperEC2KeyIDExport'
 
 Resources:
   VM:
     Type: AWS::EC2::Instance
     Properties:
-      ImageId: !Ref AMI
-      InstanceType: !Ref InstanceType
-      SubnetId:
-        Fn::ImportValue:
-          !Sub "${SubnetExportParam}"
-      SecurityGroupIds:
-        - Fn::ImportValue:
-            !Sub "${SGExportParam}"
+      ImageId: !Ref AMIParam
+      InstanceType: !Ref InstanceTypeParam
       KeyName: !Ref NameParam
       Tags:
         -
           Key: "Name"
-          Value: !Sub "${NameParam}-${InstanceType}-${AMI}"
+          Value: !Sub "${NameParam}-${InstanceTypeParam}-${AMIParam}"
+      IamInstanceProfile:
+          Fn::ImportValue: EC2AppDeployInstanceProfileExport
       BlockDeviceMappings:
         - DeviceName: /dev/xvda
           Ebs:
             VolumeType: gp2
             VolumeSize: '40'
-            DeleteOnTermination: 'false'
+            DeleteOnTermination: 'true'
             Encrypted: 'true'
             KmsKeyId:
               Fn::ImportValue:
                 !Sub "${KMSKeyIdExportParam}"
-                                                
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: "true"
+          DeviceIndex: "0"  
+          GroupSet: !Ref SecurityGroupIdsParam
+          SubnetId:
+            Fn::ImportValue:
+              !Sub "${SubnetExportParam}"
 Outputs:
   VMOutput:
     Value: !Ref VM
     Export:
-      Name: !Sub ${NameParam}-${AMI}
+      Name: !Sub ${NameParam}-${AMIParam}
 
 

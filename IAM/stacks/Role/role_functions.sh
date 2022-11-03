@@ -58,6 +58,24 @@ deploy_role_policy(){
 
 }
 
+deploy_ec2_instance_profile(){
+
+  profilename=$1
+	rolename=$2
+
+  function=${FUNCNAME[0]}
+  validate_param "profilename" $profilename $function
+  validate_param "rolename" $rolename $function
+
+  p=$(add_parameter "NameParam" $profilename)
+  p=$(add_parameter "RoleNamesParam" $rolename $p)
+  template='cfn/EC2InstanceProfile.yaml'
+  resourcetype='EC2InstanceProfile'
+
+  deploy_stack $profile $profilename $resourcetype $template "$p"
+
+}
+
 deploy_batch_role(){
 
 	jobname=$1

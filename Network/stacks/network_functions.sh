@@ -8,6 +8,102 @@
 source "../../Functions/shared_functions.sh"
 profile="Network"
 
+deploy_vpce() {
+
+  service="$1"
+
+  function=${FUNCNAME[0]}
+  validate_param "service" $service $function
+
+  template="cfn/VPCEndpoint.yaml"
+  resourcetype="VPCEndpoint"
+
+  p=$(add_parameter "ServiceParam" $service)
+	
+  deploy_stack $profile $service $resourcetype $template "$p"
+
+}
+
+deploy_eip(){
+
+	eipname="$1"
+	instance_cfexport="$2"
+
+	function=${FUNCNAME[0]}
+  validate_param "eipname" $eipname $function
+  validate_param "instance_cfexplort" $instance_cfexport $function
+
+  resourcetype='EIP'
+  template='cfn/EIP.yaml'
+  p=$(add_parameter "NameParam" $eipname)
+  p=$(add_parameter "InstanceIdExportParam" $instance_cfexport $p)
+
+  deploy_stack $profile $eipname $resourcetype $template "$p"
+
+}
+
+deploy_eip_association(){
+
+  eip_export="$1"
+  instance_cfexport="$2"
+
+  function=${FUNCNAME[0]}
+  validate_param "eip_export" $eip_export $function
+  validate_param "instance_cfexport" $instance_cfexport $function
+
+  resourcetype='EIPAssociation'
+  template='cfn/EIPAssociation.yaml'
+  p=$(add_parameter "EIPIDExportParam" $eip_export)
+  p=$(add_parameter "InstanceIdExportParam" $instance_cfexport $p)
+
+  deploy_stack $profile $eip_export $resourcetype $template "$p"
+
+}
+
+#Not used
+get_github_ips() {
+
+ips=$(curl -s https://api.github.com/meta |
+       grep 'packages' -B 1000 | grep 'git' -A 1000 | sort | uniq |
+       grep "/" | grep "\." | sed 's/"//g' | sed 's/ //g' | sed 's/,//g')
+
+entries=""
+for ip in $ips
+do
+	entries=$entries' Cidr='$ip',Description=github-git'
+done
+
+echo $entries
+
+}
+
+deploy_github_prefix_list() {
+
+  listname="GithubPrefixList"
+	entries=""
+	template="cfn/PrefixList-Github.yaml"
+	
+	if [ -f "$template" ]; then rm $template; fi
+
+	ips=$(curl -s https://api.github.com/meta |
+       grep 'packages' -B 1000 | grep 'git' -A 1000 | sort | uniq |
+       grep "/" | grep "\." | sed 's/"//g' | sed 's/ //g' | sed 's/,//g')
+
+	for ip in $ips
+	do
+  	entries=$entries'        - Cidr: '$ip$'\\\n'
+		entries=$entries$'          Description: github-git\\\n'
+	done
+
+	cat cfn/PrefixList.tmp | \
+  sed 's*\[\[name\]\]*'$listname'*g'  | \
+	sed 's*\[\[ips\]\]*'"$entries"'*' >> $template
+
+	resourcetype='PrefixList'
+  deploy_stack $profile $listname $resourcetype $template "$p"
+
+}
+
 deploy_vpc (){
 
   prefix="$1"
@@ -121,8 +217,14 @@ deploy_security_group() {
 	prefix="$2"
 	desc="$3"
 	rulestemplate="$4"
-	cidr="$5"
-	
+	cidr="$5"	
+
+  function=${FUNCNAME[0]}
+  validate_param "vpc" $vpc $function
+  validate_param "prefix" $prefix $function
+  validate_param "desc" $desc $function
+  validate_param "rulestemplate" $rulestemplate $function
+
 	template="cfn/SecurityGroup.yaml"
 	resourcetype="SecurityGroup"	
 	sgname=$vpc'-'$prefix
@@ -132,15 +234,39 @@ deploy_security_group() {
 	
 	deploy_stack $profile $sgname $resourcetype $template "$p"
 
-	name=$sgname'-Rules'
-	template=$rulestemplate
-  p=$(add_parameter "NameParam" $name)
-  p=$(add_parameter "SGExportParam" $sgname $p)
-	#cidr for remote access to AWS only at this time
-  if [ "$cidr" != "" ]; then p=$(add_parameter "AllowCidrParam" "$cidr" $p); fi
-	resourcetype='SGRules'
-	deploy_stack $profile $name $resourcetype $template "$p"
+	#pass in "none" for template if want to deploy template separately
+	if [ "$rulestemplate" != "none" ]; then
+	  deploy_sg_rules $sgname $rulestemplate $cidr
+  fi
+
+}
+
+get_sgrules_parameters() {
+
+		sgname="$1"
+		cidr="$2"
+
+    p=$(add_parameter "SGExportParam" $sgname)
+    if [ "$cidr" != "" ]; then p=$(add_parameter "AllowCidrParam" "$cidr" $p); fi
+		echo "$p"
+}
+
+deploy_sg_rules() {
+
+	sgname="$1"
+  template="$2"
+	cidr="$3"
+
+  function=${FUNCNAME[0]}
+  validate_param "sgname" $sgname $function
+  validate_param "template" $template $function
+	#cidr is optional
 	
+  resourcetype='SGRules'
+  p=$(get_sgrules_parameters $sgname $cidr)
+  rulesname=$sgname'-Rules'
+  deploy_stack $profile $rulesname $resourcetype $template "$p"
+
 }
 
 deploy_subnets(){
@@ -207,6 +333,38 @@ deploy_subnets(){
 	deploy_stack $profile $subnetname$naclname $resourcetype $template "$p"
 
 	done
+
+}
+
+#get the s3 prefix list for the current region
+get_s3_prefix_list(){
+	echo $(aws ec2 describe-managed-prefix-lists --filters Name=owner-id,Values=AWS --output text | grep s3 | cut -f5)
+}
+
+deploy_s3_security_group() {
+
+  vpc="$1"
+  prefix="$2"
+  desc="$3"
+
+  prefixlistid=$(get_s3_prefix_list)
+
+  template="cfn/SecurityGroup.yaml"
+  resourcetype="SecurityGroup"  
+  sgname=$vpc'-'$prefix
+  p=$(add_parameter "NameParam" $sgname)
+  p=$(add_parameter "VPCExportParam" $vpc $p)
+  p=$(add_parameter "GroupDescriptionParam" "$desc" $p)
+  
+  deploy_stack $profile $sgname $resourcetype $template "$p"
+
+  name=$prefix'-Rules'
+  template='cfn/SGRules/S3.yaml'
+  p=$(add_parameter "NameParam" $name)
+  p=$(add_parameter "SGExportParam" $sgname $p)
+  p=$(add_parameter "S3PrefixIdParam" "$prefixlistid" $p)
+  resourcetype='SGRules'
+  deploy_stack $profile $name $resourcetype $template "$p"
 
 }
 

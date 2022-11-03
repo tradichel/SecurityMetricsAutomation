@@ -11,12 +11,19 @@ echo "You must have a CLI profile named "IAM" configured to run this script"
 
 source role_functions.sh
 
+deploy_group_role 'AppDeployment'
 deploy_group_role 'KMSAdmins'
 deploy_group_role 'NetworkAdmins'
 deploy_group_role 'SecurityMetricsOperators'
 deploy_group_role 'AppDeployment'
 deploy_group_role 'Developers'
 deploy_group_role 'AppSec'
+
+awsservice='EC2'
+rolename=$awsservice'AppDeployRole'
+deploy_aws_service_role $rolename $awsservice
+
+deploy_ec2_instance_profile "EC2AppDeployInstanceProfile" $rolename
 
 jobname="DeployJobCredentials"
 jobtype="IAM"

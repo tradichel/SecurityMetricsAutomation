@@ -10,10 +10,7 @@ user="Developer"
 ec2type="t4g.small"
 ami=$(get_latest_ami)
 
-echo "Latest AMI: "$ami
-
-#get latest AWS Linux AMI:
-deploy_vm $user $ec2type $ami
+deploy_developer_vm $user $ec2type $ami
 
 #################################################################################
 # Copyright Notice

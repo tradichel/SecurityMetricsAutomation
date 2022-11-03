@@ -1,36 +1,26 @@
 # https://github.com/tradichel/SecurityMetricsAutomation/blob/main/iam/batch_job_role/cfn/role_batch_job.yaml
-# IAM/stacks/role/cfn/Policy/AppSecGroupRoleKMSPolicy.yaml
-# author: @tradichel @2ndsightlab
-# description: policy for AppSec administrators 
-# secrets management, resource policies
-###############################################################
+# IAM/stacks/Role/cfn/EC2InstanceProfile.yaml
+# author: @teriradichel @2ndsightlab
+# description: Generic template to deploy an EC2 instance profile
+##############################################################
+Parameters:
+  NameParam:
+    Type: String
+  RoleNamesParam:
+    Type: CommaDelimitedList
+
 Resources:
-  AppSecKMSGroupRolePolicy:
-    Type: 'AWS::IAM::ManagedPolicy'
+  InstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
     Properties:
-      ManagedPolicyName: AppSecGroupRoleKMSPolicy
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Deny
-            Action: 'secretsmanager:GetSecretValue'
-            Resource: '*'
-          - Effect: Allow
-            Action: 'secretsmanager:*'
-            Resource: '*'
-          - Effect: Allow
-            Action: 'cloudformation:*'
-            Resource:
-              - !Sub arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/AppSec-*
-          - Effect: Allow
-            Action:
-              - 'kms:Decrypt'
-              - 'kms:GenerateDataKey'
-            Resource:
-              - Fn::ImportValue:
-                  DeveloperSecretsKeyArnExport
-      Roles: 
-        - "AppSecGroup"
+      InstanceProfileName: !Ref NameParam
+      Roles: !Ref RoleNamesParam 
+
+Outputs:
+  InstanceProfileOutput:
+    Value: !Ref InstanceProfile
+    Export:
+     Name: !Sub ${NameParam}Export
 
 #################################################################################
 # Copyright Notice
@@ -55,4 +45,3 @@ Resources:
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
-                                                                                     

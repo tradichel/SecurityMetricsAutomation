@@ -22,22 +22,27 @@ deploy_group(){
 	resourcetype='Group'
 	template='cfn/Group.yaml'
 	parameters=$(add_parameter "NameParam" $groupname)
-
+  
 	deploy_stack $profile $groupname $resourcetype $template "$parameters"
-	
-	deploy_group_policy $groupname $profile
+
+	policyname=$groupname'GroupPolicy'	
+  template='cfn/GroupPolicy.yaml'
+	deploy_group_policy $groupname $template $policyname
 
 }
 
 deploy_group_policy(){
 
-	policyname=$1
+	groupname=$1
+  template="$2"
+ 	policyname="$3"
 
   function=${FUNCNAME[0]}
- 	validate_param "policy_name" $policyname $function
-	
-	parameters=$(add_parameter "NameParam" $policyname)
-	template='cfn/GroupPolicy.yaml'
+ 	validate_param "groupname" $groupname $function
+  validate_param "template" $template $function
+	validate_param "policyname" $policyname $function
+
+	parameters=$(add_parameter "NameParam" $groupname)
 	resourcetype='Policy'
 	deploy_stack $profile $policyname $resourcetype $template "$parameters"
 

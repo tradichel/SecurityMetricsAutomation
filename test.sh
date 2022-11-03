@@ -90,6 +90,14 @@ if [ "$ok" == "y" ]; then
 	cd ..
 fi
 
+echo "Test EIP Association?  (Enter y to test, anything else to continue, CTRL-C to exit)"
+read ok
+if [ "$ok" == "y" ]; then
+  cd Network
+  ./test_eip_assoc.sh
+  cd ..
+fi
+
 echo "Test Complete"
 
 

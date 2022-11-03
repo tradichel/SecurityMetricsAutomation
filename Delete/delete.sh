@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/sh
 # https://github.com/tradichel/SecurityMetricsAutomation
 # Delete/delete.sh
 # author: @teriradichel @2ndsightlab
@@ -12,6 +12,14 @@ echo "Do you have a profile named 'KMS' that is allowed to schedule deletion of 
 echo "Confirm every individual stack prior to deletion?"; read confirm
 if [ "$confirm" != "y" ]; then confirm="n"; fi
 
+
+#TODO:
+#Not deleting EIP yet so I don't have to change my local firewall rules
+#Have not added deletion of all the network stacks yet
+
+eipassocstacks=('Network-EIPAssociation-RemoteAccessEIPId')
+delete_stacks eipassocstacks[@] "EIP Association" $confirm
+
 ec2stacks=('AppDeploy-EC2-Developer')
 delete_stacks ec2stacks[@] "ec2" $confirm
 
@@ -24,6 +32,11 @@ lambdastacks=('AppDeploy-Lambda-GenerateBatchJobId'
 							'IAM-Role-TriggerBatchJobLambdaRole')
 delete_stacks lambdastacks[@] "lambda" $confirm
 
+iamsecretstacks=('IAM-Policy-DeveloperUserSecretPolicy'
+          'IAM-Policy-TriggerBatchJobLambdaPolicy'
+          'IAM-Policy-GenerateBatchJobIdPolicy'
+          'IAM-Policy-DeployBatchJobCredentialsIAMJobPolicy')
+delete_stacks iamsecretstacks[@] "Secret IAM policy" $confirm
 
 secretstacks=('AppSec-SecretResourcePolicy-SecretResourcePolicy' 
 						  'deploycreds-Secret-IAMBatchJobCredentials' 
@@ -32,18 +45,14 @@ secretstacks=('AppSec-SecretResourcePolicy-SecretResourcePolicy'
 							'AppSec-Secret-Developer')
 delete_stacks secretstacks[@] "secrets" $confirm
 
-
-iamsecretstacks=('IAM-Policy-DeveloperUserSecretPolicy' 
-					'IAM-Policy-TriggerBatchJobLambdaPolicy' 
-					'IAM-Policy-GenerateBatchJobIdPolicy' 
-					'IAM-Policy-DeployBatchJobCredentialsIAMJobPolicy')
-delete_stacks iamsecretstacks[@] "Secret IAM policy" $confirm
-
 kmspolicystacks=('IAM-Policy-IAMAdminsGroupRoleKMSPolicy'
-								 'IAM-Policy-AppSecGroupRoleKMSPolicy')
+								 'IAM-Policy-AppSecGroupRoleKMSPolicy'
+								 'IAM-Policy-GroupRunEC2FromConsolePolicy'
+								 'IAM-Policy-AppDeploymentGroupRoleKMSPolicy')
 delete_stacks kmspolicystacks[@] "KMS IAM policy" $confirm
 
-keys=('DeveloperSecrets' 
+keys=('DeveloperEC2'
+			'DeveloperSecrets' 
 			'TriggerBatchJob' 
 			'BatchJobCredentials' 
 			'DeveloperComputeResources')

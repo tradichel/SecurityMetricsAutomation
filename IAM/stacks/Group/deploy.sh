@@ -16,6 +16,11 @@ deploy_group 'AppDeployment'
 deploy_group 'Developers'
 deploy_group 'AppSec'
 
+template="cfn/GroupRunEC2FromConsolePolicy.yaml"
+groupname="Developers"
+policyname="GroupRunEC2FromConsolePolicy"
+deploy_group_policy $groupname $template $policyname
+
 users='KMSAdmin'
 group='KMSAdmins'
 add_users_to_group $users $group
@@ -39,7 +44,6 @@ add_users_to_group $users $group
 users='AppSec'
 group='AppSec'
 add_users_to_group $users $group
-
 
 #################################################################################
 # Copyright Notice

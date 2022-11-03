@@ -9,21 +9,72 @@
 
 source network_functions.sh
 
+#######
+# Remote Access VPC (Public)
+######
 vpcprefix="RemoteAccess"
 cidr="10.10.0.0/24"
 vpctype="Public"
 
 deploy_vpc $vpcprefix $cidr $vpctype
 
+#######
+# Remote Access Subnets
+######
 cidrbits=5
 vpc=$vpcprefix$vpctype'VPC'
 cidr=$vpcprefix$vpctype'VPCCIDR'
 count=1
 firstzone=0
-nacltemplate='cfn/NACLRules/RemoteAccessInbound.yaml'
+nacltemplate='cfn/NACLRules/Developer.yaml'
 
 deploy_subnets $vpc $cidr $count $firstzone $cidrbits $nacltemplate
 
+#######
+# GitHub Prefix List and SG
+######
+deploy_github_prefix_list
+
+prefix="Github"
+desc="Github-SG-Uses-Customer-Prefix-list"
+template="cfn/SGRules/Github.yaml"
+deploy_security_group $vpc $prefix $desc $template
+
+echo "Deployed GitHub Security Group"
+
+#######
+# CloudFormation VPC Endpoint and SGs
+######
+prefix="VPCEndpointInterface"
+desc="SG-for-VPC-Endpoint"
+template="none"
+deploy_security_group $vpc $prefix $desc $template
+vpce_sgname=$vpc'-'$prefix
+
+prefix="VPCEndpointAccess"
+desc="SG-to-access-VPC-Endpoint"
+template="none"
+deploy_security_group $vpc $prefix $desc $template
+vpceaccess_sgname=$vpc'-'$prefix
+
+template='cfn/SGRules/VPCEndpointInterface.yaml'
+deploy_sg_rules $vpce_sgname $template
+
+template='cfn/SGRules/VPCEndpointAccess.yaml'
+deploy_sg_rules $vpceaccess_sgname $template
+
+deploy_vpce "cloudformation"
+
+#######
+# S3 SG with AWS Prefix List
+######
+prefix="S3"
+desc="S3PrefixListSG"
+deploy_s3_security_group $vpc $prefix $desc
+
+#######
+# Remote Access SGs
+######
 echo "Enter the remote access cidr (IP with /32 at the end for a single IP address):"
 read allowcidr
 
@@ -37,11 +88,9 @@ desc="RDPRemoteAccess-CantPassSpacesToCLIFixLater"
 template="cfn/SGRules/RDP.yaml"
 deploy_security_group $vpc $prefix $desc $template $allowcidr
 
-vpcprefix="BatchJobs"
-cidr="10.20.0.0/24"
-vpctype="Private"
-deploy_vpc $vpcprefix $cidr $vpctype
-
+#######
+# Application VPC and SGs (Privte)
+######
 cidrbits=5
 vpc=$vpcprefix$vpctype'VPC'
 cidr=$vpcprefix$vpctype'VPCCIDR'
@@ -49,6 +98,11 @@ count=2
 firstzone=0
 nacltemplate='cfn/NACLRules/HTTPOutbound.yaml'
 deploy_subnets $vpc $cidr $count $firstzone $cidrbits $nacltemplate
+
+vpcprefix="BatchJobs"
+cidr="10.20.0.0/24"
+vpctype="Private"
+deploy_vpc $vpcprefix $cidr $vpctype
 
 prefix="TriggerBatchJobLambda"
 desc=$prefix
@@ -59,6 +113,7 @@ prefix="GenBatchJobIdLambda"
 desc=$prefix
 template="cfn/SGRules/NoAccess.yaml"
 deploy_security_group $vpc $prefix $desc $template
+
 
 #################################################################################
 # Copyright Notice

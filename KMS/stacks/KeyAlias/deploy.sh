@@ -24,7 +24,7 @@ keyid=$(get_key_id $alias)
 deploy_key_alias $keyid $alias
 
 echo "----------- Developer VM Key Alias -----------"
-alias="DeveloperComputeResources"
+alias="DeveloperEC2"
 keyid=$(get_key_id $alias)
 deploy_key_alias $keyid $alias
 

@@ -8,7 +8,7 @@ Parameters:
     Type: String
   AWSServiceParam:
     Type: String
-    AllowedValues: ['Lambda','VPCFlowLogs']
+    AllowedValues: ['Lambda','VPCFlowLogs','EC2']
 
 Mappings:
   ServiceMap:
@@ -16,6 +16,8 @@ Mappings:
       service: 'vpc-flow-logs.amazonaws.com'
     Lambda:
       service: 'lambda.amazonaws.com'
+    EC2:
+      service: 'ec2.amazonaws.com'
 
 Resources:
   ServiceRole:

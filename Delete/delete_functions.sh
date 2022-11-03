@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
 # Delete/delete_functions.sh
 # author: @teriradichel @2ndsightlab
@@ -16,24 +16,66 @@ get_stack_export(){
 
 }
 
+get_stack_status(){
+
+  stack="$1"
+
+  s=$(aws cloudformation describe-stacks --stack-name "$stack" --query Stacks[0].StackStatus --output text 2>&1 || true)	
+	if [[ "$s" == *"does not exist"* ]]; then s="NOEXIST"; fi
+
+	echo "$s"
+
+}
+
+stack_exists(){
+
+  stack="$1"
+
+	s=$(get_stack_status $stack)
+	
+	if [ "$s" == "NOEXIST" ]; then echo "false"; return; fi
+
+  if [ "$s" == "DELETE_IN_PROGRESS" ]; then
+			sleep 10
+			echo $(stack_exists $stack)
+ 	else
+		echo "true"
+	fi
+
+}
+
 delete_stack() {
 
   stack="$1"
-  confirm="$2"
+	confirm="$2"
 	profile="$3"
-	
+
 	if [ "$profile" == "" ]; then profile="delete"; fi
 
-  ok='y'
-  if [ "$confirm" == "y" ]; then
-    echo "Delete stack: $stack? (y to delete, any other key to skip)"
-    read ok
-  fi
+  stack_exists=$(stack_exists $stack)
+	if [ "$stack_exists" == "false" ]; then
+		 echo "$stack does not exist"
+		 return 0
+	fi 
 
-  if [ "$ok" == "y" ]; then
-    echo "Delete stack: $stack"
-    aws cloudformation delete-stack --stack-name $stack --profile $profile
+  if [ "$confirm" == "y" ]; then
+    echo "Delete stack: $stack? (y to delete, any other key to skip)"; read ok
+	else
+		ok="y"
   fi
+	
+	if [ "$ok" == "y" ]; then
+		echo "aws cloudformation delete-stack --stack-name $stack --profile $profile"
+  	aws cloudformation delete-stack --stack-name $stack --profile $profile
+	fi
+
+	stack_exists=$(stack_exists $stack)
+  if [ $stack_exists == "true" ]; then
+		echo "Stack $stack was not deleted."
+		exit
+	else
+		echo "Stack $stack was deleted." 
+	fi 
 
 }
 
@@ -49,7 +91,8 @@ delete_stacks(){
   if [ "$profile" == "" ]; then profile="delete"; fi
 
 	for stack in ${stacks[@]}; do
-  	delete_stack $stack $confirm $profile
+		delete_stack $stack $confirm $profile
+ 		echo "~~~~~~~~~~~~~~~~~~~~~~~~~~"
 	done
 
 }
@@ -104,6 +147,7 @@ delete_aliases() {
 	for alias in $(aws kms list-aliases --key-id $keyid --output text --profile $profile); do
 		profile="KMS"
 		echo "Delete key alias: $alias for keyid $keyid"
+		echo "aws kms delete-alias --alias-name alias/$alias --profile $profile || true"
 		aws kms delete-alias --alias-name alias/$alias --profile $profile || true
 		profile="delete"
 	done
@@ -128,10 +172,11 @@ delete_kms_key() {
 			echo "Key exists: $keyid"; 
  			delete_aliases $keyid
   		profile="KMS"
+			echo "aws kms schedule-key-deletion --key-id $keyid --pending-window-in-days 7 --profile $profile || true"
   		aws kms schedule-key-deletion --key-id $keyid --pending-window-in-days 7 --profile $profile || true
 		fi
  
- 		keystack "KMS-Key-$alias"
+ 		keystack="KMS-Key-$alias"
  		delete_stack $keystack $confirm "KMS"
 	fi
 

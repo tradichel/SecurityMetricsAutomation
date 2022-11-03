@@ -1,36 +1,15 @@
-# https://github.com/tradichel/SecurityMetricsAutomation/blob/main/iam/batch_job_role/cfn/role_batch_job.yaml
-# IAM/stacks/role/cfn/Policy/AppSecGroupRoleKMSPolicy.yaml
-# author: @tradichel @2ndsightlab
-# description: policy for AppSec administrators 
-# secrets management, resource policies
-###############################################################
-Resources:
-  AppSecKMSGroupRolePolicy:
-    Type: 'AWS::IAM::ManagedPolicy'
-    Properties:
-      ManagedPolicyName: AppSecGroupRoleKMSPolicy
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Deny
-            Action: 'secretsmanager:GetSecretValue'
-            Resource: '*'
-          - Effect: Allow
-            Action: 'secretsmanager:*'
-            Resource: '*'
-          - Effect: Allow
-            Action: 'cloudformation:*'
-            Resource:
-              - !Sub arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/AppSec-*
-          - Effect: Allow
-            Action:
-              - 'kms:Decrypt'
-              - 'kms:GenerateDataKey'
-            Resource:
-              - Fn::ImportValue:
-                  DeveloperSecretsKeyArnExport
-      Roles: 
-        - "AppSecGroup"
+#!/bin/bash
+# https://github.com/tradichel/SecurityMetricsAutomation
+# Network/test_eip_assoc.sh
+# author: @teriradichel @2ndsightlab
+# description: Test network deployment scripts
+##############################################################
+
+cd stacks
+./deploy_eip_assoc.sh
+cd ..
+
+
 
 #################################################################################
 # Copyright Notice
@@ -55,4 +34,5 @@ Resources:
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
-                                                                                     
+
+

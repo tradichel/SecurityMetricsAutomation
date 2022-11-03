@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash
 # https://github.com/tradichel/SecurityMetricsAutomation
 # Functions/shared_functions.sh
 # author: @teriradichel @2ndsightlab

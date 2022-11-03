@@ -1,36 +1,16 @@
-# https://github.com/tradichel/SecurityMetricsAutomation/blob/main/iam/batch_job_role/cfn/role_batch_job.yaml
-# IAM/stacks/role/cfn/Policy/AppSecGroupRoleKMSPolicy.yaml
-# author: @tradichel @2ndsightlab
-# description: policy for AppSec administrators 
-# secrets management, resource policies
-###############################################################
-Resources:
-  AppSecKMSGroupRolePolicy:
-    Type: 'AWS::IAM::ManagedPolicy'
-    Properties:
-      ManagedPolicyName: AppSecGroupRoleKMSPolicy
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Deny
-            Action: 'secretsmanager:GetSecretValue'
-            Resource: '*'
-          - Effect: Allow
-            Action: 'secretsmanager:*'
-            Resource: '*'
-          - Effect: Allow
-            Action: 'cloudformation:*'
-            Resource:
-              - !Sub arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/AppSec-*
-          - Effect: Allow
-            Action:
-              - 'kms:Decrypt'
-              - 'kms:GenerateDataKey'
-            Resource:
-              - Fn::ImportValue:
-                  DeveloperSecretsKeyArnExport
-      Roles: 
-        - "AppSecGroup"
+#!/bin/bash -e
+# https://github.com/tradichel/SecurityMetricsAutomation
+# Network/stacks/deploy_eips.sh
+# author: @teriradichel @2ndsightlab
+# description: deploy EIPs in a separate script 
+# after deploying the resources to associate with
+##############################################################
+
+source network_functions.sh
+
+eip_id_export="RemoteAccessEIPId"
+instance_export="Developer-ami-08f1b667d4bd99bd1"
+deploy_eip_association $eip_id_export $instance_export
 
 #################################################################################
 # Copyright Notice
@@ -55,4 +35,3 @@ Resources:
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
-                                                                                     

@@ -26,10 +26,17 @@ Parameters:
       - "secretsmanager"
       - "parameterstore"
       - "kms"
+      - "ec2"
 
 Conditions:
+  ServiceIsKMS:
+    !Equals [!Ref ServiceParam, "kms"]
+  ServiceIsEC2:
+    !Equals [!Ref ServiceParam, "ec2"]
   ServiceIsSecretsManager:
     !Equals [!Ref ServiceParam, "secretsmanager"]
+  ServiceIsSecretsManager:
+    !Equals [!Ref ServiceParam, "parameterstore"]
 
 Resources:
   KMSKey:
@@ -97,9 +104,11 @@ Resources:
               - 'kms:GenerateDataKeyWithoutPlaintext'
               - 'kms:Decrypt'
               - 'kms:DescribeKey'
-                 
-              #for ec2 instances
-              - 'kms:CreateGrant'
+              - !If
+                  - ServiceIsEC2                 
+                  - 'kms:CreateGrant'
+                  - !Ref AWS::NoValue
+
             Resource: "*"
           - Sid: Decrypt
             Effect: Allow
@@ -109,17 +118,22 @@ Resources:
             Action:
               - 'kms:Decrypt'
               - 'kms:DescribeKey'
+              - !If
+                - ServiceIsEC2
+                - 'kms:CreateGrant'
+                - !Ref AWS::NoValue
+              
             Condition:
               !If
-                - ServiceIsSecretsManager
+                - ServiceIsKMS
+                - 
+                  "StringEquals":
+                    "eventSource":
+                      "kms.amazonaws.com"
                 - 
                   "StringEquals":
                     "kms:ViaService":
-                      - !Sub "secretsmanager.${AWS::Region}.amazonaws.com"
-                - 
-                  "StringEquals":
-                    "eventSource": 
-                      "kms.amazonaws.com"
+                      - !Sub "${ServiceParam}.${AWS::Region}.amazonaws.com"
             Resource: "*"
 
 Outputs:

@@ -8,6 +8,24 @@ source key_functions.sh
 
 echo "------Create a CLI profile named 'KMS' before running these scripts ---"
 
+
+echo "------Key for Developer EC2 Resources -----"
+
+desc="KMS Key to encrypt developer EC2 instances"
+keyalias="DeveloperEC2"
+conditionservice="ec2"
+
+#get the encryption ARN for our key policy 
+stack='IAM-Role-AppDeploymentRole'
+exportname='AppDeploymentRoleArnExport'
+encryptarns=$(get_stack_export $stack $exportname)
+
+#get the developer group role to decrypt arn
+group="Developers"
+users=$(get_users_in_group $group $profile)
+decryptarns=$users
+deploy_key $encryptarns $decryptarns $keyalias $conditionservice $desc
+
 echo "------Key for batch job credentials -----"
 
 desc="KMS Key for Batch Job Credentials"
@@ -29,7 +47,9 @@ deploy_key $encryptarn $decryptarn $keyalias $conditionservice $desc
 echo "------Key for batch job trigger -----"
 desc="KMS Key for Batch Job Trigger"
 keyalias="TriggerBatchJob"
-conditionservice="parameterstore"
+#parameter store via service wasn't working last time I tried it
+#need to re-test
+conditionservice="kms"
 
 #get the encryption ARN for our key policy 
 stack='IAM-Role-GenerateBatchJobIdLambdaRole'
@@ -67,22 +87,6 @@ encryptarns=$encryptarn1','$encryptarn2
 #get the developer group role to decrypt arn
 deploy_key $encryptarns $decryptarns $keyalias $conditionservice $desc
 
-echo "------Key for Developer Non-Secrets Resources -----"
-
-desc="KMS Key to encrypt developer resources that are not in Secrets Manager"
-keyalias="DeveloperComputeResources"
-conditionservice="kms"
-
-#get the encryption ARN for our key policy 
-stack='IAM-Role-AppDeploymentRole'
-exportname='AppDeploymentRoleArnExport'
-encryptarns=$(get_stack_export $stack $exportname)
-
-#get the developer group role to decrypt arn
-group="Developers"
-users=$(get_users_in_group $group $profile)
-decryptarns=$users
-deploy_key $encryptarns $decryptarns $keyalias $conditionservice $desc
 
 #################################################################################
 # Copyright Notice

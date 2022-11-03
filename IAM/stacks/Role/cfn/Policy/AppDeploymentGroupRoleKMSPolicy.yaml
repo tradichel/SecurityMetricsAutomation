@@ -18,9 +18,10 @@ Resources:
               - 'kms:GenerateDataKeyWithoutPlaintext'
             Resource: 
               - Fn::ImportValue:
-                  DeveloperComputeResourcesKeyArnExport
+                  DeveloperEC2KeyArnExport
       Roles: 
         - "AppDeploymentGroup"
+        - "EC2AppDeployRole"
 
 #################################################################################
 # Copyright Notice
