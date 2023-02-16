@@ -26,7 +26,7 @@ Resources:
     Type: AWS::IAM::User
     Properties:
       UserName: OrgRoot
-      ManagedPolicyArns: arn:aws:iam::aws:policy/AdministratorAccess
+      ManagedPolicyArns: [ arn:aws:iam::aws:policy/AdministratorAccess ]
       LoginProfile:
         Password: !Sub "{{resolve:secretsmanager:${Passwrd}:SecretString:password}}"
         PasswordResetRequired: true
