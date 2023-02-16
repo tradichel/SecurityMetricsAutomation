@@ -211,6 +211,45 @@ clean_up_default_sg(){
 
 }
 
+deploy_remote_access_sgs_for_group() {
+
+	group="$1"
+	vpc="$2"
+
+	echo " --------------Deploy remote access security groups for $group --------------"
+  function=${FUNCNAME[0]}
+  validate_param "group" $group $function
+  validate_param "vpc" $vpc $function
+
+	members=$(get_users_in_group $group $profile)
+
+	echo 'Members: '$members
+	for user in ${members//,/ }
+	do
+		echo 'user: '$user
+	
+		#extract the username from the ARN
+		user=$(echo $user | sed 's:.*/::')
+
+    echo 'user: '$user
+
+		echo "Enter the remote access cidr for user $user (IP with /32 at the end for a single IP address):"
+		read allowcidr
+
+		prefix="SSH-$user"
+		desc="SSHRemoteAccess-CantPassSpacesToCLIFixLater"
+		template="cfn/SGRules/SSH.yaml"
+		deploy_security_group $vpc $prefix $desc $template $allowcidr
+
+		prefix="RDP-$user"
+		desc="RDPRemoteAccess-CantPassSpacesToCLIFixLater"
+		template="cfn/SGRules/RDP.yaml"
+		deploy_security_group $vpc $prefix $desc $template $allowcidr
+
+  done
+
+}
+
 deploy_security_group() {
 
 	vpc="$1"

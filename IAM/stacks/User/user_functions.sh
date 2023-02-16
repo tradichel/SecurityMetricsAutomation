@@ -62,7 +62,7 @@ create_ssh_key(){
 		if [ "$createkey" == "y" ]; then
 			aws ec2 delete-key-pair --key-name $keyname --profile $profile
 		else
-			exit
+			return 0
 		fi
 	fi
 	

@@ -1,5 +1,5 @@
 # https://github.com/tradichel/SecurityMetricsAutomation
-# IAM/stacks/Group/cfn/Policy/DevelopersGroupPolicy.yaml
+# IAM/stacks/Group/cfn/Policy/GroupPolicy.yaml
 # author: @tradichel @2ndsightlab
 ##############################################################
 Parameters:
@@ -8,7 +8,7 @@ Parameters:
     Description: "Group Name"
 
 Resources:
-  DevelopersGroupPolicy:
+  GroupPolicy:
     Type: 'AWS::IAM::Policy'
     Properties:
       PolicyName: !Sub ${NameParam}GroupPolicy
@@ -25,6 +25,11 @@ Resources:
         -
           Fn::ImportValue:
             !Sub ${NameParam}Export
+Outputs:
+  GroupPolicyNameOutput:
+    Value: !Sub ${NameParam}GroupPolicy
+    Export:
+     Name: !Sub ${NameParam}PolicyExport
 
 # #################################################################################
 # Copyright Notice

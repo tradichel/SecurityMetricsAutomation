@@ -5,11 +5,16 @@
 ##############################################################
 source vm_functions.sh
 echo "------ Create AppDeploy profile to deploy VM -----"
-echo "------ Deploy a developer VM -----"
-user="Developer"
-ec2type="t4g.small"
+echo "------ Deploy developer VMs -----"
+
 ami=$(get_latest_ami)
 
+user="Developer"
+ec2type="t4g.small"
+deploy_developer_vm $user $ec2type $ami
+
+user="Developer2"
+ec2type="t4g.small"
 deploy_developer_vm $user $ec2type $ami
 
 #################################################################################

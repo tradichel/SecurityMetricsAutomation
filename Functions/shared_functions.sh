@@ -142,7 +142,7 @@ get_users_in_group() {
 
 	#retrieve a list of user ARNs in the group
   users=$(aws iam get-group --group-name $groupname --profile $profile \
-      --query Users[*].Arn --output text | sed 's/\t/./g')
+      --query Users[*].Arn --output text | sed 's/\t/,/g')
 
 	echo $users
 

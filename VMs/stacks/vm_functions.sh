@@ -41,8 +41,8 @@ deploy_developer_vm(){
 
 	#get the security group ids for our developer VM
 
-	stack='Network-SecurityGroup-RemoteAccessPublicVPC-SSH'
-	exportname='RemoteAccessPublicVPC-SSH'
+	stack='Network-SecurityGroup-RemoteAccessPublicVPC-SSH'-$user
+	exportname='RemoteAccessPublicVPC-SSH-'$user
 	remote_access_sg=$(get_stack_export $stack $exportname)
 
   stack='Network-SecurityGroup-RemoteAccessPublicVPC-Github'
@@ -88,8 +88,23 @@ deploy_vm(){
 
 	deploy_stack $profile $user $resourcetype $template "$parameters"
 
+	stack="AppDeploy-EC2-$user"
+	exportname="$user-$ami"
+	id=$(get_stack_export $stack $exportname)
+	stop_vm $id
 }
 
+stop_vm () {
+
+	id="$1"
+
+	echo "Stop instance ID: $id (y to stop)"?
+	read ok
+
+	if [ "$ok" == "y" ]; then
+		aws ec2 stop-instances --instance-ids $id
+	fi
+}
 
 #################################################################################
 # Copyright Notice

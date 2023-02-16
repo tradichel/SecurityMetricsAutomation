@@ -1,49 +1,15 @@
-#!/bin/bash -e
+# !/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# IAM/stacks/Groups/deploy.sh
+# IAM/stacks/Role/deploy_governance_role.sh
 # author: @teriradichel @2ndsightlab
-# Description: Deploy all groups
+# Description: Deploy governance role
 ##############################################################
+source role_functions.sh
 
-echo "-------------- Deploy Groups -------------------"
+echo "-------------- Deploy Governance Admin Role -------------------"
 
-source group_functions.sh
-
-deploy_group 'KMSAdmins'
-deploy_group 'NetworkAdmins'
-deploy_group 'SecurityMetricsOperators'
-deploy_group 'AppDeployment'
-deploy_group 'Developers'
-deploy_group 'AppSec'
-
-users='Developer,Developer2'
-group='Developers'
-add_users_to_group $users $group
-
-users='KMSAdmin'
-group='KMSAdmins'
-add_users_to_group $users $group
-
-users='NetworkAdmin'
-group='NetworkAdmins'
-add_users_to_group $users $group
-
-users='SecurityMetricsOperator'
-group='SecurityMetricsOperators'
-add_users_to_group $users $group
-
-users='Developer'
-group='AppDeployment'
-add_users_to_group $users $group
-
-users='AppSec'
-group='AppSec'
-add_users_to_group $users $group
-
-template="cfn/GroupRunEC2FromConsolePolicy.yaml"
-groupname="Developers"
-policyname="GroupRunEC2FromConsolePolicy"
-deploy_group_policy $groupname $template $policyname
+profile="ROOT"
+deploy_group_role 'GovernanceAdmins' $profile
 
 #################################################################################
 # Copyright Notice

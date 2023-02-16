@@ -1,49 +1,63 @@
-#!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# IAM/stacks/Groups/deploy.sh
-# author: @teriradichel @2ndsightlab
-# Description: Deploy all groups
+# IAM/stacks/IdP/cfn/IdP.yaml
+# author: @tradichel @2ndsightlab
+# description: Create an AWS Identity Provider to use with Okta
 ##############################################################
+Parameters:
+  NameParam:
+    Type: String
+  ConsoleAccess:
+    Type: String
+    AllowedValues:
+      - true
+      - false
+    Default: false
 
-echo "-------------- Deploy Groups -------------------"
+Conditions:
+  ConsoleAllowed: !Equals
+    - !Ref ConsoleAccess
+    - true
 
-source group_functions.sh
+Resources:
 
-deploy_group 'KMSAdmins'
-deploy_group 'NetworkAdmins'
-deploy_group 'SecurityMetricsOperators'
-deploy_group 'AppDeployment'
-deploy_group 'Developers'
-deploy_group 'AppSec'
+  Passwrd:
+    Type: 'AWS::SecretsManager::Secret'
+    Condition: ConsoleAllowed
+    Properties:
+      Name: !Sub ${NameParam}-Password
+      GenerateSecretString:
+        SecretStringTemplate:
+              !Join
+                - ''
+                - - '{"username": "'
+                  - !Ref NameParam
+                  - '"}'
+        GenerateStringKey: password
+        PasswordLength: 20
 
-users='Developer,Developer2'
-group='Developers'
-add_users_to_group $users $group
+  User:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: !Ref NameParam
+      LoginProfile:
+        Fn::If: 
+          - ConsoleAllowed
+          - 
+            Password: !Sub "{{resolve:secretsmanager:${Passwrd}:SecretString:password}}"
+            PasswordResetRequired: true
+          - Ref: AWS::NoValue
 
-users='KMSAdmin'
-group='KMSAdmins'
-add_users_to_group $users $group
+Outputs:
+  UserOutput:
+    Value: !Ref User
+    Export:
+     Name: !Sub ${NameParam}UserExport
 
-users='NetworkAdmin'
-group='NetworkAdmins'
-add_users_to_group $users $group
-
-users='SecurityMetricsOperator'
-group='SecurityMetricsOperators'
-add_users_to_group $users $group
-
-users='Developer'
-group='AppDeployment'
-add_users_to_group $users $group
-
-users='AppSec'
-group='AppSec'
-add_users_to_group $users $group
-
-template="cfn/GroupRunEC2FromConsolePolicy.yaml"
-groupname="Developers"
-policyname="GroupRunEC2FromConsolePolicy"
-deploy_group_policy $groupname $template $policyname
+  UserARNOutput:
+    Value: 
+      !GetAtt User.Arn
+    Export:
+      Name: !Sub ${NameParam}UserArnExport
 
 #################################################################################
 # Copyright Notice
@@ -67,5 +81,4 @@ deploy_group_policy $groupname $template $policyname
 # HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-################################################################################ 
-
+################################################################################

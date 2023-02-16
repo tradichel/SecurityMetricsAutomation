@@ -21,6 +21,12 @@ Resources:
       Roles: 
         - "IAMAdminsGroup"
 
+Outputs:
+  GroupPolicyNameOutput:
+    Value: IAMAdminsGroupRoleKMSPolicy
+    Export:
+      Name: IAMAdminsGroupRoleKMSPolicyExport
+
 #################################################################################
 # Copyright Notice
 # All Rights Reserved.

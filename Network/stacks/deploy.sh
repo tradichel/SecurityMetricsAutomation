@@ -32,6 +32,10 @@ deploy_subnets $vpc $cidr $count $firstzone $cidrbits $nacltemplate
 
 #######
 # GitHub Prefix List and SG
+# NOTE: IF YOU GET AN ERROR HERE, RUN THE SCRIPT AGAIN.
+# THE GITHUB SERVICE SEEMS TO HAVE RANDOM ISSUES.
+#	Also be aware rate limiting by the service, but that
+#	is not always the problem.
 ######
 deploy_github_prefix_list
 
@@ -75,18 +79,7 @@ deploy_s3_security_group $vpc $prefix $desc
 #######
 # Remote Access SGs
 ######
-echo "Enter the remote access cidr (IP with /32 at the end for a single IP address):"
-read allowcidr
-
-prefix="SSH"
-desc="SSHRemoteAccess-CantPassSpacesToCLIFixLater"
-template="cfn/SGRules/SSH.yaml"
-deploy_security_group $vpc $prefix $desc $template $allowcidr
-
-prefix="RDP"
-desc="RDPRemoteAccess-CantPassSpacesToCLIFixLater"
-template="cfn/SGRules/RDP.yaml"
-deploy_security_group $vpc $prefix $desc $template $allowcidr
+deploy_remote_access_sgs_for_group "Developers" "RemoteAccessPublicVPC"
 
 #######
 # Application VPC and SGs (Privte)

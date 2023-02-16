@@ -11,6 +11,7 @@ echo "-------------- Deploy User -------------------"
 
 console_access='true'
 deploy_user 'Developer' $console_access
+deploy_user 'Developer2' $console_access
 
 console_access='false'
 deploy_user 'KMSAdmin' $console_access

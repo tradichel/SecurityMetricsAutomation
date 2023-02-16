@@ -21,7 +21,9 @@ if [ "$kmskeyid" == "" ]; then
 fi
 
 username="Developer"
+create_secret $username $kmskeyid
 
+username="Developer2"
 create_secret $username $kmskeyid
 
 #################################################################################

@@ -7,7 +7,7 @@
 source user_functions.sh
 
 create_ssh_key "Developer"
-
+create_ssh_key "Developer2"
 
 #################################################################################
 # Copyright Notice

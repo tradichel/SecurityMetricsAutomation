@@ -1,49 +1,33 @@
 #!/bin/bash -e
-# https://github.com/tradichel/SecurityMetricsAutomation
-# IAM/stacks/Groups/deploy.sh
+# https://github.com/tradichel/SecurityMetricsAutomation/
+# Org/stacks/Account/account_functions.sh
 # author: @teriradichel @2ndsightlab
-# Description: Deploy all groups
+# description: Functions for account creation
 ##############################################################
+source ../../../Functions/shared_functions.sh
 
-echo "-------------- Deploy Groups -------------------"
+profile="ORG"
 
-source group_functions.sh
+deploy_account() {
 
-deploy_group 'KMSAdmins'
-deploy_group 'NetworkAdmins'
-deploy_group 'SecurityMetricsOperators'
-deploy_group 'AppDeployment'
-deploy_group 'Developers'
-deploy_group 'AppSec'
+	accountname="$1"
+	rolename="$2"
+	ou_id="$3"
 
-users='Developer,Developer2'
-group='Developers'
-add_users_to_group $users $group
+	function=${FUNCNAME[0]}
+  validate_param "accoutname" $username $function
+	validate_param "console_access" $console_access $function
 
-users='KMSAdmin'
-group='KMSAdmins'
-add_users_to_group $users $group
+  template="cfn/Account.yaml"
+  resourcetype='Account'
+  parameters=$(add_parameter "NameParam" $accountname)
+	parameters=$(add_parameter "RoleParam" $rolename)
+	parameters=$(add_parameter "OU" $ou_id)
+	
+	deploy_stack $profile $username $resourcetype $template $parameters
+	
+}
 
-users='NetworkAdmin'
-group='NetworkAdmins'
-add_users_to_group $users $group
-
-users='SecurityMetricsOperator'
-group='SecurityMetricsOperators'
-add_users_to_group $users $group
-
-users='Developer'
-group='AppDeployment'
-add_users_to_group $users $group
-
-users='AppSec'
-group='AppSec'
-add_users_to_group $users $group
-
-template="cfn/GroupRunEC2FromConsolePolicy.yaml"
-groupname="Developers"
-policyname="GroupRunEC2FromConsolePolicy"
-deploy_group_policy $groupname $template $policyname
 
 #################################################################################
 # Copyright Notice
@@ -67,5 +51,4 @@ deploy_group_policy $groupname $template $policyname
 # HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-################################################################################ 
-
+################################################################################                                                                                      

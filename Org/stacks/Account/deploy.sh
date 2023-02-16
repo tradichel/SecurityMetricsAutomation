@@ -1,49 +1,18 @@
 #!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# IAM/stacks/Groups/deploy.sh
+# IAM/stacks/User/deploy.sh
 # author: @teriradichel @2ndsightlab
-# Description: Deploy all groups
+# Description: Deploy all users
 ##############################################################
+source user_functions.sh
 
-echo "-------------- Deploy Groups -------------------"
+echo "You must have an AWS CLI profile named Billing configured to run this script"
+echo "-------------- Deploy Account -------------------"
 
-source group_functions.sh
-
-deploy_group 'KMSAdmins'
-deploy_group 'NetworkAdmins'
-deploy_group 'SecurityMetricsOperators'
-deploy_group 'AppDeployment'
-deploy_group 'Developers'
-deploy_group 'AppSec'
-
-users='Developer,Developer2'
-group='Developers'
-add_users_to_group $users $group
-
-users='KMSAdmin'
-group='KMSAdmins'
-add_users_to_group $users $group
-
-users='NetworkAdmin'
-group='NetworkAdmins'
-add_users_to_group $users $group
-
-users='SecurityMetricsOperator'
-group='SecurityMetricsOperators'
-add_users_to_group $users $group
-
-users='Developer'
-group='AppDeployment'
-add_users_to_group $users $group
-
-users='AppSec'
-group='AppSec'
-add_users_to_group $users $group
-
-template="cfn/GroupRunEC2FromConsolePolicy.yaml"
-groupname="Developers"
-policyname="GroupRunEC2FromConsolePolicy"
-deploy_group_policy $groupname $template $policyname
+#look up gov ou
+#ou = x
+deploy_account 'Governance' $ou
+deploy_account 'IAM' $ou
 
 #################################################################################
 # Copyright Notice

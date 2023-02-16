@@ -13,7 +13,11 @@ Resources:
         Statement:
           - Effect: Allow
             Action: 'iam:*'
-            Resource: '*'
+            NotResource: [
+              'arn:aws:iam::*:role/IAM*',
+              'arn:aws:iam::*:group/IAM*',
+              'arn:aws:iam::*:policy/IAM*'
+            ]
           - Effect: Allow
             Action: 'cloudformation:*'
             Resource:
@@ -34,6 +38,12 @@ Resources:
             Resource: '*'           
       Roles: 
         - "IAMAdminsGroup"
+
+Outputs:
+  GroupPolicyNameOutput:
+    Value: IAMAdminsGroupRolePolicy
+    Export: 
+      Name: IAMAdminsGroupRolePolicyPolicyExport
 
 #################################################################################
 # Copyright Notice
