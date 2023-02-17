@@ -1,18 +1,18 @@
 #!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation/
-# Org/stacks/Secrets/secret_functions.sh
+# Org/stacks/IdP/idp_functions.sh
 # author: @teriradichel @2ndsightlab
-# description: Functions for user creation
+# description: Functions for idp creation
 ##############################################################
 source ../../../Functions/shared_functions.sh
 
 profile="IAM"
 
-depooy_idp(){
+deploy_idp(){
 
   resourcetype='IdP'
   template='cfn/IdP.yaml'
-  deploy_stack $profile $secretname $resourcetype $template $parameters
+  deploy_stack $profile "OktaIdp" $resourcetype $template $parameters
 
 }
 

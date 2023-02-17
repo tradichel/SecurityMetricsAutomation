@@ -4,7 +4,7 @@
 # author: @teriradichel @2ndsightlab
 # description: Deploy AWS IAM IdP
 ##############################################################
-source secret_functions.sh
+source idp_functions.sh
 
 echo "An CLI Profile named OrgRoot is required to run this code."
 profile="IAM"
@@ -12,5 +12,5 @@ profile="IAM"
 #create user specific secrets for developers
 name="OktaIdP"
 
-depoy_idp $name
+deploy_idp $name
 
