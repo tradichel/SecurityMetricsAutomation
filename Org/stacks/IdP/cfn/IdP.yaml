@@ -1,16 +1,15 @@
 # https://github.com/tradichel/SecurityMetricsAutomation
-# IAM/stacks/Org/stacks/Secrets/cfn/Secret.yaml
+# IAM/stacks/Org/stacks/IdP/cfn/IdP.yaml
 # author: @tradichel @2ndsightlab
-# description: CloudFormation template to create a secret
+# description: CloudFormation template to create an IdP
 ##############################################################
 Resources:
   IdP:
     Type: AWS::IAM::SAMLProvider
-      Properties: 
-      Name: OktaIdP
-      SamlMetadataDocument: |
-        !Sub "{{resolve:secretsmanager:${OktaMetadata}}}"
-     
+    Properties: 
+      Name: OktaIdentityProvider
+      SamlMetadataDocument: !Sub "{{resolve:secretsmanager:OktaMetadata}}"
+
 Outputs:
   IdPOutput:
     Value: !Ref IdP

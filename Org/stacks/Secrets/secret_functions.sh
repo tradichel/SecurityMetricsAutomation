@@ -1,10 +1,10 @@
 #!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation/
-# AppSec/stacks/appsec_functions.sh
+# Org/stacks/Secrets/secret_functions.sh
 # author: @teriradichel @2ndsightlab
 # description: Functions for user creation
 ##############################################################
-source ../../Functions/shared_functions.sh
+source ../../../Functions/shared_functions.sh
 
 profile="OrgRoot"
 
@@ -22,14 +22,14 @@ create_secret(){
 
   #create secret
   resourcetype='Secret'
-  template='cfn/UserSecret.yaml'
+  template='cfn/Secret.yaml'
   parameters=$(add_parameter "NameParam" $secretname)
   parameters=$(add_parameter "KMSKeyID" $kmskeyid $parameters)
   deploy_stack $profile $secretname $resourcetype $template $parameters
 
 }
 
-#################################################################################
+################################################################################
 # Copyright Notice
 # All Rights Reserved.
 # All materials (the “Materials”) in this repository are protected by copyright 

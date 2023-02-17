@@ -10,9 +10,10 @@ profile="IAM"
 
 deploy_idp(){
 
-  resourcetype='IdP'
+  name='OktaIdentiyProvider'
+  resourcetype='IdentityProvider'
   template='cfn/IdP.yaml'
-  deploy_stack $profile "OktaIdp" $resourcetype $template $parameters
+  deploy_stack $profile $name $resourcetype $template $parameters
 
 }
 
