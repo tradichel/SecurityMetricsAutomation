@@ -37,6 +37,8 @@ Conditions:
     !Equals [!Ref ServiceParam, "secretsmanager"]
   ServiceIsSecretsManager:
     !Equals [!Ref ServiceParam, "parameterstore"]
+  KeyIsOrgRoot:
+    !Equals [!Ref KeyAliasParam, "OrgRootSecrets"]
 
 Resources:
   KMSKey:
@@ -52,7 +54,7 @@ Resources:
             Effect: Allow
             Principal:
               AWS:
-                - !ImportValue KMSAdminsRoleArnExport
+                - !If [KeyIsOrgRoot, !ImportValue OrgRootUserArnExport, !ImportValue KMSAdminsRoleArnExport]
             Action:
               - kms:Create*
               - kms:Describe*
