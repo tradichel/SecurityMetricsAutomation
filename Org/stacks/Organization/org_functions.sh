@@ -30,7 +30,7 @@ enable_scps(){
 	enabled=$(aws organizations describe-organization --query \
 		 'Organization.AvailablePolicyTypes[?Type==`SERVICE_CONTROL_POLICY`].Status' --output text)
 	
-	if [ "$enabled" == "Enabled" ]; then
+	if [ "$enabled" == "ENABLED" ]; then
 		echo "SCPs are already enabled."
   else
 		rootouid=$(get_root_id)

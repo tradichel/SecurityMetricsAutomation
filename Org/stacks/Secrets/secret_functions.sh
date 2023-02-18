@@ -12,9 +12,6 @@ create_secret(){
 
 	secretname="$1"
 	kmskeyid="$2"
-	value="$3"
-
-	if [ "$value" == "" ]; then value="temp-value-for-secret-creation"; fi
 
   func=${FUNCNAME[0]}
   validate_param 'secretname' $secretname $func

@@ -39,11 +39,16 @@ get_stack_export(){
 
 get_kms_key_id(){
 	alias="$1"
+	stackprofile="$2"
+
+	if [ "$profile" == "" ]; then
+		stackprofile="KMS"
+	fi
 
   func=${FUNCNAME[0]}
   validate_param 'alias' $alias $func
 
-	keystack='KMS-Key-'$alias
+	keystack=$stackprofile'-Key-'$alias
 	keyexport=$alias'KeyIDExport'
 
 	kmskeyid=$(get_stack_export $keystack $keyexport)
