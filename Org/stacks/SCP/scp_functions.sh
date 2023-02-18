@@ -1,27 +1,32 @@
 #!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation/
-# Org/stacks/IdP/idp_functions.sh
+# Org/stacks/SCP/scp_functions.sh
 # author: @teriradichel @2ndsightlab
-# description: Functions for idp creation
+# description: Functions for SCP deployment
 ##############################################################
 source ../../../Functions/shared_functions.sh
 
 profile="Governance"
 
+deploy_orgroot_scp(){
+   profile="OrgRoot"
+   deploy_scp $1 $2
+}
+
 deploy_scp(){
-	name=$1
-	targetids=$2
+   scpname=$1
+   targetids=$2
 
   func=${FUNCNAME[0]}
   validate_param 'scpname' $name $func
   validate_param 'targetids' $targetids $func
-	
-  parameters=$(add_parameter "NameParam" $name)
+
+  parameters=$(add_parameter "NameParam" $scpname)
   parameters=$(add_parameter "TargetIdsParam" $targetids $parameters)
 
   resourcetype='SCP'
-  template='cfn/$name.yaml'
-  deploy_stack $profile $name $resourcetype $template $parameters
+  template='cfn/'$scpname'.yaml'
+  deploy_stack $profile $scpname $resourcetype $template $parameters
 }
 
 ################################################################################

@@ -4,13 +4,16 @@
 # author: @teriradichel @2ndsightlab
 # description: Deploy root SCPs for an AWS Organization
 ##############################################################
-source idp_functions.sh
+source scp_functions.sh
 
-echo "An CLI Profile named Governance is required to run this code."
-profile="Gvoernance"
+echo "An CLI Profile named OrgRoot is required to run this code."
 
-deploy_scp "DenyAll"
-
+ouname="DenyAll"
+rootouid=$(aws organizations list-roots --query Roots[0].Id --output text)
+targets=$(aws organizations list-organizational-units-for-parent --parent-id $rootouid \
+     --query 'OrganizationalUnits[?Name==`'$ouname'`].Id' --output text)
+scpname="DenyAll"
+deploy_orgroot_scp $scpname $targets
 
 ################################################################################
 # Copyright Notice

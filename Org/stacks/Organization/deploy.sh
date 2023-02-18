@@ -1,35 +1,14 @@
 #!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation/
-# Org/stacks/OU/ou_functions.sh
+# Org/stacks/Organization/org.sh
 # author: @teriradichel @2ndsightlab
-# description: Functions for OU creation
+# description: Deploy AWS Organization and settings
 ##############################################################
-source ../../../Functions/shared_functions.sh
 
-profile="Org"
+source org_functions.sh
 
-deploy_ou(){
-
-  nameparam=$1
-  parentid=$2
-
-  func=${FUNCNAME[0]}
-  validate_param 'nameparam' $name $func
-  validate_param 'parentid' $parentid $func
-
-  parameters=$(add_parameter "NameParam" $nameparam)
-  parameters=$(add_parameter "ParentIdParam" $parentid $parameters)
-
-  resourcetype='OU'
-  template='cfn/OU.yaml'
-  deploy_stack $profile $nameparam $resourcetype $template $parameters
-
-}
-
-deploy_root_ou(){
-   profile="OrgRoot"
-   deploy_ou $1 $2
-}
+create_organization
+enable_scps
 
 ################################################################################
 # Copyright Notice
@@ -53,4 +32,4 @@ deploy_root_ou(){
 # HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-################################################################################  
+################################################################################ 

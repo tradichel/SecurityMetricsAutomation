@@ -1,24 +1,32 @@
 # https://github.com/tradichel/SecurityMetricsAutomation
-# IAM/stacks/Org/stacks/SCP/cfn/DenyAll.yaml
+# Org/stacks/SCP/cfn/DenyAll.yaml
 # author: @tradichel @2ndsightlab
 # description: CloudFormation template to create an SCP
 # with the policy specified below
 ##############################################################
-Resources:
-  Parameters:
+Parameters:
     NameParam:
       Type: String
     TargetIdsParam:
       Type: String
-    
-  IdP:
+
+Resources:
+  SCP:
     Type: AWS::Organizations::Policy
-    Properties: 
+    Properties:
       Name: !Ref NameParam
-      Content: TBD
+      Content: |
+        {
+            "Version": "2012-10-17",
+            "Statement": {
+                "Effect": "Deny",
+                "Action": "*",
+                "Resource": "*"
+             }
+        }
       Description: "Deny All Actions"
-      TargetIds: !Ref TargetIdsParam
-      Type: SERVICE_CONTROL_POLICY      
+      TargetIds: [ !Ref TargetIdsParam ]
+      Type: SERVICE_CONTROL_POLICY
 
 Outputs:
   SCPOutput:
