@@ -6,6 +6,8 @@ cd ../KMS
 ./deploy.sh
 cd ../Secrets
 ./deploy.sh
+echo "Add the metadata for Okta to the new secret: OrgRootSecrets. Enter to continue. Ctrl-C to exit"
+read ok
 cd ../IdP
 ./deploy.sh
 cd ../OU
