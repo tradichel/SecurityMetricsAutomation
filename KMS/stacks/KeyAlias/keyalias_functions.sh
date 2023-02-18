@@ -30,6 +30,12 @@ deploy_key_alias(){
 
 }
 
+
+get_orgroot_key_id () {
+   profile="OrgRoot"
+   get_key_id $1
+}
+
 get_key_id () {
 
 	alias="$1"
@@ -37,7 +43,7 @@ get_key_id () {
   function=${FUNCNAME[0]}
   validate_param "alias" $alias $function
 
-	stack='KMS-Key-'$alias
+	stack=$profile'-Key-'$alias
 	exportname=$alias'KeyIDExport'
 	keyid=$(get_stack_export $stack $exportname)
 

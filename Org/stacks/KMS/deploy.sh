@@ -5,10 +5,8 @@
 # Executed in the organization's management account
 ###############################################################
 source ../../../Functions/shared_functions.sh
-source ../../../KMS/stacks/Key/key_functions.sh
 
 echo "------Create a CLI profile named 'KMS' before running this script ---"
-
 echo "------Key for Organization Root Secrets -----"
 
 desc="OrgRootSecrets"
@@ -26,11 +24,13 @@ exportname='OrgRootUserArnExport'
 decryptarn=$(get_stack_export $stack $exportname)
 
 cd ../../../KMS/stacks/Key/
+source key_functions.sh
 deploy_orgroot_key $encryptarn $decryptarn $keyalias $conditionservice $desc
 cd ../../../Org/stacks/KMS
 
 echo "-----------  OrgRoot Key Alias -----------"
 cd ../../../KMS/stacks/KeyAlias/
+source keyalias_functions.sh
 keyid=$(get_key_id $keyalias)
 deploy_orgroot_key_alias $keyid $keyalias
 cd ../../../Org/stacks/KMS
