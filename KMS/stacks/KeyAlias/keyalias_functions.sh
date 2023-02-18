@@ -7,6 +7,11 @@ source ../../../Functions/shared_functions.sh
 
 profile="KMS"
 
+deploy_orgroot_key_alias(){
+	profile="OrgRoot"
+	deploy_key_alias $1 $2
+}
+
 deploy_key_alias(){
 
   keyid="$1"

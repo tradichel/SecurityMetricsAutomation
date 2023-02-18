@@ -26,13 +26,13 @@ exportname='OrgRootUserArnExport'
 decryptarn=$(get_stack_export $stack $exportname)
 
 cd ../../../KMS/stacks/Key/
-deploy_key $encryptarn $decryptarn $keyalias $conditionservice $desc
+deploy_orgroot_key $encryptarn $decryptarn $keyalias $conditionservice $desc
 cd ../../../Org/stacks/KMS
 
 echo "-----------  OrgRoot Key Alias -----------"
-keyid=$(get_key_id $keyalias)
 cd ../../../KMS/stacks/KeyAlias/
-deploy_key_alias $keyid $keyalias
+keyid=$(get_key_id $keyalias)
+deploy_orgroot_key_alias $keyid $keyalias
 cd ../../../Org/stacks/KMS
 
 

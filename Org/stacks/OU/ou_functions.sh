@@ -6,24 +6,31 @@
 ##############################################################
 source ../../../Functions/shared_functions.sh
 
-profile="OU"
+profile="Org"
 
-deploy_idp(){
+profile="Org"
 
-  name=$1
-	parent=$2
+deploy_ou(){
+
+  nameparam=$1
+  parentid=$2
 
   func=${FUNCNAME[0]}
-  validate_param 'name' $name $func
-  validate_param 'parentid' $parentid $func 
+  validate_param 'nameparam' $name $func
+  validate_param 'parentid' $parentid $func
 
-	parameters=$(add_parameter "NameParam" $name)
-  parameters=$(add_parameter "ParentId" $parentid $parameters)
+  parameters=$(add_parameter "NameParam" $nameparam)
+  parameters=$(add_parameter "ParentIdParam" $parentid $parameters)
 
   resourcetype='OU'
   template='cfn/OU.yaml'
-  deploy_stack $profile $name $resourcetype $template $parameters
+  deploy_stack $profile $nameparam $resourcetype $template $parameters
 
+}
+
+deploy_root_ou(){
+   profile="OrgRoot"
+   deploy_ou $1 $2
 }
 
 ################################################################################

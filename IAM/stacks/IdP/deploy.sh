@@ -7,7 +7,6 @@
 source idp_functions.sh
 
 echo "An CLI Profile named IAM is required to run this code."
-profile="IAM"
 
 deploy_idp
 

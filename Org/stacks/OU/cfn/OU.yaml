@@ -6,15 +6,15 @@
 Parameters:
   NameParam:
     Type: String
-  ParentID:
+  ParentIdParam:
     Type: String
 
 Resources:
   OU:
-    Type: AWS::IAM::OrganizationalUnit
-    Properties: 
+    Type: AWS::Organizations::OrganizationalUnit
+    Properties:
       Name: !Ref NameParam
-      ParentId: !Ref ParentId      
+      ParentId: !Ref ParentIdParam     
 
 Outputs:
   OUOutput:

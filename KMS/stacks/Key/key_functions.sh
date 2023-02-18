@@ -7,6 +7,13 @@ source ../../../Functions/shared_functions.sh
 
 profile="KMS"
 
+deploy_orgroot_key(){
+
+	profile="OrgRoot"
+	deploy_key $1 $2 $3 $4 $5
+
+}
+
 deploy_key(){
 
 	encryptarn=$1

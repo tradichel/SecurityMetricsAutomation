@@ -2,19 +2,17 @@
 # https://github.com/tradichel/SecurityMetricsAutomation/
 # Org/stacks/OU/deploy.sh
 # author: @teriradichel @2ndsightlab
-# description: Deploy Organization OUs managedd by OrgRoot
+# description: Deploy Organization OUs managed by OrgRoot
 ##############################################################
 source ou_functions.sh
 
-echo "An CLI Profile named OU is required to run this code."
-profile="OU"
+echo "An CLI Profile named OrgRoot is required to run this code."
 
 #get the organization's root ID
-$rootouid=$(echo "get id here")
+rootouid=$(aws organizations list-roots --query Roots[0].Id --output text)
 
-deploy_ou "DenyAll" $rootouid
-deploy_ou "Governance" $rootouid
-
+deploy_root_ou "DenyAll" $rootouid
+deploy_root_ou "Governance" $rootouid
 
 ################################################################################
 # Copyright Notice
