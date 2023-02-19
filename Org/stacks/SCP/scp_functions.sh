@@ -24,10 +24,39 @@ deploy_scp(){
   parameters=$(add_parameter "NameParam" $scpname)
   parameters=$(add_parameter "TargetIdsParam" $targetids $parameters)
 
+  deploy_scp $scpname $parameters
+
+}
+
+deploy_allowregionsscp(){
+   scpname=$1
+   targetids=$2
+	 regions=$3
+
+  func=${FUNCNAME[0]}
+  validate_param 'scpname' $name $func
+  validate_param 'targetids' $targetids $func
+  validate_param 'regions' $regions $func
+
+  parameters=$(add_parameter "NameParam" $scpname)
+  parameters=$(add_parameter "TargetIdsParam" $targetids $parameters)
+  parameters=$(add_parameter "RegionsParam" $regions $parameters)
+
+	deploy_scp $scpname $parameters
+
+}
+
+deploy_scp(){
+	scpname=$1
+	parameters=$2
+
   resourcetype='SCP'
   template='cfn/'$scpname'.yaml'
   deploy_stack $profile $scpname $resourcetype $template $parameters
+
 }
+
+
 
 ################################################################################
 # Copyright Notice

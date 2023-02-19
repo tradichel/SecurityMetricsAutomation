@@ -13,7 +13,7 @@ echo "An CLI Profile named IAM is required to run this code."
 
 deploy_orgroot_idp
 
-cd ../../../Org/stacks/Idp
+cd ../../../Org/stacks/IdP
 
 ################################################################################
 # Copyright Notice

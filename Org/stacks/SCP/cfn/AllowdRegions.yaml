@@ -1,41 +1,46 @@
-#!/bin/bash -e
-# https://github.com/tradichel/SecurityMetricsAutomation/
-# Org/stacks/SCP/deploy_root_scps.sh
-# author: @teriradichel @2ndsightlab
-# description: Deploy root SCPs for an AWS Organization
+# https://github.com/tradichel/SecurityMetricsAutomation
+# Org/stacks/SCP/cfn/AllowedRegions.yaml
+# author: @tradichel @2ndsightlab
+# description: CloudFormation template to create an SCP
+# with the policy specified below
 ##############################################################
-source scp_functions.sh
-source ../Organization/org_functions.sh
+Parameters:
+    NameParam:
+      Type: String
+    TargetIdsParam:
+      Type: String
+    RegionsParam:
+      Type: CommaDelimitedList
 
-echo "An CLI Profile named OrgRoot is required to run this code."
+Resources:
+  SCP:
+    Type: AWS::Organizations::Policy
+    Properties:
+      Name: !Ref NameParam
+      Content: |
+        {
+            "Version": "2012-10-17",
+            "Statement": {
+                "Effect": "Deny",
+                "Action": "*",
+                "Resource": "*"
+                "Condition": {
+                  "StringNotEquals": {
+                    "aws:RequestedRegion": !Ref RegionsParam
+                }
+             }
+        }
+      Description: "Deny any actions not in allowed regions"
+      TargetIds: [ !Ref TargetIdsParam ]
+      Type: SERVICE_CONTROL_POLICY
 
-ouname="DenyAll"
-targets=$(get_ou_id $ouname)
-scpname="DenyAll"
-deploy_orgroot_scp $scpname $targets
+Outputs:
+  SCPOutput:
+    Value: !Ref SCP
+    Export:
+     Name: !Sub ${NameParam}SCPExport
 
-targets=$(get_root_ou_Id)
-scpname "DenyLeaveOrganization.yaml"
-deploy_orgroot_scp $scpname $targets
-
-scpname "AllowedRegions"
-deploy_orgroot_scp $scpname $targets
-
-scpname "DenyRootActions.yaml"
-deploy_orgroot_scp $scpname $targets
-
-region=""
-regions=()
-do=true
-while $do || [ "$region" != "" ]
-	echo "Enter allowed region to add to list (enter when done adding regions):"
-	read region
-	regions+=($region)
-done
-
-deploy_orgroot_allowregionsscp $scpname $targets $regions
-
-################################################################################
+#################################################################################
 # Copyright Notice
 # All Rights Reserved.
 # All materials (the “Materials”) in this repository are protected by copyright 
@@ -57,4 +62,4 @@ deploy_orgroot_allowregionsscp $scpname $targets $regions
 # HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-################################################################################  
+################################################################################
