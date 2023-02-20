@@ -4,31 +4,41 @@
 # description: CloudFormation template to create an SCP
 # with the policy specified below
 ##############################################################
+
 Parameters:
     NameParam:
       Type: String
     TargetIdsParam:
       Type: String
-    RegionsParam:
-      Type: CommaDelimitedList
+    Region1Param:
+      Type: String
+    Region2Param:
+      Type: String
 
 Resources:
   SCP:
     Type: AWS::Organizations::Policy
     Properties:
       Name: !Ref NameParam
-      Content: |
+      Content: !Sub |
         {
             "Version": "2012-10-17",
-            "Statement": {
+            "Statement": [
+              {
                 "Effect": "Deny",
                 "Action": "*",
-                "Resource": "*"
+                "Resource": "*",
                 "Condition": {
                   "StringNotEquals": {
-                    "aws:RequestedRegion": !Ref RegionsParam
+                    "aws:RequestedRegion":
+                      [
+                        "${Region1Param}",
+                        "${Region2Param}"
+                      ]
+                  }
                 }
              }
+          ]
         }
       Description: "Deny any actions not in allowed regions"
       TargetIds: [ !Ref TargetIdsParam ]

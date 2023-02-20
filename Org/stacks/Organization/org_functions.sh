@@ -23,6 +23,8 @@ get_root_id(){
 get_ou_id(){
 	 ouname=$1
 
+   rootouid=$(get_root_id)
+
    ouid=$(aws organizations list-organizational-units-for-parent --parent-id $rootouid \
      --query 'OrganizationalUnits[?Name==`'$ouname'`].Id' --output text)
 

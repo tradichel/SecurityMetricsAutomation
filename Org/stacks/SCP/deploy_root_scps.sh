@@ -12,28 +12,20 @@ echo "An CLI Profile named OrgRoot is required to run this code."
 ouname="DenyAll"
 targets=$(get_ou_id $ouname)
 scpname="DenyAll"
-deploy_orgroot_scp $scpname $targets
+deploy_scp $scpname $targets
 
-targets=$(get_root_ou_Id)
-scpname "DenyLeaveOrganization.yaml"
-deploy_orgroot_scp $scpname $targets
+deploy_allowedregions
 
-scpname "AllowedRegions"
-deploy_orgroot_scp $scpname $targets
+deploy_denyaddaccounttoroot
 
-scpname "DenyRootActions.yaml"
-deploy_orgroot_scp $scpname $targets
+scpname="DenyLeaveOrganization"
+deploy_root_scp $scpname
 
-region=""
-regions=()
-do=true
-while $do || [ "$region" != "" ]
-	echo "Enter allowed region to add to list (enter when done adding regions):"
-	read region
-	regions+=($region)
-done
+scpname="DenyRootActions"
+deploy_root_scp $scpname
 
-deploy_orgroot_allowregionsscp $scpname $targets $regions
+#scpname="DenyRoute53Domains"
+#deploy_root_scp $scpname
 
 ################################################################################
 # Copyright Notice

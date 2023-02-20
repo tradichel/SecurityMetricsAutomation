@@ -7,10 +7,14 @@
 source ../../../Functions/shared_functions.sh
 
 profile="Governance"
+source ../Organization/org_funcutions.sh
 
-deploy_orgroot_scp(){
+deploy_root_scp(){
+   scpname=$1
    profile="OrgRoot"
-   deploy_scp $1 $2
+   root_ou_id=$(get_root_id)
+
+   deploy_scp $scpname $root_ou_id
 }
 
 deploy_scp(){
@@ -18,37 +22,71 @@ deploy_scp(){
    targetids=$2
 
   func=${FUNCNAME[0]}
-  validate_param 'scpname' $name $func
+  validate_param 'scpname' $scpname $func
   validate_param 'targetids' $targetids $func
 
   parameters=$(add_parameter "NameParam" $scpname)
   parameters=$(add_parameter "TargetIdsParam" $targetids $parameters)
 
-  deploy_scp $scpname $parameters
+  deploy_scp_with_parameters $scpname $parameters
 
 }
 
-deploy_allowregionsscp(){
-   scpname=$1
-   targetids=$2
-	 regions=$3
+deploy_denyaddaccounttoroot(){
+   scpname="DenyAddAccountToRoot"
+   profile="OrgRoot"
+   root_ou_id=$(get_root_id)
+   org_id=$(get_organization_id)
+   rootpath=$org_id'/'$root_ou_id
+   targetids=$root_ou_id
+
+   parameters=$(add_parameter "NameParam" $scpname)
+   parameters=$(add_parameter "TargetIdsParam" $targetids $parameters)
+   parameters=$(add_parameter "RootPathParam" $rootpath $parameters)
+
+   deploy_scp_with_parameters $scpname $parameters
+}
+
+deploy_allowedregions(){
+
+  #due to bash handling of spaces in parameters can't use this.
+  #regions=""
+  #while true || [ "$region" != "" ]; do
+  #   echo "Enter allowed region to add to list (enter when done adding regions):"
+  #   read region
+  #   if [ "$region" == "" ]; then break; fi
+  #   if [ "$regions" != "" ]; then regions="$regions, "; fi
+  #   regions="$regions$region"
+  #done
+
+  #echo $regions
+
+  echo "Enter region 1:"
+  read region1
+
+  echo "Enter region 2:"
+  read region2
+
+  scpname="AllowedRegions"
+  targetids=$(get_root_id)
 
   func=${FUNCNAME[0]}
-  validate_param 'scpname' $name $func
+  validate_param 'scpname' $scpname $func
   validate_param 'targetids' $targetids $func
   validate_param 'regions' $regions $func
 
   parameters=$(add_parameter "NameParam" $scpname)
   parameters=$(add_parameter "TargetIdsParam" $targetids $parameters)
-  parameters=$(add_parameter "RegionsParam" $regions $parameters)
+  parameters=$(add_parameter "Region1Param" $region1 $parameters)
+  parameters=$(add_parameter "Region2Param" $region2 $parameters)
 
-	deploy_scp $scpname $parameters
+  deploy_scp_with_parameters $scpname $parameters
 
 }
 
-deploy_scp(){
-	scpname=$1
-	parameters=$2
+deploy_scp_with_parameters(){
+  scpname=$1
+  parameters=$2
 
   resourcetype='SCP'
   template='cfn/'$scpname'.yaml'

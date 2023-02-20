@@ -29,8 +29,8 @@ deploy_ou(){
 
 deploy_root_ou(){
    profile="OrgRoot"
-	 get_root_id=$(get_root_id)
-   deploy_ou $1 root_ou_id
+   root_ou_id=$(get_root_id)
+   deploy_ou $1 $root_ou_id
 }
 
 ################################################################################

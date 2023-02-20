@@ -1,5 +1,5 @@
 # https://github.com/tradichel/SecurityMetricsAutomation
-# Org/stacks/SCP/cfn/DenyRootActions.yaml
+# Org/stacks/SCP/cfn/DenyAddAccountToRoot.yaml
 # author: @tradichel @2ndsightlab
 # description: CloudFormation template to create an SCP
 # with the policy specified below
@@ -9,31 +9,33 @@ Parameters:
       Type: String
     TargetIdsParam:
       Type: String
+    RootPathParam:
+      Type: String
 
 Resources:
   SCP:
     Type: AWS::Organizations::Policy
     Properties:
       Name: !Ref NameParam
-      Content: |
+      Content: !Sub |
         {
             "Version": "2012-10-17",
             "Statement": [
               {
                 "Effect": "Deny",
-                "Action": "*",
+                "Action": "organizations:CreateAccount",
                 "Resource": "*",
-                "Condition": {
-                  "StringLike": {
-                    "aws:PrincipalArn": [
-                      "arn:aws:iam::*:root"
+                 "Condition": {
+                   "ForAnyValue:StringEquals": {
+                     "aws:PrincipalOrgPaths": [
+                       "${RootPathParam}"
                      ]
-                   }
-                 }
+                    }
+                  }
                }
             ]
         }
-      Description: "Deny All Actions for Account Root"
+      Description: "Deny add a new Account to the  root OU"
       TargetIds: [ !Ref TargetIdsParam ]
       Type: SERVICE_CONTROL_POLICY
 
@@ -42,6 +44,7 @@ Outputs:
     Value: !Ref SCP
     Export:
      Name: !Sub ${NameParam}SCPExport
+
 
 #################################################################################
 # Copyright Notice
