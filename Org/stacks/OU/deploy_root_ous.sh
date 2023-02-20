@@ -8,11 +8,8 @@ source ou_functions.sh
 
 echo "An CLI Profile named OrgRoot is required to run this code."
 
-#get the organization's root ID
-rootouid=$(aws organizations list-roots --query Roots[0].Id --output text)
-
-deploy_root_ou "DenyAll" $rootouid
-deploy_root_ou "Governance" $rootouid
+deploy_root_ou "DenyAll"
+deploy_root_ou "Governance"
 
 ################################################################################
 # Copyright Notice

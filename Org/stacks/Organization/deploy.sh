@@ -1,13 +1,13 @@
 #!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation/
-# Org/stacks/Organization/org.sh
+# Org/stacks/Organization/deploy.sh
 # author: @teriradichel @2ndsightlab
 # description: Deploy AWS Organization and settings
 ##############################################################
 
 source org_functions.sh
 
-create_organization
+deploy_organization
 enable_scps
 
 ################################################################################

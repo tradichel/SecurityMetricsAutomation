@@ -5,6 +5,7 @@
 # description: Functions for OU creation
 ##############################################################
 source ../../../Functions/shared_functions.sh
+source ../Organization/org_functions.sh
 
 profile="Org"
 
@@ -28,7 +29,8 @@ deploy_ou(){
 
 deploy_root_ou(){
    profile="OrgRoot"
-   deploy_ou $1 $2
+	 get_root_id=$(get_root_id)
+   deploy_ou $1 root_ou_id
 }
 
 ################################################################################
