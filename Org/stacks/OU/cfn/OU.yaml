@@ -17,10 +17,14 @@ Resources:
       ParentId: !Ref ParentIdParam     
 
 Outputs:
-  OUOutput:
+  OUIdOutput:
     Value: !Ref OU
     Export:
-     Name: !Sub ${NameParam}OUExport
+     Name: !Sub ${NameParam}OUIdExport
+  OUArnOutput:
+    Value: !GetAtt OU.Arn
+    Export:
+      Name: !Sub ${NameParam}OUArnExport
 
 #################################################################################
 # Copyright Notice

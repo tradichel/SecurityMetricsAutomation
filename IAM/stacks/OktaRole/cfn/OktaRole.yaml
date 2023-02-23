@@ -31,11 +31,11 @@ Outputs:
   OktaRoleOutput:
     Value: !Ref OktaRole
     Export:
-     Name: !Sub Okta${OktaNameParam}RoleExport
+     Name: !Sub Okta${RoleNameParam}RoleExport
   OtkatRoleArnOutput:
-    Value: !GetAtt OtkaRole.Arn
+    Value: !GetAtt OktaRole.Arn
     Export:
-     Name: !Sub Okta${OktaNameParam}RoleArnExport
+     Name: !Sub Okta${RoleNameParam}RoleArnExport
   ForceUpdate:
     Value: !Sub "${TimestampParam}"
 

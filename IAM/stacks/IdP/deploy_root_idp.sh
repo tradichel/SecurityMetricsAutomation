@@ -1,12 +1,12 @@
 #!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation/
-# Org/stacks/IdP/deploy.sh
+# Org/stacks/IdP/deploy_root_idp.sh
 # author: @teriradichel @2ndsightlab
 # description: Deploy AWS IAM IdP
 ##############################################################
 source idp_functions.sh
 
-echo "An CLI Profile named IAM is required to run this code."
+echo "An CLI Profile named OrgRoot is required to run this code."
 
 deploy_root_idp
 

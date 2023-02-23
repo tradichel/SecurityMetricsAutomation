@@ -7,7 +7,7 @@ Resources:
   IdP:
     Type: AWS::IAM::SAMLProvider
     Properties: 
-      Name: OktaIdentityProvider
+      Name: Okta
       SamlMetadataDocument: !Sub "{{resolve:secretsmanager:OktaMetadata}}"
 
 Outputs:

@@ -103,7 +103,7 @@ deploy_stack () {
 			--stack-name $stackname 
       --template-file $template "
 
-  if [ "$profile" == "IAM" ] || [ "$profile" == "ROOT" ] || [ "$profile" == "AppSec" ]; then
+  if [ "$profile" == "IAM" ] || [ "$profile" == "ROOT" ] || [ "$profile" == "OrgRoot" ] || [ "$profile" == "AppSec" ]; then
 		 c=$c' --capabilities CAPABILITY_NAMED_IAM '
 	fi
 

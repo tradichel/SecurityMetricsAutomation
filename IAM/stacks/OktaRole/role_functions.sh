@@ -31,7 +31,7 @@ deploy_okta_role(){
 
 	deploy_stack $profile $stackname $resourcetype $template "$p"
 
-	policyname=$rolepname'RolePolicy'
+	policyname='Okta'$rolename'RolePolicy'
 	deploy_role_policy $policyname $profile
 
 }

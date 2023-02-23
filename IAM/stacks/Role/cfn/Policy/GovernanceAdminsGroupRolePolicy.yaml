@@ -29,7 +29,7 @@ Resources:
             Resource:
               - !Sub "arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/Governance-*"
       Roles: 
-        - "IAMAdminsGroup"
+        - "GovernanceAdminsGroup"
 
 Outputs:
   GroupPolicyNameOutput:
