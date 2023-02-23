@@ -1,28 +1,15 @@
 #!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation/
-# Org/stacks/IdP/idp_functions.sh
+# Org/stacks/IdP/deploy.sh
 # author: @teriradichel @2ndsightlab
-# description: Functions for idp creation
+# description: Deploy AWS IAM IdP
 ##############################################################
-source ../../../Functions/shared_functions.sh
+source idp_functions.sh
 
-profile="IAM"
+echo "An CLI Profile named IAM is required to run this code."
 
-deploy_root_idp(){
+deploy_root_idp
 
-	profile="OrgRoot"
-	deploy_idp
-
-}
-
-deploy_idp(){
-
-  name='OktaIdentiyProvider'
-  resourcetype='IdentityProvider'
-  template='cfn/IdP.yaml'
-  deploy_stack $profile $name $resourcetype $template $parameters
-
-}
 
 ################################################################################
 # Copyright Notice
