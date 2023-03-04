@@ -9,9 +9,11 @@ Parameters:
   ParentIdsParam:
     Type: String
     Default: "None"
+  TimestampParam:
+    Type: String
 
 Conditions:
-   DefaultOU: !Equals ["None", !Ref ParentIdsParam]
+   DefaultOU: Equals ["None", !Ref ParentIdsParam]
 
 Resources:
 
@@ -33,7 +35,7 @@ Resources:
               - "@"
               - !Sub "{{resolve:secretsmanager:OrgDomain}}"
       ParentIds:
-        - !If [DefaultOU, !ImportValue DenyAllOUIdExport, !Ref ParentIdsParam] 
+        - If [DefaultOU, !ImportValue DenyAllOUIdExport, !Ref ParentIdsParam] 
       
       RoleName: 
             !Join
@@ -47,6 +49,8 @@ Outputs:
     Value: !Ref OrgAccount
     Export:
      Name: !Sub ${NameParam}Account
+  ForceUpdate:
+    Value: !Sub "${TimestampParam}"
 
 ###################i##############################################################
 # Copyright Notice
