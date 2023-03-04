@@ -38,7 +38,7 @@ deploy_account() {
   parameters=$(add_parameter "NameParam" $accountname)
 	parameters=$(add_parameter "TimestampParam" $timestamp)
 	if [ "$ou_id" != "" ]; then
-		parameters=$(add_parameter "OU" $ou_id $parameters)
+		parameters=$(add_parameter "ParentIdsParam" $ou_id $parameters)
 	fi
 
 	deploy_stack $profile $accountname $resourcetype $template $parameters

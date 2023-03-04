@@ -8,6 +8,7 @@ source account_functions.sh
 
 echo "You must have an AWS CLI profile named OrgRoot configured to run this script"
 echo "-------------- Deploy Accounts -------------------"
+
 deploy_account_w_ou_name 'Billing' 'Governance'
 deploy_account_w_ou_name 'IAM' 'Governance'
 deploy_account_w_ou_name 'Governance' 'Governance'
