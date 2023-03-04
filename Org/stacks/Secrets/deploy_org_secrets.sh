@@ -21,3 +21,5 @@ fi
 create_secret OrgPrefix $kmskeyid "set_orgprefix_value_in_secrets_manager"
 create_secret OrgDomain $kmskeyid "set_orgdomain_value_in_secrets_manager"
 
+
+

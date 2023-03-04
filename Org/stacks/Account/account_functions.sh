@@ -6,8 +6,9 @@
 ##############################################################
 source ../../../Functions/shared_functions.sh
 
-profile="ORG"
+profile="OrgRoot"
 
+#default OU is DenyAll so OU may not be passed in
 deploy_account() {
 
 	accountname="$1"
@@ -22,8 +23,10 @@ deploy_account() {
   resourcetype='Account'
   parameters=$(add_parameter "NameParam" $accountname)
 	parameters=$(add_parameter "RoleParam" $rolename)
-	parameters=$(add_parameter "OU" $ou_id)
-	
+	if [ "$ou" != "" ]; then
+		parameters=$(add_parameter "OU" $ou_id)
+	fi
+
 	deploy_stack $profile $username $resourcetype $template $parameters
 	
 }

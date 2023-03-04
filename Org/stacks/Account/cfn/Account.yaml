@@ -1,64 +1,39 @@
-FIX ME
 # https://github.com/tradichel/SecurityMetricsAutomation
-# IAM/stacks/User/cfn/User.yaml
+# IAM/stacks/User/cfn/Account.yaml
 # author: @tradichel @2ndsightlab
-# description: CloudFormation template to create an IAM user
+# description: CloudFormation template to create an AWS Account
 ##############################################################
 Parameters:
   NameParam:
     Type: String
-  ConsoleAccess:
+  ParentIdsParam:
     Type: String
-    AllowedValues:
-      - true
-      - false
-    Default: false
-
-Conditions:
-  ConsoleAllowed: !Equals
-    - !Ref ConsoleAccess
-    - true
+    Default: !Import DenyAllOUIdExport
 
 Resources:
 
-  Passwrd:
-    Type: 'AWS::SecretsManager::Secret'
-    Condition: ConsoleAllowed
-    Properties:
-      Name: !Sub ${NameParam}-Password
-      GenerateSecretString:
-        SecretStringTemplate:
-              !Join
-                - ''
-                - - '{"username": "'
-                  - !Ref NameParam
-                  - '"}'
-        GenerateStringKey: password
-        PasswordLength: 20
-
-  User:
-    Type: AWS::IAM::User
-    Properties:
-      UserName: !Ref NameParam
-      LoginProfile:
-        Fn::If: 
-          - ConsoleAllowed
-          - 
-            Password: !Sub "{{resolve:secretsmanager:${Passwrd}:SecretString:password}}"
-            PasswordResetRequired: true
-          - Ref: AWS::NoValue
-
+  OrgAccount:
+    Type: AWS::Organizations::Account
+    Properties: 
+      AccountName: !Ref NameParam
+      Email: 
+          !Join
+            - !Sub "{{resolve:secretsmanager:OktaPrefix}}"
+            - !Ref NameParam
+            - "@"
+            - !Sub "{{resolve:secretsmanager:OrgDomain}}"
+      ParentIds: 
+        - !Ref ParentIds
+      RoleName: 
+            !Join
+                - !Sub "{{resolve:secretsmanager:OrgPrefix}}"
+                - !Ref NameParam
+  
 Outputs:
   UserOutput:
-    Value: !Ref User
+    Value: !Ref OrgAccount
     Export:
-     Name: !Sub ${NameParam}UserExport
-
-  UserARNOutput:
-    Value: 
-      !GetAtt User.Arn
-    Export:
-      Name: !Sub ${NameParam}UserArnExport
+     Name: !Sub ${NameParam}Account
 
 #################################################################################
 # Copyright Notice

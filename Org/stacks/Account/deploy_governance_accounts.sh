@@ -1,18 +1,16 @@
 #!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# IAM/stacks/User/deploy.sh
+# Org/stacks/Account/deploy_governance_accounts.sh
 # author: @teriradichel @2ndsightlab
-# Description: Deploy all users
+# Description: OrgRoot user deploys three governance accounts
 ##############################################################
-source user_functions.sh
+source account_functions.sh
 
-echo "You must have an AWS CLI profile named Billing configured to run this script"
+echo "You must have an AWS CLI profile named OrgRoot configured to run this script"
 echo "-------------- Deploy Account -------------------"
 
-#look up gov ou
-#ou = x
-deploy_account 'Governance' $ou
-deploy_account 'IAM' $ou
+deploy_account 'Billing'
+
 
 #################################################################################
 # Copyright Notice
