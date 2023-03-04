@@ -10,6 +10,7 @@ echo "An CLI Profile named OrgRoot is required to run this code."
 
 deploy_root_ou "DenyAll"
 deploy_root_ou "Governance"
+deploy_root_ou "Suspended"
 
 ################################################################################
 # Copyright Notice

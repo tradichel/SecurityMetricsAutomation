@@ -12,22 +12,19 @@ profile="OrgRoot"
 deploy_account() {
 
 	accountname="$1"
-	rolename="$2"
-	ou_id="$3"
+	ou_id="$2"
 
 	function=${FUNCNAME[0]}
-  validate_param "accoutname" $username $function
-	validate_param "console_access" $console_access $function
-
+  validate_param "accountname" $accountname $function
+	
   template="cfn/Account.yaml"
   resourcetype='Account'
   parameters=$(add_parameter "NameParam" $accountname)
-	parameters=$(add_parameter "RoleParam" $rolename)
-	if [ "$ou" != "" ]; then
+	if [ "$ou_id" != "" ]; then
 		parameters=$(add_parameter "OU" $ou_id)
 	fi
 
-	deploy_stack $profile $username $resourcetype $template $parameters
+	deploy_stack $profile $accountname $resourcetype $template $parameters
 	
 }
 

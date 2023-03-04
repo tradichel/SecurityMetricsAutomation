@@ -8,25 +8,37 @@ Parameters:
     Type: String
   ParentIdsParam:
     Type: String
-    Default: !Import DenyAllOUIdExport
+    Default: "None"
+
+Conditions:
+   DefaultOU: !Equals ["None", !Ref ParentIdsParam]
 
 Resources:
 
   OrgAccount:
     Type: AWS::Organizations::Account
     Properties: 
-      AccountName: !Ref NameParam
+      AccountName:
+        !Join
+          - ""
+          - - !Sub "{{resolve:secretsmanager:OrgPrefix}}"
+            - "-"
+            - !Ref NameParam
       Email: 
           !Join
-            - !Sub "{{resolve:secretsmanager:OktaPrefix}}"
-            - !Ref NameParam
-            - "@"
-            - !Sub "{{resolve:secretsmanager:OrgDomain}}"
-      ParentIds: 
-        - !Ref ParentIds
+            - ""
+            - - !Sub "{{resolve:secretsmanager:OrgPrefix}}"
+              - "-"
+              - !Ref NameParam
+              - "@"
+              - !Sub "{{resolve:secretsmanager:OrgDomain}}"
+      ParentIds:
+        - !If [DefaultOU, !ImportValue DenyAllOUIdExport, !Ref ParentIdsParam] 
+      
       RoleName: 
             !Join
-                - !Sub "{{resolve:secretsmanager:OrgPrefix}}"
+              - ""
+              - - !Sub "{{resolve:secretsmanager:OrgPrefix}}"
                 - !Ref NameParam
   
 Outputs:
@@ -35,7 +47,7 @@ Outputs:
     Export:
      Name: !Sub ${NameParam}Account
 
-#################################################################################
+###################i##############################################################
 # Copyright Notice
 # All Rights Reserved.
 # All materials (the “Materials”) in this repository are protected by copyright 
