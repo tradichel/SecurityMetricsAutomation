@@ -1,8 +1,8 @@
-#!/bin/bash -e
+#/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation/
-# Org/stacks/Secrets/deploy.sh
+# Org/stacks/Secrets/deploy_org_secrets.sh
 # author: @teriradichel @2ndsightlab
-# description: Deploy OrgRoot secrets
+# description: Deploy OrgRoot organizational secrets
 ##############################################################
 source secret_functions.sh
 
@@ -18,5 +18,6 @@ if [ "$kmskeyid" == "" ]; then
   exit 1
 fi
 
-create_secret OktaMetadata $kmskeyid
+create_secret OrgPrefix $kmskeyid "set_orgprefix_value_in_secrets_manager"
+create_secret OrgDomain $kmskeyid "set_orgdomain_value_in_secrets_manager"
 

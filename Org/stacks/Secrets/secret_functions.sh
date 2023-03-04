@@ -12,16 +12,19 @@ create_secret(){
 
 	secretname="$1"
 	kmskeyid="$2"
+  not_secret_default_value="$3"
 
   func=${FUNCNAME[0]}
   validate_param 'secretname' $secretname $func
   validate_param 'kmskeyid' $kmskeyid $func
+  validate_param 'not_secret_default_value' $not_secret_default_value $func
 
   #create secret
   resourcetype='Secret'
   template='cfn/Secret.yaml'
   parameters=$(add_parameter "NameParam" $secretname)
   parameters=$(add_parameter "KMSKeyID" $kmskeyid $parameters)
+  parameters=$(add_parameter "SecretValue" $not_secret_default_value $parameters)
   deploy_stack $profile $secretname $resourcetype $template $parameters
 
 }
