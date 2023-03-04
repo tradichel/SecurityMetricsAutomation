@@ -39,6 +39,7 @@ Resources:
             !Join
               - ""
               - - !Sub "{{resolve:secretsmanager:OrgPrefix}}"
+                - "-"
                 - !Ref NameParam
   
 Outputs:

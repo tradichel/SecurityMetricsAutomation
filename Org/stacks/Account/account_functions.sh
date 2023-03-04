@@ -5,8 +5,21 @@
 # description: Functions for account creation
 ##############################################################
 source ../../../Functions/shared_functions.sh
+source ../Organization/org_functions.sh
 
 profile="OrgRoot"
+
+deploy_account_w_ou_name(){
+
+	accountname="$1"
+	ouname="$2"
+	
+	ouid=$(get_ou_id $ouname)
+	
+	deploy_account $accountname $ouid
+
+}
+
 
 #default OU is DenyAll so OU may not be passed in
 deploy_account() {

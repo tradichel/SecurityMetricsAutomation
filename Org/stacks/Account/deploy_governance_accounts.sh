@@ -7,20 +7,10 @@
 source account_functions.sh
 
 echo "You must have an AWS CLI profile named OrgRoot configured to run this script"
-echo "-------------- Deploy Account -------------------"
-
-#governance OU Output Name
-govOU=""
-
-#using shared function that looks up key export
-kmskeyid=$(get_kms_key_id $keyalias "OrgRoot")
-if [ "$kmskeyid" == "" ]; then
-  echo "KMS key id is not set." 1>&2
-  exit 1
-fi
-
-deploy_account 'Billing'
-
+echo "-------------- Deploy Accounts -------------------"
+deploy_account_w_ou_name 'Billing' 'Governance'
+deploy_account_w_ou_name 'IAM' 'Governance'
+deploy_account_w_ou_name 'Governance' 'Governance'
 
 #################################################################################
 # Copyright Notice
