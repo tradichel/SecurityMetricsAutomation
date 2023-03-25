@@ -2,47 +2,53 @@
 # https://github.com/tradichel/SecurityMetricsAutomation/
 # Org/stacks/SCP/deploy_root_scps.sh
 # author: @teriradichel @2ndsightlab
-# description: Deploy root SCPs for an AWS Organization
+# description: SCPs deployed by root user of an AWS Organization
+# The corresponding user is OrgRoot in this repository.
 ##############################################################
 source scp_functions.sh
 source ../Organization/org_functions.sh
 
 echo "An CLI Profile named OrgRoot is required to run this code."
 
+###
+#root OU SCPS
+### 
+deploy_allowedregions
+deploy_denyaddaccounttoroot
+
+#later
+#scpname="DenyRoute53Domains"
+#deploy_root_scp $scpname
+
+###
+#DenyAll OU SCPs
+###
 ouname="DenyAll"
 targets=$(get_ou_id $ouname)
 scpname="DenyAll"
 deploy_scp $scpname $targets
 
-deploy_allowedregions
-
-deploy_denyaddaccounttoroot
-
-
+###
+# Governance OU SCPs
+###
 ouname="Governance"
 targets=$(get_ou_id $ouname)
 
 scpname="DenyLeaveOrganization"
-deploy_scp $scpname
+deploy_scp $scpname $targets
 
 scpname="DenyRootActions"
-deploy_scp $scpname
+deploy_scp $scpname $targets
 
-
+###
+# Suspended OU SCPS (Close Account)
+###
 
 ouname="Suspended"
 targets=$(get_ou_id $ouname)
 
 scpname="DenyAllButCloseAccount"
-deploy_scp $scpname
-
-
-#scpname="DenyRoute53Domains"
-#deploy_root_scp $scpname
-
-#todo
-#remove the SCP that allows all access from 
-#the deny all OU after adding the DenyAll SCP
+deploy_scp $scpname $targets
 
 ################################################################################
 # Copyright Notice
