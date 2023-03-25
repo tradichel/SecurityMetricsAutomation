@@ -18,14 +18,31 @@ deploy_allowedregions
 
 deploy_denyaddaccounttoroot
 
+
+ouname="Governance"
+targets=$(get_ou_id $ouname)
+
 scpname="DenyLeaveOrganization"
-deploy_root_scp $scpname
+deploy_scp $scpname
 
 scpname="DenyRootActions"
-deploy_root_scp $scpname
+deploy_scp $scpname
+
+
+
+ouname="Suspended"
+targets=$(get_ou_id $ouname)
+
+scpname="DenyAllButCloseAccount"
+deploy_scp $scpname
+
 
 #scpname="DenyRoute53Domains"
 #deploy_root_scp $scpname
+
+#todo
+#remove the SCP that allows all access from 
+#the deny all OU after adding the DenyAll SCP
 
 ################################################################################
 # Copyright Notice

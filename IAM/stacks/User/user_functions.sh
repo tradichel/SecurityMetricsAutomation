@@ -14,7 +14,7 @@ deploy_user() {
 	console_access="$2"
 	profile_override="$3"
 
-  if [ "$profile_ovverride" != "" ]; then profile=$profile_override; fi
+  if [ "$profile_override" != "" ]; then profile=$profile_override; fi
 	
 	function=${FUNCNAME[0]}
   validate_param "username" $username $function
