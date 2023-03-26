@@ -20,36 +20,29 @@ Resources:
             "Version": "2012-10-17",
             "Statement": [
               {
-                "Effect": "Allow",
-                "Action": "aws-portal:ModifyPaymentMethods",
+                "Effect": "Deny",
+                "NotAction": "aws-portal:ModifyPaymentMethods",
                 "Resource": "*",
                 "Condition": {
                   "StringLike": {
                     "aws:PrincipalArn": [
-                      "arn:aws:iam::*:root",
-                       fn:ImportValue: "OktaBillingAdminsRoleArnExport"
+                      "arn:aws:iam::*:root"
                      ]
                    }
                  }
-               }
-            ],
-            "Statement": [
-              {
-                "Effect": "Allow",
-                "Action": 
-                  [
-                   "organizations:RemoveAccountFromOrganization",
-                   "organizations:CloseAccount"
-                  ],
+               },
+               {
+                "Effect": "Deny",
+                "NotAction": "aws-portal:ModifyPaymentMethods",
                 "Resource": "*",
                 "Condition": {
                   "StringLike": {
                     "aws:PrincipalArn": [
-                       fn:ImportValue: "OktaBillingAdminsRoleArnExport"
+                      Fn::ImportValue: OktaBillingAdminsRoleArnExport
                      ]
                    }
                  }
-               }
+               },
             ]
         }
       Description: "Deny All Actions except for allowing the root user or billing admin to change the payment method and the billing admin to remove the account from the organization or close it."
