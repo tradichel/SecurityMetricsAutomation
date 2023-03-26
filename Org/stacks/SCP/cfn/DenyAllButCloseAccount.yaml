@@ -22,8 +22,11 @@ Resources:
               {
                 "Effect": "Deny",
                 "NotAction": [
-                  "aws-portal:ModifyPaymentMethods",
-                  "aws-portal:ViewPaymentMethods"
+                   "organizations:LeaveOrganization",
+                   "organizations:DescribeOrganization",
+                   "aws-portal:*",
+                   "payments:*",
+                   "billing:*"
                 ],
                 "Resource": "*",
                 "Condition": {
@@ -38,8 +41,11 @@ Resources:
 
                 "Effect": "Deny",
                 "NotAction": [
-                  "aws-portal:ViewPaymentMethods",
-                  "aws-portal:ModifyPaymentMethods",
+                  "organizations:DescribeOrganization",
+                  "aws-portal:*",
+                  "payments:*",
+                  "billing:*",
+                  "organizations:DescribeOrganization",
                   "organizations:RemoveAccountFromOrganization",
                   "organizations:CloseAccount"
                    ],
