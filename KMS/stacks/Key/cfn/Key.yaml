@@ -27,6 +27,7 @@ Parameters:
       - "parameterstore"
       - "kms"
       - "ec2"
+      - "cloudtrail"
 
 Conditions:
   ServiceIsKMS:
@@ -35,10 +36,19 @@ Conditions:
     !Equals [!Ref ServiceParam, "ec2"]
   ServiceIsSecretsManager:
     !Equals [!Ref ServiceParam, "secretsmanager"]
-  ServiceIsSecretsManager:
+  ServiceIsParameterStore:
     !Equals [!Ref ServiceParam, "parameterstore"]
+  ServiceIsCloudTrail:
+    !Equals [!Ref ServiceParam, "cloudtrail"]
   KeyIsOrgRoot:
-    !Equals [!Ref KeyAliasParam, "OrgRootSecrets"]
+    !Or [
+      !Equals [!Ref KeyAliasParam, "OrgRootSecrets"],
+      !Equals [!Ref KeyAliasParam, "OrgRootCloudTrail"]
+    ]
+  ServiceCanEncrypt:
+    !Equals [!Ref ServiceParam, "cloudtrail"]
+  ServiceCanDecrypt:
+    !Equals [!Ref ServiceParam, "cloudtrail"]
 
 Resources:
   KMSKey:
@@ -137,6 +147,38 @@ Resources:
                     "kms:ViaService":
                       - !Sub "${ServiceParam}.${AWS::Region}.amazonaws.com"
             Resource: "*"
+          - Sid: Allow service to decrypt with KMS key
+            Effect:
+              !If
+                - ServiceCanDecrypt
+                - Allow
+                - Deny
+            Principal:
+               Service: !Sub "${ServiceParam}.amazonaws.com"
+            Action: kms:Decrypt
+            Resource: '*'
+          - Sid: Allow service to encrypt with KMS key
+            Effect:
+              !If
+                - ServiceCanEncrypt
+                - Allow
+                - Deny
+            Principal:
+              Service: !Sub "${ServiceParam}.amazonaws.com"     
+            Resource: '*'
+            Condition:
+              !If
+                - ServiceIsCloudTrail
+                -
+                  StringLike:
+                      kms:EncryptionContext:aws:cloudtrail:arn:
+                        - !Sub "arn:aws:cloudtrail:*:${AWS::AccountId}:trail/*"
+                  StringEquals:
+                      aws:SourceArn: !ImportValue BucketArn-orgroot-cloudtrail
+                -
+                  StringNotLike:
+                        kms:EncryptionContext:aws:cloudtrail:arn:
+                          - !Sub "arn:aws:cloudtrail:*:${AWS::AccountId}:trail/*"
 
 Outputs:
   KeyIDOutput:

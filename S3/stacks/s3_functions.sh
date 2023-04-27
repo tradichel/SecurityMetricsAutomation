@@ -1,21 +1,59 @@
 #!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# Org/stacks/Account/deploy_governance_accounts.sh
+# S3/stacks/S3_functions.sh
 # author: @teriradichel @2ndsightlab
-# Description: OrgRoot user deploys three governance accounts,
-# Backup, and Root Sandbox account
 ##############################################################
-source account_functions.sh
+source ../../../Functions/shared_functions.sh
 
-echo "You must have an AWS CLI profile named OrgRoot configured to run this script"
-echo "-------------- Deploy Accounts -------------------"
+deploy_s3_bucket() {
+ 
+  profile="$1"
+  bucketnamesuffix="$2"
+  kmskeyalias="$3"
 
-deploy_account_w_ou_name 'Billing' 'Governance'
-deploy_account_w_ou_name 'IAM' 'Governance'
-deploy_account_w_ou_name 'Governance' 'Governance'
+  function=${FUNCNAME[0]}
+  validate_param "bucketnamesuffix" $bucketnamesuffix $function
+  validate_param "kmskeyalias" $kmskeyalias $function
+  validate_param "profile" $profile $function
 
-deploy_account_w_ou_name 'Backup' 'Backup'
-deploy_account_w_ou_name 'Sandbox' 'Sandbox'
+  kmskeyid=$(get_key_id $kmskeyalias $profile)
+  echo "Key: $kmskeyid"
+
+  if [ "$kmskeyid" == "" ]; then
+    echo "key not found for alias: $kmskeyalias"
+    exit
+  fi
+
+  bucketnamesuffix=$(echo $bucketnamesuffix | tr '[:upper:]' '[:lower:]')
+  profileparam=$(echo $profile | tr '[:upper:]' '[:lower:]')
+
+  parameters=$(add_parameter "BucketNameSuffixParam" "$bucketnamesuffix")
+  parameters=$(add_parameter "KMSKeyIdParam" $kmskeyid $parameters)
+  parameters=$(add_parameter "ProfileParam" $profileparam $parameters)
+
+  template='cfn/Bucket.yaml'
+  resourcetype='S3Bucket'
+  	
+  deploy_stack $profile $bucketnamesuffix $resourcetype $template "$parameters"
+
+}
+
+get_key_id () {
+	
+  alias="$1"
+  profile="$2"
+
+  function=${FUNCNAME[0]}
+  validate_param "alias" $alias $function
+  validate_param "profile" $alias $function
+
+  stack=$profile'-Key-'$alias
+  exportname=$alias'KeyIDExport'
+  keyid=$(get_stack_export $stack $exportname)
+
+  echo $keyid
+
+}
 
 #################################################################################
 # Copyright Notice
@@ -40,4 +78,4 @@ deploy_account_w_ou_name 'Sandbox' 'Sandbox'
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
-
+                                                                                     

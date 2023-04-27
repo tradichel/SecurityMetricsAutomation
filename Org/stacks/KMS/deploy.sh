@@ -6,12 +6,8 @@
 ###############################################################
 source ../../../Functions/shared_functions.sh
 
-echo "------Create a CLI profile named 'KMS' before running this script ---"
-echo "------Key for Organization Root Secrets -----"
-
-desc="OrgRootSecrets"
-keyalias="OrgRootSecrets"
-conditionservice="secretsmanager"
+echo "------Create a CLI profile for the OrgRoot user before running this script ---"
+echo "----- see blog post about the org root user in the blog series ---"
 
 #get the encryption ARN for our key policy 
 stack='ROOT-USER-OrgRoot'
@@ -23,12 +19,36 @@ stack='ROOT-USER-OrgRoot'
 exportname='OrgRootUserArnExport'
 decryptarn=$(get_stack_export $stack $exportname)
 
+
+echo "------Organization Root Secrets Key -----"
+desc="OrgRootSecrets"
+keyalias="OrgRootSecrets"
+conditionservice="secretsmanager"
+
 cd ../../../KMS/stacks/Key/
 source key_functions.sh
 deploy_orgroot_key $encryptarn $decryptarn $keyalias $conditionservice $desc
 cd ../../../Org/stacks/KMS
 
-echo "-----------  OrgRoot Key Alias -----------"
+echo "-----------  OrgRoot Secrets Key Alias-------"
+cd ../../../KMS/stacks/KeyAlias/
+source keyalias_functions.sh
+keyid=$(get_orgroot_key_id $keyalias)
+deploy_orgroot_key_alias $keyid $keyalias
+cd ../../../Org/stacks/KMS
+
+echo "-----------  OrgRoot ClouddTrail Key-------"
+desc="OrgRootCloudTrail"
+keyalias="OrgRootCloudTrail"
+conditionservice="kms"
+
+cd ../../../KMS/stacks/Key/
+source key_functions.sh
+deploy_orgroot_key $encryptarn $decryptarn $keyalias $conditionservice $desc
+cd ../../../Org/stacks/KMS
+
+
+echo "-----------  OrgRoot CloudTrail Key Alias-------"
 cd ../../../KMS/stacks/KeyAlias/
 source keyalias_functions.sh
 keyid=$(get_orgroot_key_id $keyalias)

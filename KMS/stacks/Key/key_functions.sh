@@ -19,28 +19,29 @@ deploy_key(){
 	encryptarn=$1
 	decryptarn=$2
 	keyalias=$3
-	conditionservice=$4
+	service=$4
 	desc="$5"
 
-  function=${FUNCNAME[0]}
-  validate_param "desc" $desc $function
-  validate_param "encryptarn" $encryptarn $function
-  validate_param "decryptarn" $decryptarn $function
+        function=${FUNCNAME[0]}
+        validate_param "desc" $desc $function
+        validate_param "encryptarn" $encryptarn $function
+        validate_param "decryptarn" $decryptarn $function
 	validate_param "keyalias" $keyalias $function
-  validate_param "conditionservice" $conditionservice $function
-  
+        validate_param "service" $service $function
+
 	template='cfn/Key.yaml'
-  resourcetype='Key'
+        resourcetype='Key'
 	timestamp="$(date)"
-  timestamp=$(echo $timestamp | sed 's/ //g')
+        timestamp=$(echo $timestamp | sed 's/ //g')
 
-  parameters=$(add_parameter "EncryptArnParam" $encryptarn)
-  parameters=$(add_parameter "DecryptArnParam" $decryptarn "$parameters")
-  parameters=$(add_parameter "KeyAliasParam" $keyalias "$parameters")
-  parameters=$(add_parameter "TimestampParam" $timestamp "$parameters")
-  parameters=$(add_parameter "ServiceParam" $conditionservice "$parameters")
-  parameters=$(add_parameter "DescParam" "$desc" "$parameters")
+        parameters=$(add_parameter "EncryptArnParam" $encryptarn)
+        parameters=$(add_parameter "DecryptArnParam" $decryptarn "$parameters")
+        parameters=$(add_parameter "KeyAliasParam" $keyalias "$parameters")
+        parameters=$(add_parameter "TimestampParam" $timestamp "$parameters")
+        parameters=$(add_parameter "ServiceParam" $service "$parameters")
+        parameters=$(add_parameter "DescParam" "$desc" "$parameters")
 
+	echo 'deploy_stack $profile $keyalias $resourcetype $template "$parameters"'
 	deploy_stack $profile $keyalias $resourcetype $template "$parameters"
 
 }

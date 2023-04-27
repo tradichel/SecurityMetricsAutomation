@@ -11,7 +11,7 @@ Parameters:
     Default: "None"
 
 Conditions:
-   DefaultOU: Equals ["None", !Ref ParentIdsParam]
+   DefaultOU: !Equals ["None", !Ref ParentIdsParam]
 
 Resources:
 
@@ -33,7 +33,7 @@ Resources:
               - "@"
               - !Sub "{{resolve:secretsmanager:OrgDomain}}"
       ParentIds:
-        - If [DefaultOU, !ImportValue DenyAllOUIdExport, !Ref ParentIdsParam] 
+        - !If [DefaultOU, !ImportValue DenyAllOUIdExport, !Ref ParentIdsParam] 
       
       RoleName: 
             !Join

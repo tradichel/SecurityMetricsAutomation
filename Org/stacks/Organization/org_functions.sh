@@ -32,6 +32,19 @@ get_ou_id(){
 
 }
 
+enable_all_features(){
+
+	  enabled=$(aws organizations describe-organization --query \
+		       'Organization.FeatureSet' --output text)
+
+	    if [ "$enabled" == "ALL" ]; then
+		echo "ALL features are already enabled"
+  	    else
+	        aws organizations enable-all-features
+            fi
+    }
+
+
 enable_scps(){
 	
 	enabled=$(aws organizations describe-organization --query \

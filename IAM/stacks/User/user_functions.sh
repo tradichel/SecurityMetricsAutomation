@@ -12,25 +12,41 @@ deploy_user() {
 
 	username="$1"
 	console_access="$2"
-	profile_override="$3"
-
-  if [ "$profile_override" != "" ]; then profile=$profile_override; fi
-	
+	managed_policy_arns="$3"
+		
 	function=${FUNCNAME[0]}
-  validate_param "username" $username $function
+        validate_param "username" $username $function
 	validate_param "console_access" $console_access $function
 
-  template="cfn/User.yaml"
-  resourcetype='User'
-  parameters=$(add_parameter "NameParam" $username)
+        template="cfn/User.yaml"
+        resourcetype='User'
+        parameters=$(add_parameter "NameParam" $username)
   
 	if [ "$console_access" == "true" ]; then
-  	parameters=$(add_parameter "ConsoleAccess" "true" $parameters)
+  	  parameters=$(add_parameter "ConsoleAccess" "true" $parameters)
+	fi
+
+	if [ "$managed_policy_arn" != "" ]; then
+	  parameters=$(add_parameter "ManagedPolicyArnsParam" $managed_policy_arn $parameters)
 	fi
 
 	deploy_stack $profile $username $resourcetype $template $parameters
-	
 }
+
+deploy_sandbox_admin() {
+
+ 	username=$1
+
+	function=${FUNCNAME[0]}
+    	validate_param "username" $username $function
+
+	console_access="true"
+	
+	adminpolicyarn=$(aws iam list-policies --query 'Policies[?PolicyName==`AdministratorAccess`]'.Arn --output text)
+
+	deploy_user $username $console_access $adminpolicyarn
+}
+
 
 #using default profile to deploy first IAM user in an account
 deploy_iam_admin() {
@@ -39,9 +55,9 @@ deploy_iam_admin() {
 
   function=${FUNCNAME[0]}
   validate_param "username" $username $function
-
-	profile="ROOT"
-	console_access="false"
+  
+  profile="ROOT"
+  console_access="false"
 	
   deploy_user $username $console_access $profile
 

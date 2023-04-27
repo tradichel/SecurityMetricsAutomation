@@ -8,6 +8,7 @@
 source org_functions.sh
 
 deploy_organization
+enable_all_features
 enable_scps
 
 ################################################################################

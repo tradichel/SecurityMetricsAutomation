@@ -1,23 +1,35 @@
 #!/bin/bash -e
 # https://github.com/tradichel/SecurityMetricsAutomation
-# Org/stacks/Account/deploy_governance_accounts.sh
-# author: @teriradichel @2ndsightlab
-# Description: OrgRoot user deploys three governance accounts,
-# Backup, and Root Sandbox account
-##############################################################
-source account_functions.sh
+# Org/stacks/S3/deploy.sh
+# description: deploy buckets owned by OrgRoot
+# Executed in the organization's management account
+###############################################################
+source ../../../S3/stacks/s3_functions.sh
+source org_s3_functions.sh
 
-echo "You must have an AWS CLI profile named OrgRoot configured to run this script"
-echo "-------------- Deploy Accounts -------------------"
+echo "------Create a CLI profile for the OrgRoot user before running this script ---"
+echo "----- see blog post about the org root user in the blog series"
 
-deploy_account_w_ou_name 'Billing' 'Governance'
-deploy_account_w_ou_name 'IAM' 'Governance'
-deploy_account_w_ou_name 'Governance' 'Governance'
+##deploy buckets
+cd ../../../S3/stacks/
 
-deploy_account_w_ou_name 'Backup' 'Backup'
-deploy_account_w_ou_name 'Sandbox' 'Sandbox'
+profile="OrgRoot"
+suffix="s3accesslogs"
+keyalias="OrgRootCloudTrail"
 
-#################################################################################
+deploy_s3_bucket $profile $suffix $keyalias
+
+suffix=cloudtrail
+
+deploy_s3_bucket $profile $suffix $keyalias
+
+cd ../../Org/stacks/S3
+
+deploy_cloudtrail_bucket_policy
+
+deploy_s3accesslog_bucket_policy
+
+################################################################################
 # Copyright Notice
 # All Rights Reserved.
 # All materials (the “Materials”) in this repository are protected by copyright 
@@ -39,5 +51,4 @@ deploy_account_w_ou_name 'Sandbox' 'Sandbox'
 # HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-################################################################################ 
-
+################################################################################  

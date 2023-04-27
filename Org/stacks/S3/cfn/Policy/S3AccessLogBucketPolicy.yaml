@@ -1,0 +1,36 @@
+# https://github.com/tradichel/SecurityMetricsAutomation
+# Org/stacks/S3/cfn/Policy/S3AccessLogBucketPolicy.yaml
+# author: @tradichel @2ndsightlab
+# description: Bucket policy for server access log bucket
+##############################################################
+
+Resources:
+  BucketPolicy:
+    Type: AWS::S3::BucketPolicy 
+    Properties:
+      Bucket: !ImportValue BucketName-orgroot-s3accesslogs
+      PolicyDocument:
+        Statement:
+            - Sid: AllowTLSRequestsOnly
+              Effect: Deny
+              Principal: '*'
+              Action: 's3:*'
+              Resource:
+                - !ImportValue BucketArn-orgroot-s3accesslogs
+                - !Sub  
+                  - ${BucketArn}/*
+                  - BucketArn: !ImportValue BucketArn-orgroot-s3accesslogs
+              Condition:
+                Bool:
+                  'aws:SecureTransport': 'false'
+            - Sid: S3ServerAccessLogsPolicy
+              Effect: Allow
+              Principal:
+                Service: logging.s3.amazonaws.com
+              Action: 
+                - s3:PutObject
+              Resource:
+              - !Sub
+                 - ${BucketArn}/*
+                 - BucketArn: !ImportValue BucketArn-orgroot-s3accesslogs
+

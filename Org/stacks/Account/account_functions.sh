@@ -28,11 +28,11 @@ deploy_account() {
 	ou_id="$2"
 
 	function=${FUNCNAME[0]}
-  validate_param "accountname" $accountname $function
+        validate_param "accountname" $accountname $function
 	
-  template="cfn/Account.yaml"
-  resourcetype='Account'
-  parameters=$(add_parameter "TimestampParam" $timestamp)
+        template="cfn/Account.yaml"
+        resourcetype='Account'
+        parameters=$(add_parameter "NameParam" $accountname)
 	if [ "$ou_id" != "" ]; then
 		parameters=$(add_parameter "ParentIdsParam" $ou_id $parameters)
 	fi
