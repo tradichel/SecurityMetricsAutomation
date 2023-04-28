@@ -9,14 +9,14 @@ deploy_organization(){
 
 	id=$(get_organization_id)
 	if [ "$id" == "" ]; then
-		aws organizations create-organization
+		aws organizations create-organization --profile $profile
 	else
 		echo "Organization already exists: $id"
 	fi
 }
 
 get_root_id(){
-	rootouid=$(aws organizations list-roots --query Roots[0].Id --output text)
+	rootouid=$(aws organizations list-roots --query Roots[0].Id --output text --profile $profile)
 	echo $rootouid
 }
 
@@ -26,7 +26,7 @@ get_ou_id(){
    rootouid=$(get_root_id)
 
    ouid=$(aws organizations list-organizational-units-for-parent --parent-id $rootouid \
-     --query 'OrganizationalUnits[?Name==`'$ouname'`].Id' --output text)
+     --query 'OrganizationalUnits[?Name==`'$ouname'`].Id' --output text --profile $profile)
 
 	 echo $ouid
 
@@ -35,33 +35,38 @@ get_ou_id(){
 enable_all_features(){
 
 	  enabled=$(aws organizations describe-organization --query \
-		       'Organization.FeatureSet' --output text)
+		       'Organization.FeatureSet' --output text --profile Org)
 
 	    if [ "$enabled" == "ALL" ]; then
-		echo "ALL features are already enabled"
-  	    else
-	        aws organizations enable-all-features
-            fi
+				echo "ALL features are already enabled"
+  	  else
+	      aws organizations enable-all-features --profile $profile
+       fi
     }
 
 
 enable_scps(){
 	
 	enabled=$(aws organizations describe-organization --query \
-		 'Organization.AvailablePolicyTypes[?Type==`SERVICE_CONTROL_POLICY`].Status' --output text)
+		 'Organization.AvailablePolicyTypes[?Type==`SERVICE_CONTROL_POLICY`].Status' --output text --profile Org)
 	
 	if [ "$enabled" == "ENABLED" ]; then
 		echo "SCPs are already enabled."
   else
 		rootouid=$(get_root_id)
- 	 	aws organizations enable-policy-type --root-id $rootouid --policy-type SERVICE_CONTROL_POLICY
+ 	 	aws organizations enable-policy-type --root-id $rootouid --policy-type SERVICE_CONTROL_POLICY --profile $profile
 	fi
 
 }
 
 get_organization_id(){
-	orgid=$(aws organizations describe-organization --query 'Organization.Id' --output text)
+	orgid=$(aws organizations describe-organization --query 'Organization.Id' --output text --profile $profile)
 	echo $orgid
+}
+
+get_organization_prefix(){
+  orgprefix=$(aws secretsmanager get-secret-value --secret-id OrgPrefix --query SecretString --output text --profile $profile)
+	echo $orgprefix
 }
 
 ################################################################################

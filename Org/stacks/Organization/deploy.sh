@@ -5,7 +5,9 @@
 # description: Deploy AWS Organization and settings
 ##############################################################
 
-source org_functions.sh
+source organization_functions.sh
+
+profile="OrgRoot"
 
 deploy_organization
 enable_all_features

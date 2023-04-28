@@ -48,7 +48,7 @@ Outputs:
     Export:
      Name: !Sub ${NameParam}Account
 
-###################i##############################################################
+#################################################################################
 # Copyright Notice
 # All Rights Reserved.
 # All materials (the “Materials”) in this repository are protected by copyright 

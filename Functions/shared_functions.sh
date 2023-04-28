@@ -4,10 +4,14 @@
 # author: @teriradichel @2ndsightlab
 ##############################################################
 validate_param(){
+  name="$1"
+  value="$2"
+  func="$3"
 
-  name=$1
-  value=$2
-  func=$3
+  if [ "$func" == "" ]; then
+    echo 'Parameter '$name' and function name must be provided to validate_param' 1>&2
+    exit 1
+	fi
 
   if [ "$value" == "" ]; then
     echo 'Parameter '$name' must be provided to function '$func 1>&2
@@ -78,40 +82,39 @@ iam_allowed_profile(){
 #"key=value","key=value","key="value"
 deploy_stack () {
 
-        profile="$1"
-        resourcename="$2"
-        resourcetype="$3"
-        template="$4"
+  profile="$1"
+  resourcename="$2"
+  resourcetype="$3"
+  template="$4"
 
-	#adding brackets here to avoid repetitive code elsewhere
-        parameters="[$5]"
+ 	#adding brackets here to avoid repetitive code elsewhere
+  parameters="[$5]"
 
-        func=${FUNCNAME[0]}
-        validate_param 'profile' $profile $func
-        validate_param 'resourcename' $resourcename $func
-        validate_param 'resourcetype' $resourcetype $func
-        validate_param 'template' $template $func
+  func=${FUNCNAME[0]}
+  validate_param 'profile' $profile $func
+  validate_param 'resourcename' $resourcename $func
+  validate_param 'resourcetype' $resourcetype $func
+  validate_param 'template' $template $func
 	#not all stacks have parameters
 
-        stackname=$profile'-'$resourcetype'-'$resourcename
+  stackname=$profile'-'$resourcetype'-'$resourcename
 	status=$(get_stack_status $stackname)
 	
 	if [ "$status" == "ROLLBACK_COMPLETE" ]; then
-		aws cloudformation delete-stack --stack-name $stackname
-	  
+		aws cloudformation delete-stack --stack-name $stackname  
         while [ "$(get_stack_status $stackname)" == "DELETE_IN_PROGRESS" ]
         do
 		sleep 5
 		done
 	fi
 
-       echo "-------------- $stackname -------------------"
+  echo "-------------- $stackname -------------------"
 
 	c="aws cloudformation deploy --profile $profile 
 			--stack-name $stackname 
-                        --template-file $template "
+      --template-file $template "
   
-        iam_allowed=$(iam_allowed_profile $profile)
+  iam_allowed=$(iam_allowed_profile $profile)
  
 	echo "IAM ALLOWED: $iam_allowed"
  
@@ -125,7 +128,7 @@ deploy_stack () {
 
 	echo $c
 
-	($c)
+  ($c)
 
 }
 

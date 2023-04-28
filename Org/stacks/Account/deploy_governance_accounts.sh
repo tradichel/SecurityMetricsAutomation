@@ -10,6 +10,8 @@ source account_functions.sh
 echo "You must have an AWS CLI profile named OrgRoot configured to run this script"
 echo "-------------- Deploy Accounts -------------------"
 
+#accounts are not created in the DenyAll OU by billing admin
+#move from there to correct OU by governance admin
 deploy_account_w_ou_name 'Billing' 'Governance'
 deploy_account_w_ou_name 'IAM' 'Governance'
 deploy_account_w_ou_name 'Governance' 'Governance'

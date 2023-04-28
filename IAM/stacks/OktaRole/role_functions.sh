@@ -19,7 +19,7 @@ deploy_okta_role(){
 	rolename="$1"
 		
 	function=${FUNCNAME[0]}
-	validate_param "rolename" $rolename $function
+	validate_param "rolename" "$rolename" $function
 
 	timestamp=$(get_timestamp)
 
@@ -38,10 +38,10 @@ deploy_okta_role(){
 
 deploy_role_policy(){
 
-	policyname=$1
+	policyname="$1"
 
   function=${FUNCNAME[0]}
- 	validate_param "policyname" $policyname $function
+ 	validate_param "policyname" "$policyname" $function
 
   p=$(add_parameter "NameParam" $policyname)
 	template='cfn/Policy/'$policyname'.yaml'

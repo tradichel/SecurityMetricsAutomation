@@ -15,12 +15,12 @@ deploy_user() {
 	managed_policy_arns="$3"
 		
 	function=${FUNCNAME[0]}
-        validate_param "username" $username $function
-	validate_param "console_access" $console_access $function
+  validate_param "username" "$username" $function
+	validate_param "console_access" "$console_access" "$function"
 
-        template="cfn/User.yaml"
-        resourcetype='User'
-        parameters=$(add_parameter "NameParam" $username)
+  template="cfn/User.yaml"
+  resourcetype='User'
+  parameters=$(add_parameter "NameParam" $username)
   
 	if [ "$console_access" == "true" ]; then
   	  parameters=$(add_parameter "ConsoleAccess" "true" $parameters)
@@ -35,10 +35,10 @@ deploy_user() {
 
 deploy_sandbox_admin() {
 
- 	username=$1
+ 	username="$1"
 
 	function=${FUNCNAME[0]}
-    	validate_param "username" $username $function
+  validate_param "username" "$username" $function
 
 	console_access="true"
 	
@@ -51,10 +51,10 @@ deploy_sandbox_admin() {
 #using default profile to deploy first IAM user in an account
 deploy_iam_admin() {
 
-  username=$1
+  username="$1"
 
   function=${FUNCNAME[0]}
-  validate_param "username" $username $function
+  validate_param "username" "$username" $function
   
   profile="ROOT"
   console_access="false"
