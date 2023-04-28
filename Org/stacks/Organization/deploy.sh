@@ -12,6 +12,7 @@ profile="OrgRoot"
 deploy_organization
 enable_all_features
 enable_scps
+enable_cloudtrail
 
 ################################################################################
 # Copyright Notice

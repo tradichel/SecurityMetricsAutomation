@@ -69,6 +69,11 @@ get_organization_prefix(){
 	echo $orgprefix
 }
 
+enable_cloudtrail(){  
+	 echo "Enable cloutrail"
+   aws organizations enable-aws-service-access --service-principal cloudtrail.amazonaws.com --profile $profile
+}
+
 ################################################################################
 # Copyright Notice
 # All Rights Reserved.

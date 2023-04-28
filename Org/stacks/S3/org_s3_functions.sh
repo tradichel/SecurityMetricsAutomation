@@ -23,7 +23,7 @@ deploy_cloudtrail_bucket_policy() {
   orgid=$(get_organization_id)
 
   function=${FUNCNAME[0]}
-  validate_param "orgid" $orgid $function
+  validate_param "orgid" "$orgid" "$function"
 
   parameters=$(add_parameter "OrganizationIdParam" "$orgid")
   if [ "$trail" != "" ]; then

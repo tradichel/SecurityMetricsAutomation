@@ -10,6 +10,12 @@ Parameters:
   OrganizationIdParam:
     Type: String
 
+Conditions:
+   NoCloudTrailArn:
+     !Equals 
+        - !Ref CloudTrailArnParam
+        - "*"
+
 Resources:
   BucketPolicy:
     Type: AWS::S3::BucketPolicy
@@ -37,8 +43,11 @@ Resources:
             Action: s3:GetBucketAcl
             Resource: !ImportValue BucketArn-orgroot-cloudtrail
             Condition:
-              StringEquals:
-                'aws:SourceArn': !Ref CloudTrailArnParam
+              !If
+                - NoCloudTrailArn
+                - !Ref AWS::NoValue
+                - StringEquals:
+                    'aws:SourceArn': !Ref CloudTrailArnParam
           - Sid: WriteToBucket
             Effect: Allow
             Principal:
@@ -46,12 +55,28 @@ Resources:
             Action: 's3:PutObject'
             Resource:
               - !Sub
-                  - ${BucketArn}/AWSLogs/${OrgId}/*
+                  - ${BucketArn}/AWSLogs/*
                   - BucketArn: !ImportValue BucketArn-orgroot-cloudtrail
                     OrgId: !Ref OrganizationIdParam          
             Condition:
-              StringEquals:
-                'aws:SourceArn': !Ref CloudTrailArnParam
+              !If
+                 - NoCloudTrailArn
+                 - !Ref AWS::NoValue
+                 - 
+                    StringEquals:
+                      'aws:SourceArn': !Ref CloudTrailArnParam
+          - Sid: ListBucket
+            Effect: Allow
+            Principal:
+              Service: cloudtrail.amazonaws.com
+            Action: s3:ListBucket
+            Resource: !ImportValue BucketArn-orgroot-cloudtrail
+          - Sid: GetBucketAcl
+            Effect: Allow
+            Principal: 
+              Service: cloudtrail.amazonaws.com
+            Action: s3:GetBucketAcl
+            Resource: !ImportValue BucketArn-orgroot-cloudtrail
 
 #################################################################################
 # Copyright Notice

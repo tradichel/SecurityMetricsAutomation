@@ -6,6 +6,8 @@
 ###############################################################
 source ../../../Functions/shared_functions.sh
 
+profile="OrgRoot"
+
 echo "------Create a CLI profile for the OrgRoot user before running this script ---"
 echo "----- see blog post about the org root user in the blog series ---"
 
@@ -13,12 +15,7 @@ echo "----- see blog post about the org root user in the blog series ---"
 stack='ROOT-USER-OrgRoot'
 exportname='OrgRootUserArnExport'
 encryptarn=$(get_stack_export $stack $exportname)
-
-#get the decryption ARN for our key policy 
-stack='ROOT-USER-OrgRoot'
-exportname='OrgRootUserArnExport'
-decryptarn=$(get_stack_export $stack $exportname)
-
+decryptarn=$encryptarn
 
 echo "------Organization Root Secrets Key -----"
 desc="OrgRootSecrets"
@@ -40,7 +37,7 @@ cd ../../../Org/stacks/KMS
 echo "-----------  OrgRoot ClouddTrail Key-------"
 desc="OrgRootCloudTrail"
 keyalias="OrgRootCloudTrail"
-conditionservice="kms"
+conditionservice="cloudtrail"
 
 cd ../../../KMS/stacks/Key/
 source key_functions.sh

@@ -16,11 +16,10 @@ deploy_organization_cloudtrail(){
 
 	parameters=$(add_parameter "NameParam" $trailname)
  
-	echo $trailname
-
   deploy_stack $profile $trailname $resourcetype $template $parameters
 
 }
+
 #################################################################################
 # Copyright Notice
 # All Rights Reserved.
