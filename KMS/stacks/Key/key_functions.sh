@@ -14,24 +14,28 @@ deploy_orgroot_key(){
 
 }
 
+#note: must deploy with the KMS admin role because that's 
+#used in the template and CloudFormation or KMS forces
+#deployment of the key by someone who will be the 
+#adminsitrator of the key.
 deploy_key(){
 
-	encryptarn=$1
-	decryptarn=$2
-	keyalias=$3
-	service=$4
-	desc="$5"
+	      encryptarn="$1"
+	      decryptarn="$2"
+ 	      keyalias="$3"
+	      service="$4"
+	      desc="$5"
 
         function=${FUNCNAME[0]}
-        validate_param "desc" $desc $function
-        validate_param "encryptarn" $encryptarn $function
-        validate_param "decryptarn" $decryptarn $function
-	validate_param "keyalias" $keyalias $function
-        validate_param "service" $service $function
+        validate_param "encryptarn" "$encryptarn" $function
+        validate_param "decryptarn" "$decryptarn" $function
+	      validate_param "keyalias" "$keyalias" $function
+        validate_param "service" "$service" $function
+        validate_param "desc" "$desc" "$function"
 
-	template='cfn/Key.yaml'
+	      template='cfn/Key.yaml'
         resourcetype='Key'
-	timestamp="$(date)"
+	      timestamp="$(date)"
         timestamp=$(echo $timestamp | sed 's/ //g')
 
         parameters=$(add_parameter "EncryptArnParam" $encryptarn)
@@ -41,8 +45,8 @@ deploy_key(){
         parameters=$(add_parameter "ServiceParam" $service "$parameters")
         parameters=$(add_parameter "DescParam" "$desc" "$parameters")
 
-	echo 'deploy_stack $profile $keyalias $resourcetype $template "$parameters"'
-	deploy_stack $profile $keyalias $resourcetype $template "$parameters"
+	      echo 'deploy_stack $profile $keyalias $resourcetype $template "$parameters"'
+	      deploy_stack $profile $keyalias $resourcetype $template "$parameters"
 
 }
 

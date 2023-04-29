@@ -47,8 +47,9 @@ Conditions:
     ]
   ServiceCanEncrypt:
     !Equals [!Ref ServiceParam, "cloudtrail"]
+  #we don't yet need to grant decryption to any service
   ServiceCanDecrypt:
-    !Equals [!Ref ServiceParam, "cloudtrail"]
+    !Equals ["1", "2"]
 
 Resources:
   KMSKey:
@@ -166,20 +167,16 @@ Resources:
             Principal:
               Service: !Sub "${ServiceParam}.amazonaws.com"     
             Resource: '*'
+            Action:
+              - 'kms:GenerateDataKey'
+            #something not working here
             Condition:
               !If
                 - ServiceIsCloudTrail
                 -
-                  StringLike:
-                      kms:EncryptionContext:aws:cloudtrail:arn:
-                        - !Sub "arn:aws:cloudtrail:*:${AWS::AccountId}:trail/*"
-                  StringEquals:
-                      aws:SourceArn: !ImportValue BucketArn-orgroot-cloudtrail
+                  !Ref AWS::NoValue
                 -
-                  StringNotLike:
-                        kms:EncryptionContext:aws:cloudtrail:arn:
-                          - !Sub "arn:aws:cloudtrail:*:${AWS::AccountId}:trail/*"
-
+                  !Ref AWS::NoValue
 Outputs:
   KeyIDOutput:
     Value: !GetAtt KMSKey.KeyId

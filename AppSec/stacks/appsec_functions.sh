@@ -17,8 +17,8 @@ create_secret(){
 	if [ "$value" == "" ]; then value="temp-value-for-secret-creation"; fi
 
   func=${FUNCNAME[0]}
-  validate_param 'secretname' $secretname $func
-  validate_param 'kmskeyid' $kmskeyid $func
+  validate_param 'secretname' "$secretname" "$func"
+  validate_param 'kmskeyid' "$kmskeyid" "$func"
 
   #create secret
   resourcetype='Secret'
@@ -39,6 +39,48 @@ create_secret(){
   resource=$keyname'SecretResourcePolicy'
   deploy_stack $profile $resource $resourcetype $template $parameters
 
+}
+
+ssm_parameter_exists(){
+	name="$1"
+  
+  func=${FUNCNAME[0]}
+  validate_param "name" "$name" "$func"
+
+	v=$(aws ssm describe-parameters --filters 'Key=Name,Values=$name' --profile $profile)	
+	t=$(echo $v | jq '.Parameters | length')
+
+	if [[ $t == 0 ]]; then
+		echo "false"
+	else
+		echo "true"
+	fi
+}
+
+get_ssm_parameter_value(){
+  name="$1"
+
+  func=${FUNCNAME[0]}
+  validate_param "name" "$name" "$func"
+
+  v=$(aws ssm describe-parameters --filters 'Key=Name,Values=$name' --query 'Parameters[0].value' --profile $profile)
+  echo '$v'
+}
+
+set_ssm_parameter_value(){
+  name="$1"
+  kmskeyid="$2"
+  value="$3"
+  tier="$4"
+
+  if [ "$tier" == "" ]; then tier = "Standard"; fi
+
+  func=${FUNCNAME[0]}
+  validate_param "name" "$name" "$func"
+  validate_param "kmskeyid" "$kmskeyid" "$func"
+  validate_param "value" "$value" "$func"
+
+  aws ssm put-parameter --name "$name" --key-id "$kmskeyid" --value "$value" --tier "$tier" --profile $profile
 }
 
 #################################################################################

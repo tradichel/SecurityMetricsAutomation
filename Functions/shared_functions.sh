@@ -9,8 +9,8 @@ validate_param(){
   func="$3"
 
   if [ "$func" == "" ]; then
-    echo 'Parameter '$name' and function name must be provided to validate_param' 1>&2
-    exit 1
+    echo 'Parameter '$name' and function name required in validate_param. Missing quotes around parameters passed to validate_param in function: '$value'?' 1>&2
+		exit 1
 	fi
 
   if [ "$value" == "" ]; then
@@ -169,12 +169,12 @@ get_users_in_group() {
 }
 
 get_organization_id(){
-   orgid=$(aws organizations describe-organization --query 'Organization.Id' --output text)
+   orgid=$(aws organizations describe-organization --query 'Organization.Id' --output text --profile $profile)
    echo $orgid
 }
 
 get_account_id(){
-  acctid=$(aws sts get-caller-identity --query Account --output text)
+  acctid=$(aws sts get-caller-identity --query Account --output text --profile $profile)
   echo $acctid
 }
 
@@ -195,6 +195,11 @@ get_account_number(){
     acctnum=$(get_stack_export $stack $exportname $profile)
     echo $acctnum
   }
+
+#really no difference
+create_role_profile_with_mfa(){
+	create_cross_account_role_profile $1 $2 $3
+}
 
 create_cross_account_role_profile(){
   acctnum=$1
