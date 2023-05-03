@@ -26,8 +26,8 @@ get_stack_export(){
   exportname=$2
 
   func=${FUNCNAME[0]}
-  validate_param 'stackname' $stackname $func
-  validate_param 'exportname' $exportname $func
+  validate_param 'stackname' "$stackname" "$func"
+  validate_param 'exportname' "$exportname" "$func"
 
   qry="Stacks[0].Outputs[?ExportName=='$exportname'].OutputValue"
   value=$(aws cloudformation describe-stacks --stack-name $stackname --query $qry --output text --profile $profile)
@@ -49,7 +49,7 @@ get_kms_key_id(){
 	fi
 
   func=${FUNCNAME[0]}
-  validate_param 'alias' $alias $func
+  validate_param 'alias' "$alias" "$func"
 
 	keystack=$stackprofile'-Key-'$alias
 	keyexport=$alias'KeyIDExport'
@@ -74,7 +74,8 @@ iam_allowed_profile(){
   if [ "$profile" == "OrgRoot" ]; then echo true; exit; fi 
   if [ "$profile" == "ROOT" ]; then echo true; exit; fi
   if [ "$profile" == "AppSec" ]; then echo true; exit; fi
-  if [ "$profile" == "Sandbox" ]; then echo true; exit; fi
+  if [ "$profile" == "SandboxAdmin" ]; then echo true; exit; fi
+  if [ "$profile" == "RemoteAdmin" ]; then echo true; exit; fi
   echo false;
 }
 
@@ -92,12 +93,17 @@ deploy_stack () {
 
   func=${FUNCNAME[0]}
   validate_param 'profile' $profile $func
-  validate_param 'resourcename' $resourcename $func
-  validate_param 'resourcetype' $resourcetype $func
-  validate_param 'template' $template $func
+  validate_param 'resourcename' "$resourcename" "$func"
+  validate_param 'resourcetype' "$resourcetype" "$func"
+  validate_param 'template' "$template" "$func"
 	#not all stacks have parameters
 
-  stackname=$profile'-'$resourcetype'-'$resourcename
+	#Stacknames must start with a letter. Why?!
+  p=$(echo $profile | sed 's/-//')
+  if [[ $p =~ ^[0-9] ]]; then
+    p='a'$profile
+  fi
+  stackname=$p'-'$resourcetype'-'$resourcename
 	status=$(get_stack_status $stackname)
 	
 	if [ "$status" == "ROLLBACK_COMPLETE" ]; then
@@ -114,13 +120,14 @@ deploy_stack () {
 			--stack-name $stackname 
       --template-file $template "
   
-  iam_allowed=$(iam_allowed_profile $profile)
- 
-	echo "IAM ALLOWED: $iam_allowed"
- 
- 	if [ "$iam_allowed" = true ]; then
-          c=$c' --capabilities CAPABILITY_NAMED_IAM '
-	fi
+	
+  #allowing IAM for all stacks; presume IAM Policies, SCPs, 
+  #and Permission Boundaries will handle this, which is more appropriate
+  #~~
+  #iam_allowed=$(iam_allowed_profile $profile)
+  #echo "IAM ALLOWED: $iam_allowed"
+	#if [ "$iam_allowed" = true ]; then .. fi  
+	c=$c' --capabilities CAPABILITY_NAMED_IAM '
 
 	if [ "$parameters" != "" ]; then 
   	  c=$c' --parameter-overrides '$parameters
@@ -157,8 +164,8 @@ get_users_in_group() {
 	profile="$2"
 
  	func=${FUNCNAME[0]}
-  validate_param 'groupname' $groupname $func
-  validate_param 'profile' $profile $func
+  validate_param 'groupname' "$groupname" "$func"
+  validate_param 'profile' "$profile" "$func"
 
 	#retrieve a list of user ARNs in the group
   users=$(aws iam get-group --group-name $groupname --profile $profile \
@@ -196,42 +203,60 @@ get_account_number(){
     echo $acctnum
   }
 
-#really no difference
-create_role_profile_with_mfa(){
-	create_cross_account_role_profile $1 $2 $3
+check_profiles(){
+	#check values for testing only
+	#will mess up any code counting on te rolename returin
+	echo "~/.aws/config"
+	cat ~/.aws/config
+	echo "~/.aws/credentials"
+	cat ~/.aws/credentials
 }
 
 create_cross_account_role_profile(){
-  acctnum=$1
-  rolename=$2
-  roleprofile="$3"
-
+  acctnum="$1"
+  rolename="$2"
+	roleprofile="$3"
+ 	mfaserial="$4"
+  
   if [ "$roleprofile" == "" ]; then roleprofile=$rolename; fi
 
   arn="arn:aws:iam::$acctnum:role/$rolename"
   sessionName=$profile'Session'
-  creds=$(aws sts assume-role --role-arn "$arn" --role-session-name $sessionName --profile $profile)
+  
+	if [ "$mfaserial" == "" ]; then
+	  creds=$(aws sts assume-role --role-arn "$arn" --role-session-name $sessionName --profile $profile)
+	else
+		echo "Enter mfa token"
+		read token
+
+		creds=$(aws sts assume-role --role-arn "$arn" \
+				--role-session-name $sessionName \
+				--profile $profile \
+				--serial-number $mfaserial \
+				--token-code $token)
+  fi
 
   AWS_ACCESS_KEY_ID=$(echo $creds | jq -r '.Credentials''.AccessKeyId');
   AWS_SECRET_ACCESS_KEY=$(echo $creds | jq -r '.Credentials''.SecretAccessKey');
   AWS_SESSION_TOKEN=$(echo $creds | jq -r '.Credentials''.SessionToken');
 
-  aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID --profile $roleprofile
+  region=$(get_current_region)
+	if [ "$region" == "" ]; then 
+		echo "No region found for profile $profile"
+	  exit 1
+	fi
+  
+	aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID --profile $roleprofile
   aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY --profile $roleprofile
   aws configure set aws_session_token $AWS_SESSION_TOKEN --profile $roleprofile
-  region=$(get_current_region)
   aws configure set region $region --profile $roleprofile
-
+	if [ "$mfaserial" != "" ]; then
+		aws configure set mfa_serial $mfaserial --profile $roleprofile
+  fi
+  aws configure set output "json" --profile $roleprofile
+	
   #return new profile name
   echo "$roleprofile"
-
-  #check values for testing only
-  #will mess up any code counting on te rolename returin
-  #echo "~/.aws/config"
-  #cat ~/.aws/config
-  #echo "~/.aws/credentials"
-  #cat ~/.aws/credentials
- 
 }
 
 assume_cross_account_role(){
@@ -269,7 +294,26 @@ assume_cross_account_role(){
 
   echo "Caller identity:"
   aws sts get-caller-identity
+}
 
+assume_role_w_mfa_externalid(){
+	accountid="$1"
+	rolename="$2"
+	mfatoken="$3"
+	mfaserial="$4"
+	externalid="$5"
+
+	assumerole="arn:aws:iam::"$accountid":role/$rolename"
+	assumerolejson=$(aws sts assume-role --role-arn $assumerole  --role-session-name $rolename --profile hacker --external-id $externalid --token-code $token --serial-number $mfaserial --output text)
+	id=$(echo $assumerolejson | jq .Credentials.AccessKeyId)
+	accesskey=$(echo $assumerolejson | jq .Credentials.SecretAccessKey)
+	session=$(echo $assumerolejson | jq .Credentials.SessionToken)
+
+	export AWS_ACCESS_KEY_ID=$id
+	export AWS_SECRET_ACCESS_KEY=$accesskey
+	export AWS_SESSION_TOKEN=$session
+	
+	aws sts get-caller-identity
 }
 
 stop_assume_cross_account_role(){
@@ -283,11 +327,12 @@ stop_assume_cross_account_role(){
 
 }
 
-#may have to modify this if this var
-#is not nost to also check
-#aws configure get region
 get_current_region(){
-   echo $AWS_DEFAULT_REGION
+   region=$AWS_DEFAULT_REGION
+	 if [ "$region" == "" ]; then 
+	 	 region=$(aws configure get region --profile $profile)	
+	 fi
+	 echo $region
 }
 
 

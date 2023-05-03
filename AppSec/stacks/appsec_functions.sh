@@ -6,8 +6,6 @@
 ##############################################################
 source ../../Functions/shared_functions.sh
 
-profile="AppSec"
-
 create_secret(){
 
 	secretname="$1"
@@ -42,14 +40,13 @@ create_secret(){
 }
 
 ssm_parameter_exists(){
-	name="$1"
+	ssm_name="$1"
   
   func=${FUNCNAME[0]}
-  validate_param "name" "$name" "$func"
+  validate_param "name" "$ssm_name" "$func"
 
-	v=$(aws ssm describe-parameters --filters 'Key=Name,Values=$name' --profile $profile)	
+	v=$(aws ssm describe-parameters --filters "Key=Name,Values=$ssm_name" --profile $profile)	
 	t=$(echo $v | jq '.Parameters | length')
-
 	if [[ $t == 0 ]]; then
 		echo "false"
 	else
@@ -58,29 +55,67 @@ ssm_parameter_exists(){
 }
 
 get_ssm_parameter_value(){
-  name="$1"
+  ssm_name="$1"
 
   func=${FUNCNAME[0]}
-  validate_param "name" "$name" "$func"
+  validate_param "name" "$ssm_name" "$func"
 
-  v=$(aws ssm describe-parameters --filters 'Key=Name,Values=$name' --query 'Parameters[0].value' --profile $profile)
-  echo '$v'
+	v=""
+	exists=$(ssm_parameter_exists $ssm_name)
+	if [ "$exists" == "true" ]; then
+  	v=$(aws ssm get-parameter --name $ssm_name --with-decryption --query "Parameter.Value" --output text --profile $profile)
+  fi
+	echo $v
 }
 
 set_ssm_parameter_value(){
-  name="$1"
+  ssm_name="$1"
   kmskeyid="$2"
-  value="$3"
+  ssm_value="$3"
   tier="$4"
 
-  if [ "$tier" == "" ]; then tier = "Standard"; fi
+  if [ "$tier" == "" ]; then
+	  tier="Standard"
+  fi
 
   func=${FUNCNAME[0]}
-  validate_param "name" "$name" "$func"
+  validate_param "name" "$ssm_name" "$func"
   validate_param "kmskeyid" "$kmskeyid" "$func"
-  validate_param "value" "$value" "$func"
+  validate_param "value" "$ssm_value" "$func"
 
-  aws ssm put-parameter --name "$name" --key-id "$kmskeyid" --value "$value" --tier "$tier" --profile $profile
+	ssm_name=$ssm_name
+	echo "aws ssm put-parameter --name $ssm_name --key-id $kmskeyid /
+    --value $ssm_value --tier $tier --type 'SecureString' --profile $profile"
+  aws ssm put-parameter --name $ssm_name --overwrite  --key-id $kmskeyid --value $ssm_value --tier $tier --type 'SecureString' --profile $profile
+}
+
+validate_ssm_parameter_value(){
+	ssm_name="$1"
+	kmskeyid="$2"
+  ssm_value="$3"
+	tier="$4"
+
+  if [ "$tier" == "" ]; then
+    tier="Standard"
+  fi
+
+  if [ "$ssm_value" == "" ]; then
+    ssm_value="[Not Set]"
+  fi
+
+  func=${FUNCNAME[0]}
+  validate_param "name" "$ssm_name" "$func"
+  validate_param "kmskeyid" "$kmskeyid" "$func"
+
+  echo "Change $ssm_name value: \"$ssm_value\" ? (y)"
+  read change
+
+  if [ "$change" == "y" ]; then
+    echo "Enter the new value for $ssm_name:"
+    read ssm_value
+
+    set_ssm_parameter_value "$ssm_name" "$keyid" "$ssm_value"
+  fi
 }
 
 #################################################################################

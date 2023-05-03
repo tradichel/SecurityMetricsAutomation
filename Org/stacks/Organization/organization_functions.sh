@@ -5,6 +5,10 @@
 # description: Deploy AWS Organization and settings
 ##############################################################
 
+orgprefix=""
+
+source ../../../Functions/shared_functions.sh
+
 deploy_organization(){
 
 	id=$(get_organization_id)
@@ -65,13 +69,35 @@ get_organization_id(){
 }
 
 get_organization_prefix(){
-  orgprefix=$(aws secretsmanager get-secret-value --secret-id OrgPrefix --query SecretString --output text --profile $profile)
+	if [ "$orgprefix" == "" ]; then 
+  	orgprefix=$(aws secretsmanager get-secret-value --secret-id OrgPrefix --query SecretString --output text --profile $profile) 
+	fi
 	echo $orgprefix
 }
 
 enable_cloudtrail(){  
 	 echo "Enable cloutrail"
    aws organizations enable-aws-service-access --service-principal cloudtrail.amazonaws.com --profile $profile
+}
+
+#the default aws organizations role does not require mfa
+create_org_admin_role_profile(){
+	acctname="$1"
+ 
+  acctnum=$(get_account_number $acctname)
+	rolename=$(get_org_admin_role_name $acctname)
+	roleprofile=$rolename
+
+	orgprofile=$(create_cross_account_role_profile "$acctnum" "$rolename" "$roleprofile" "$mfaserial")
+	
+	echo $orgprofile
+
+}
+
+get_org_admin_role_name(){
+	acctname="$1"
+  orgprefix=$(get_organization_prefix)	
+  echo $orgprefix'-'$acctname
 }
 
 ################################################################################

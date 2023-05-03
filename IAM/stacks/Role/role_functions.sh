@@ -14,7 +14,7 @@ deploy_group_role(){
 	profile_override="$2"
 		
 	function=${FUNCNAME[0]}
-	validate_param "groupname" $groupname $function
+	validate_param "groupname" "$groupname" "$function"
 
 	if [ "$profile_override" != "" ]; then profile=$profile_override; fi
 
@@ -43,12 +43,51 @@ deploy_group_role(){
 
 }
 
+deploy_crossaccount_group_role(){
+
+  groupname="$1"
+  remoteacctprofile="$2"
+	targetacctprofile="$3"
+
+  function=${FUNCNAME[0]}
+  validate_param "groupname" "$groupname" "$function"
+  validate_param "remoteacctprofile" "$remoteacctprofile" "$function"
+  validate_param "targetacctprofile" "$targetacctprofile" "$function"
+
+  profile=$remoteacctprofile
+  #retrieve a list of user ARNs in the group
+  users=$(aws iam get-group --group-name $groupname --profile $profile \
+      --query Users[*].Arn --output text | sed 's/\t/,/g')
+
+  if [ "$users" == "" ]; then
+    echo 'No users in group '$groupname' so the group role will not be created.'
+    exit
+  fi
+
+  timestamp=$(get_timestamp)
+
+	profile="$targetacctprofile"
+  resourcetype='Role'
+  template='cfn/GroupRole.yaml'
+  p=$(add_parameter "GroupNameParam" $groupname)
+  p=$(add_parameter "GroupUsers" $users "$p")
+  p=$(add_parameter "TimestampParam" $timestamp "$p")
+  stackname='XAcct'$groupname'Role'
+	stackname=$(echo $stackname | sed 's/-//')
+	echo "deploy_stack $profile $stackname $resourcetype $template \"$p\""
+  deploy_stack $profile $stackname $resourcetype $template "$p"
+
+  policyname=$groupname'GroupRolePolicy'
+  deploy_role_policy $policyname $profile
+
+}
+
 deploy_role_policy(){
 
 	policyname=$1
 
   function=${FUNCNAME[0]}
- 	validate_param "policyname" $policyname $function
+ 	validate_param "policyname" "$policyname" "$function"
 
   p=$(add_parameter "NameParam" $policyname)
 	template='cfn/Policy/'$policyname'.yaml'
@@ -64,11 +103,11 @@ deploy_ec2_instance_profile(){
 	rolename=$2
 
   function=${FUNCNAME[0]}
-  validate_param "profilename" $profilename $function
-  validate_param "rolename" $rolename $function
+  validate_param "profilename" "$profilename" "$function"
+  validate_param "rolename" "$rolename" "$function"
 
-  p=$(add_parameter "NameParam" $profilename)
-  p=$(add_parameter "RoleNamesParam" $rolename $p)
+  p=$(add_parameter "NameParam" "$profilename")
+  p=$(add_parameter "RoleNamesParam" "$rolename" "$p")
   template='cfn/EC2InstanceProfile.yaml'
   resourcetype='EC2InstanceProfile'
 
@@ -82,8 +121,8 @@ deploy_batch_role(){
   jobtype=$2
   
   function=${FUNCNAME[0]}
-  validate_param "jobname" $rolepname $function
-  validate_param "jobtype" $jobtype $function
+  validate_param "jobname" "$rolepname" "$function"
+  validate_param "jobtype" "$jobtype" "$function"
 
   resourcetype='Role'
   template='cfn/BatchJobRole.yaml'
@@ -100,7 +139,7 @@ deploy_lambda_role(){
 	lambda="$1"
   function=${FUNCNAME[0]}
 
-  validate_param "lambda" $lambda $function
+  validate_param "lambda" "$lambda" "$function"
  
 	rolename=$lambda'LambdaRole'	
 	awsservice="Lambda"
@@ -115,8 +154,8 @@ deploy_aws_service_role(){
 	awsservice=$2
   
   function=${FUNCNAME[0]}
-  validate_param "rolename" $rolename $function
-  validate_param "awsservice" $awsservice $function
+  validate_param "rolename" "$rolename" "$function"
+  validate_param "awsservice" "$awsservice" "$function"
  
   resourcetype='Role'
   template='cfn/AWSServiceRole.yaml'

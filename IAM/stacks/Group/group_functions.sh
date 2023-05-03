@@ -13,7 +13,7 @@ deploy_group(){
 	profile_override="$2"
 
 	function=${FUNCNAME[0]}
-	validate_param "groupname" $groupname $function
+	validate_param "groupname" "$groupname" "$function"
 
 	if [ "$profile_override" != "" ]; then
 		profile=$profile_override
