@@ -1,39 +1,49 @@
 # https://github.com/tradichel/SecurityMetricsAutomation
-# IAM/stacks/role/cfn/Policy/RemoteAdminGroupRolePolicy.yaml
+# IAM/stacks/role/cfn/Policy/IAMAdminsGroupRolePolicy.yaml
 # author: @tradichel @2ndsightlab
-# description: policy for Cross Account administrators
+# description: policy for IAM administrators
 ##############################################################
 Resources:
   IAMAdminsGroupRolePolicy:
     Type: 'AWS::IAM::ManagedPolicy'
     Properties:
-      ManagedPolicyName: RemoteAdminGroupRolePolicy
+      ManagedPolicyName: IAMAdminsGroupRolePolicy
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
           - Effect: Allow
             Action: 'iam:*'
             NotResource: [
-              'arn:aws:iam::*:role/RemoteAdmin*',
-              'arn:aws:iam::*:group/RemoteAdmin*',
-              'arn:aws:iam::*:policy/RemoteAdmin*'
+              'arn:aws:iam::*:role/IAM*',
+              'arn:aws:iam::*:group/IAM*',
+              'arn:aws:iam::*:policy/IAM*'
             ]
           - Effect: Allow
             Action: 'cloudformation:*'
             Resource:
-              - !Sub "arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/RemoteAdmin-*"
+              - !Sub "arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/IAM-*"
           - Effect: Allow
-            Action:
-              - '*'
-            Resource: '*'
-      Roles:
-        - "RemoteAdminGroup"
+            Action: 
+              - 'ec2:CreateKeyPair'
+              - 'ssm:PutParameter'
+              - 'ec2:DeleteKeyPair'
+              - 'ec2:DescribeKeyPairs'
+              - 'secretsmanager:CreateSecret'
+              - 'secretsmanager:UpdateSecret'
+              - 'secretsmanager:DeleteResourcePolicy'
+              - 'secretsmanager:PutResourcePolicy'
+              - 'secretsmanager:GetRandomPassword'
+              - 'secretsmanager:DeleteSecret'
+              - 'secretsmanager:GetSecretValue'
+            Resource: '*'           
+      Roles: 
+        - "IAMAdminsGroup"
 
 Outputs:
   GroupPolicyNameOutput:
-    Value: RemoteAdminsGroupRolePolicy
-    Export:
-      Name: RemoetAdminsGroupRolePolicyPolicyExport
+    Value: IAMAdminsGroupRolePolicy
+    Export: 
+      Name: IAMAdminsGroupRolePolicyPolicyExport
 
 #################################################################################
 # Copyright Notice
@@ -58,3 +68,5 @@ Outputs:
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################ 
+                                                                                     
+
