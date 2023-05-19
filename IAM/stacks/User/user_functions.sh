@@ -15,7 +15,7 @@ deploy_user() {
 	managed_policy_arns="$3"
 		
 	function=${FUNCNAME[0]}
-  validate_param "username" "$username" $function
+  validate_param "username" "$username" "$function"
 	validate_param "console_access" "$console_access" "$function"
 
   template="cfn/User.yaml"
@@ -38,7 +38,7 @@ deploy_sandbox_admin() {
  	username="$1"
 
 	function=${FUNCNAME[0]}
-  validate_param "username" "$username" $function
+  validate_param "username" "$username" "$function"
 
 	console_access="true"
 	
@@ -54,7 +54,7 @@ deploy_iam_admin() {
   username="$1"
 
   function=${FUNCNAME[0]}
-  validate_param "username" "$username" $function
+  validate_param "username" "$username" "$function"
   
   profile="ROOT"
   console_access="false"

@@ -18,8 +18,8 @@ deploy_key_alias(){
   alias="$2"
 
   function=${FUNCNAME[0]}
-  validate_param "keyid" $keyid $function
-  validate_param "alias" $alias $function
+  validate_param "keyid" "$keyid" "$function"
+  validate_param "alias" "$alias" "$function"
 
 	parameters=$(add_parameter "KeyIdParam" "$keyid")
   parameters=$(add_parameter "KeyAliasParam" $alias $parameters)
@@ -41,7 +41,7 @@ get_key_id () {
 	alias="$1"
 
   function=${FUNCNAME[0]}
-  validate_param "alias" $alias $function
+  validate_param "alias" "$alias" "$function"
 
 	stack=$profile'-Key-'$alias
 	exportname=$alias'KeyIDExport'

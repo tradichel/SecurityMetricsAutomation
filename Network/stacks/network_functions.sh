@@ -13,7 +13,7 @@ deploy_vpce() {
   service="$1"
 
   function=${FUNCNAME[0]}
-  validate_param "service" $service $function
+  validate_param "service" "$service" "$function"
 
   template="cfn/VPCEndpoint.yaml"
   resourcetype="VPCEndpoint"
@@ -30,8 +30,8 @@ deploy_eip(){
 	instance_cfexport="$2"
 
 	function=${FUNCNAME[0]}
-  validate_param "eipname" $eipname $function
-  validate_param "instance_cfexplort" $instance_cfexport $function
+  validate_param "eipname" "$eipname" "$function"
+  validate_param "instance_cfexplort" "$instance_cfexport" "$function"
 
   resourcetype='EIP'
   template='cfn/EIP.yaml'
@@ -48,8 +48,8 @@ deploy_eip_association(){
   instance_cfexport="$2"
 
   function=${FUNCNAME[0]}
-  validate_param "eip_export" $eip_export $function
-  validate_param "instance_cfexport" $instance_cfexport $function
+  validate_param "eip_export" "$eip_export" "$function"
+  validate_param "instance_cfexport" "$instance_cfexport" "$function"
 
   resourcetype='EIPAssociation'
   template='cfn/EIPAssociation.yaml'
@@ -111,9 +111,9 @@ deploy_vpc (){
 	vpctype="$3"
 
   function=${FUNCNAME[0]}
-  validate_param "prefix" $prefix $function
-  validate_param "cidr" $cidr $function
-  validate_param "vpctype" $vpctype $function
+  validate_param "prefix" "$prefix" "$function"
+  validate_param "cidr" "$cidr" "$function"
+  validate_param "vpctype" "$vpctype" "$function"
 
   vpcname=$prefix$vpctype'VPC'
 
@@ -218,8 +218,8 @@ deploy_remote_access_sgs_for_group() {
 
 	echo " --------------Deploy remote access security groups for $group --------------"
   function=${FUNCNAME[0]}
-  validate_param "group" $group $function
-  validate_param "vpc" $vpc $function
+  validate_param "group" "$group" "$function"
+  validate_param "vpc" "$vpc" "$function"
 
 	members=$(get_users_in_group $group $profile)
 
@@ -259,10 +259,10 @@ deploy_security_group() {
 	cidr="$5"	
 
   function=${FUNCNAME[0]}
-  validate_param "vpc" $vpc $function
-  validate_param "prefix" $prefix $function
-  validate_param "desc" $desc $function
-  validate_param "rulestemplate" $rulestemplate $function
+  validate_param "vpc" "$vpc" "$function"
+  validate_param "prefix" "$prefix" "$function"
+  validate_param "desc" "$desc" "$function"
+  validate_param "rulestemplate" "$rulestemplate" "$function"
 
 	template="cfn/SecurityGroup.yaml"
 	resourcetype="SecurityGroup"	
@@ -297,8 +297,8 @@ deploy_sg_rules() {
 	cidr="$3"
 
   function=${FUNCNAME[0]}
-  validate_param "sgname" $sgname $function
-  validate_param "template" $template $function
+  validate_param "sgname" "$sgname" "$function"
+  validate_param "template" "$template" "$function"
 	#cidr is optional
 	
   resourcetype='SGRules'
@@ -318,12 +318,12 @@ deploy_subnets(){
 	naclrulestemplate=$6
 
   function=${FUNCNAME[0]}
-  validate_param "vpc" $vpc $function
-	validate_param "vpccidr" $vpccidr $function
-  validate_param "subnetcount" $subnetcount $function
-  validate_param "firstzoneindex" $firstzoneindex $function
-  validate_param "cidrbits" $cidrbits $function
-  validate_param "naclrulestemplate" $naclrulestemplate $function
+  validate_param "vpc" "$vpc" "$function"
+	validate_param "vpccidr" "$vpccidr" "$function"
+  validate_param "subnetcount" "$subnetcount" "$function"
+  validate_param "firstzoneindex" "$firstzoneindex" "$function"
+  validate_param "cidrbits" "$cidrbits" "$function"
+  validate_param "naclrulestemplate" "$naclrulestemplate" "$function"
 
   #assuming all the subnets use the same NACL here
 	template="cfn/NACL.yaml"

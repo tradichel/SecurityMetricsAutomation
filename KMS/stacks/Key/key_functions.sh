@@ -27,10 +27,10 @@ deploy_key(){
 	      desc="$5"
 
         function=${FUNCNAME[0]}
-        validate_param "encryptarn" "$encryptarn" $function
-        validate_param "decryptarn" "$decryptarn" $function
-	      validate_param "keyalias" "$keyalias" $function
-        validate_param "service" "$service" $function
+        validate_param "encryptarn" "$encryptarn" "$function"
+        validate_param "decryptarn" "$decryptarn" "$function"
+	      validate_param "keyalias" "$keyalias" "$function"
+        validate_param "service" "$service" "$function"
         validate_param "desc" "$desc" "$function"
 
 	      template='cfn/Key.yaml'

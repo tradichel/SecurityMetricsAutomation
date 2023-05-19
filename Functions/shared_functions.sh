@@ -9,7 +9,8 @@ validate_param(){
   func="$3"
 
   if [ "$func" == "" ]; then
-    echo 'Parameter '$name' and function name required in validate_param. Missing quotes around parameters passed to validate_param in function: '$value'?' 1>&2
+    echo 'Parameter '$name' and function name required in validate_param. \
+      Missing quotes around parameters passed to validate_param in function: '$value'?' 1>&2
 		exit 1
 	fi
 
@@ -220,6 +221,10 @@ create_cross_account_role_profile(){
   
   if [ "$roleprofile" == "" ]; then roleprofile=$rolename; fi
 
+  function=${FUNCNAME[0]}
+  validate_param "acctnum" "$acctnum" "$function"
+  validate_param "rolename" "$rolename" "$function"
+
   arn="arn:aws:iam::$acctnum:role/$rolename"
   sessionName=$profile'Session'
   
@@ -259,6 +264,11 @@ create_cross_account_role_profile(){
   echo "$roleprofile"
 }
 
+check_profile(){
+  profile="$1"
+  aws configure --profile $profile list
+}
+
 assume_cross_account_role(){
 
   account=$1
@@ -294,6 +304,77 @@ assume_cross_account_role(){
 
   echo "Caller identity:"
   aws sts get-caller-identity
+}
+
+set_profile(){
+  p=$1
+  if [ "$profile" != "$p" ]; then
+      echo "Set profile: $p"
+      profile="$p"
+      check_profile $profile
+  fi
+}
+
+change_dir(){
+  dir="$1"
+	sma_path="$2"
+  prof="$3"
+  
+  echo "change dir $dir"
+
+  function=${FUNCNAME[0]}
+  validate_param "dir" "$dir" "$function"
+  validate_param "dir" "$sma_path" "$function"
+  validate_param "prof" "$prof" "$function"
+
+  if [ "$dir" == "Organization" ]; then
+    cd $sma_path/Org/stacks/Organization/
+    source organization_functions.sh
+  fi
+
+  if [ "$dir" == "OU" ]; then
+    cd $sma_path/Org/stacks/OU/
+    source ou_functions.sh
+  fi
+
+  if [ "$dir" == "Account" ]; then
+    cd $sma_path/Org/stacks/Account/
+    source account_functions.sh
+  fi
+
+  if [ "$dir" == "Key" ]; then
+    cd $sma_path/KMS/stacks/Key
+    source key_functions.sh
+  fi
+
+  if [ "$dir" == "KeyAlias" ]; then
+    cd $sma_path/KMS/stacks/KeyAlias
+    source keyalias_functions.sh
+  fi
+
+
+  if [ "$dir" == "SSM" ]; then
+    cd $sma_path/AppSec/stacks/SSMParameters
+    source parameter_fuctions.sh
+  fi
+
+  if [ "$dir" == "IAMGroup" ]; then
+    cd $sma_path/IAM/stacks/Group
+    source group_functions.sh
+  fi
+
+  if [ "$dir" == "IAMRole" ]; then
+    cd $sma_path/IAM/stacks/Role
+    source role_functions.sh
+  fi
+
+  if [ "$dir" == "IAMUser" ]; then
+    cd $sma_path/IAM/stacks/User
+    source user_functions.sh
+  fi
+
+  set_profile $prof
+
 }
 
 assume_role_w_mfa_externalid(){

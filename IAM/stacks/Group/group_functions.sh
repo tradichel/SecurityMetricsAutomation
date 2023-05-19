@@ -38,9 +38,9 @@ deploy_group_policy(){
  	policyname="$3"
 
   function=${FUNCNAME[0]}
- 	validate_param "groupname" $groupname $function
-  validate_param "template" $template $function
-	validate_param "policyname" $policyname $function
+ 	validate_param "groupname" "$groupname" "$function"
+  validate_param "template" "$template" "$function"
+	validate_param "policyname" "$policyname" "$function"
 
 	parameters=$(add_parameter "NameParam" $groupname)
 	resourcetype='Policy'
@@ -54,8 +54,8 @@ add_users_to_group() {
 	groupname="$2"
   
   function=${FUNCNAME[0]}
-  validate_param "usernames" $usernames $function
-	validate_param "groupname" $groupname $function
+  validate_param "usernames" "$usernames" "$function"
+	validate_param "groupname" "$groupname" "$function"
 	
 	timestamp=$(get_timestamp)
 

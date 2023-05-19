@@ -22,8 +22,8 @@ deploy_scp(){
    targetids=$2
 
   func=${FUNCNAME[0]}
-  validate_param 'scpname' $scpname $func
-  validate_param 'targetids' $targetids $func
+  validate_param 'scpname' "$scpname" "$func"
+  validate_param 'targetids' "$targetids" "$func"
 
   parameters=$(add_parameter "NameParam" $scpname)
   parameters=$(add_parameter "TargetIdsParam" $targetids $parameters)
@@ -71,9 +71,9 @@ deploy_allowedregions(){
   targetids=$(get_root_id)
 
   func=${FUNCNAME[0]}
-  validate_param 'scpname' $scpname $func
-  validate_param 'targetids' $targetids $func
-  validate_param 'regions' $regions $func
+  validate_param 'scpname' "$scpname" "$func"
+  validate_param 'targetids' "$targetids" "$func"
+  validate_param 'regions' "$regions" "$func"
 
   parameters=$(add_parameter "NameParam" $scpname)
   parameters=$(add_parameter "TargetIdsParam" $targetids $parameters)
