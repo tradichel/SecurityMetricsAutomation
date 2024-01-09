@@ -7,41 +7,35 @@ https://medium.com/cloud-security/automating-cybersecurity-metrics-890dfabb6198)
 
 # How I earn a living:
 
-Hire me for a penetration test by contacting me on LinkedIn:
-
-[Penetration Testing](https://2ndsightlab.com/cloud-penetration-testing.html)
+Hire me for a penetration test by contacting me on LinkedIn: [Penetration Testing](https://2ndsightlab.com/cloud-penetration-testing.html)
 
 Have a question? 
 Schedule a call with me through [ians research](https://www.iansresearch.com/)
 
+The code is not for sale of for commercial use. If you'd like to license
+the proprietary inventions contact me for more information on LinkedIn: [Teri Radichel]:(https://linkedin.com/in/teriradichel)
+
 # About this code:
 
 This code has evolved over the series of blog posts I've written to explore
-topics in security deployments in cloud environments, and most specifically
-on AWS.
+topics in secure deployments in cloud environments, and most specifically
+on AWS. BTW, I'm an AWS Security Hero, if you know what that is. :)
 
-/POC directory - code from initial posts testing initial concepts
+* /POC - code from initial posts testing initial concepts
 
-/awsdeploy - much better, revamped version where I'm migrating over the code
+* /awsdeploy - much better, revamped version where I'm migrating over the code
 
 Note: None of this is complete or production ready. I'm still testing
-various concepts. 
-
-The code is not for sale of for commercial use. If you'd like to license
-the proprietary inventions contact me for more information on LinkedIn.
-https://linkedin.com/in/teriradichel
+various ideas. 
 
 I've introduced the concept of Micro-temlpates throughout the series:
 [Microtemplates](https://medium.com/cloud-security/cloudformation-micro-templates-ae70236ae2d1)
 
 You can find the templates in the /awsdeploy/resources folder if you're looking
 for a CloudFormation template that meets your needs or ideas for writing
-your own temlpates.
+your own templates for your own individual, non-commericial use.
 
-I'm currenlty working on a process for secure deployments involving
-one or many templates and the lastest iteration is in the /awsdeploy folder. 
-
-This post gives a good overview of the process, 
+This post gives a good overview of current iteration of the deployment process
 which involves a container that requires MFA for AWS deployments:
 
 [Deploying a Project Account on AWS](https://medium.com/cloud-security/configuring-a-new-project-account-one-job-many-templates-ba467bf19928)
@@ -49,7 +43,7 @@ which involves a container that requires MFA for AWS deployments:
 Note that I tried to use a container on Lambda but I couldn't get
 the MFA functionality working in a stricly private network where
 all services are accessed via VPC Endpoints. Perhaps that will be
-fixed but I will revisit later, but it seems that the container
+fixed and I will revisit later, but it seems that the container
 appoach provides a bit better privacy at this point.
 
 Note that the configuration is not completely secure. More work
