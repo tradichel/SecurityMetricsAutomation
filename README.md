@@ -20,8 +20,14 @@ This code has evolved over the series of blog posts I've written to explore
 topics in security deployments in cloud environments, and most specifically
 on AWS.
 
-The inital testing is in the /POC directory.
-A completely revamped version is in the /awsdeploy directory.
+/POC directory - code from initial posts testing initial concepts
+/awsdeploy - much better, revamped version where I'm migrating over the code
+
+Note: None of this is complete or production ready. I'm still testing
+various concepts. 
+
+The code is not for sale of for commercial use. If you'd like to license
+the proprietary inventions contact me for mre information on LinkedIn.
 
 I've introduced the concept of Micro-temlpates throughout the series:
 [Microtemplates](https://medium.com/cloud-security/cloudformation-micro-templates-ae70236ae2d1)
@@ -49,7 +55,7 @@ needs to be done to secure all the components such as the
 container running this job and long term I will likely not 
 use bash.
 
-The code in the aws deploy folder consists of the following:
+The code in the /awsdeploy directory consists of the following:
 
 * /container - some scripts to handle various container tasks
 * Dockerfile - used to deploy a container image that runs scripts and requires MFA.
