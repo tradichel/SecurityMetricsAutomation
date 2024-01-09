@@ -21,6 +21,7 @@ topics in security deployments in cloud environments, and most specifically
 on AWS.
 
 /POC directory - code from initial posts testing initial concepts
+
 /awsdeploy - much better, revamped version where I'm migrating over the code
 
 Note: None of this is complete or production ready. I'm still testing
