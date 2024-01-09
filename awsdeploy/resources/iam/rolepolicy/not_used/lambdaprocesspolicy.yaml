@@ -1,0 +1,77 @@
+Parameters:
+  NameParam:
+    Type: String
+  EnvParam:
+    Type: String
+    AllowedValues: 
+      - Sandbox
+  HasSecretParam:
+    Type: String
+    AllowedValues:
+      - "true"
+      - "false"
+    Default: "false"
+
+Conditions:
+  HasSecret: !Equals 
+    - !Ref HasSecretParam
+    - "true"
+
+Resources:
+  LambdaProcessPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: !Sub ${NameParam}LambdaPolicy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement: 
+          - Effect: Allow
+            Action: 
+              - 'ec2:CreateNetworkInterface'
+              - 'ec2:DescribeNetworkInterfaces'
+              - 'ec2:DeleteNetworkInterface'
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - 'logs:CreateLogGroup'
+              - 'logs:CreateLogStream'
+              - 'logs:PutLogEvents'
+            Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${NameParam}:*'
+          - !If 
+            - HasSecret
+            - 
+              Effect: Allow
+              Action:
+                - secretsmanager:GetResourcePolicy
+                - secretsmanager:GetSecretValue
+                - secretsmanager:DescribeSecret
+                - secretsmanager:ListSecretVersionIds
+              Resource: 
+                -  Fn::ImportValue:
+                    !Sub ${NameParam}Secret
+            - !Ref AWS::NoValue
+
+          - !If 
+            - HasSecret
+            - 
+              Effect: Allow
+              Action: secretsmanager:ListSecrets
+              Resource: '*'
+            - !Ref AWS::NoValue
+
+          - !If 
+            - HasSecret
+            - 
+              Effect: Allow
+              Action:   
+                - kms:DescribeKey
+                - kms:GenerateDataKey
+                - kms:Decrypt
+              Resource:
+                - Fn::ImportValue:
+                    !Sub ${EnvParam}Key
+            - !Ref AWS::NoValue
+
+      Roles: 
+        - !Sub ${NameParam}LambdaRole
+

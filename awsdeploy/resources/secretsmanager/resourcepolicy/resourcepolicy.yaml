@@ -1,0 +1,32 @@
+# https://github.com/tradichel/SecurityMetricsAutomation
+# AppSec/stacks/Secret/cfn/SecretResourcePolicy.yaml
+# author: @teriradichel @2ndsightlab
+##############################################################
+Parameters:
+  EnvParam:
+    Type: String
+  SecretIDParam:
+    Type: String
+  ReadOnlyRolesParam:
+    Type: CommaDelimitedList
+Resources:
+ SecretPolicy:
+  Type: "AWS::SecretsManager::ResourcePolicy"
+  Properties:
+    BlockPublicPolicy: true
+    SecretId: !Ref SecretIDParam
+    ResourcePolicy:
+      Id: SecretReourcePolicy
+      Version: 2012-10-17
+      Statement:
+        - Effect: Allow
+          Principal:
+            AWS: !Sub arn:aws:iam::${AWS::AccountId}:user/${EnvParam}Admin
+          Action: "*"
+          Resource: "*"
+        - Effect: Allow
+          Action: "secretsmanager:GetSecretValue"
+          Resource: "*"
+          Principal: 
+              AWS: !Ref ReadOnlyRolesParam
+

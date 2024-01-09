@@ -1,0 +1,27 @@
+source resources/{{resourcecategory}}/{{resourcetype}}/{{resourcetype}}_functions.sh
+source deploy/shared/functions.sh
+source deploy/shared/validate.sh
+
+profile="$1"
+region="$2"
+env="$3"
+parameters="$4"
+
+echo "*****************************"
+echo "Deploy {{resourcecategory}} {{resourcename}}"
+echo "profile: $profile"
+echo "region: $region"
+echo "env: $env"
+echo "parameters: $parameters"
+echo "*****************************"
+
+s="{{filepath}}"
+validate_set $s "profile" $profile
+validate_set $s "region" $region
+validate_environment $s $env
+validate_set $s "parameters" $parameters
+
+{{resourcename}}name="{{resourcename}}"
+
+deploy_{{resourcetype}} ${{resourcename}}name
+

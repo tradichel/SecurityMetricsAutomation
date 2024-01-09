@@ -1,0 +1,105 @@
+# https://github.com/tradichel/SecurityMetricsAutomation
+# awsdeploy/resources/iam/policy/rootaccountrolepermissionsboundary.yaml
+# author: @tradichel @2ndsightlab
+# description: Permissions boundary for roles created in the 
+# AWS Organizations management account
+##############################################################
+Resources:
+  Policy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: 'root-permissionsboundary'
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Action: sts:AssumeRole
+            Resource: "*"
+          - Effect: Deny
+            Resource: "*"
+            Action:
+              - iam:AttachUserPolicy
+              - iam:ChangePassword
+              - iam:CreateAccessKey
+              - iam:CreateAccountAlias
+              - iam:CreateGroup
+              - iam:CreateInstanceProfile
+              - iam:CreateLoginProfile
+              - iam:CreateRole
+              - iam:CreateService*
+              - iam:CreateUser
+              - iam:CreateVirtualMFADevice
+              - iam:DeactivateMFADevice
+              - iam:DeleteAccessKey
+              - iam:DeleteAccount*
+              - iam:DeleteGroup*
+              - iam:DeleteInstanceProfile
+              - iam:DeleteLoginProfile
+              - iam:DeleteRole*
+              - iam:DeleteSSHPublicKey
+              - iam:DeleteService*
+              - iam:DeleteServer*
+              - iam:DeleteSigningCertificate
+              - iam:DeleteUser*
+              - iam:Detach*
+              - iam:EnableMFADevice
+              - iam:GetSSHPublicKey
+              - iam:PassRole
+              - iam:Put*
+              - iam:RemoveRole*
+              - iam:RemoveUser*
+              - iam:Reset*
+              - iam:Resync*
+              - iam:Set*
+              - iam:Tag*
+              - iam:Untag*
+              - iam:UpdateAccessKey
+              - iam:UpdateAccount*
+              - iam:UpdateAssumeRolePolicy
+              - iam:UpdateGroup
+              - iam:UpdateLoginProfile
+              - iam:UpdateRole*
+              - iam:UpdateSSH*
+              - iam:UpdateServer*
+              - iam:UpdateService*
+              - iam:UpdateSigning*
+              - iam:UpdateUser
+              - iam:UploadCloudFrontPublicKey
+              - iam:UploadSSHPublicKey
+              - iam:UploadServerCertificate
+
+Outputs:
+  PolicyID:
+    Value: !Ref Policy
+    Export:
+     Name: !Sub id-iam-managedpolicy-root-permissionsboundary
+  PolicyArn:
+    Value: !Ref Policy
+    Export:
+     Name: !Sub id-iam-managedpolicy-root-permissionsboundaryarn
+
+
+
+#################################################################################
+# Copyright Notice
+# All Rights Reserved.
+# All materials (the “Materials”) in this repository are protected by copyright 
+# under U.S. Copyright laws and are the property of 2nd Sight Lab. They are provided 
+# pursuant to a royalty free, perpetual license the person to whom they were presented 
+# by 2nd Sight Lab and are solely for the training and education by 2nd Sight Lab.
+#
+# The Materials may not be copied, reproduced, distributed, offered for sale, published, 
+# displayed, performed, modified, used to create derivative works, transmitted to 
+# others, or used or exploited in any way, including, in whole or in part, as training 
+# materials by or for any third party.
+#
+# The above copyright notice and this permission notice shall be included in all 
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+################################################################################

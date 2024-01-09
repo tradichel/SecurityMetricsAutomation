@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Point domain name A record to CloudFront
+
+#https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-aliastarget.html#cfn-route53-aliastarget-dnshostname
+
+#hosted zone IDs for S3. Good to know.
+#https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region
+Parameters:
+  CodeParam:
+    Description: Code identifying the web application 
+    Type: String
+  COGNITOMAGICHOSTEDZONEID:
+    Description: Putting this here so I don't forget again. Weird required value.
+    Type: String
+    AllowedValues:
+      - Z2FDTNDATAQYW2
+    Default: Z2FDTNDATAQYW2
+  
+Resources:
+
+  #this a record is to point the domain to the cloudfront distribution
+  ContentDomainAlias:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneId:
+        Fn::ImportValue:
+          !Sub ${CodeParam}-Content-DomainId
+      RecordSets:
+      - Name: 
+          Fn::ImportValue: 
+            !Sub ${CodeParam}-ContentDomain
+        Type: A
+        AliasTarget:
+          #magic cloudfront domain id Z2FDTNDATAQYW2
+          HostedZoneId: !Ref COGNITOMAGICHOSTEDZONEID
+          DNSName:
+            Fn::ImportValue:
+              !Sub CloudFrontContentDomain-${CodeParam}

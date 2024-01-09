@@ -1,0 +1,27 @@
+Description: Create a CNAME record for an AWS Route53 Hosted Zone
+
+Parameters: 
+  CNameParam: 
+    Type: String
+  CNameValueParam: 
+    Type: String
+  HostedZoneIdParam:
+    Type: String
+      
+Resources:
+  CertValRecordsetAuth:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneId: !Ref HostedZoneIdParam
+      RecordSets:
+      - Name: !Ref CNameParam
+        Type: CNAME
+        TTL: '3600'
+        ResourceRecords:
+        - !Ref CNameValueParam
+
+
+
+
+
+ 

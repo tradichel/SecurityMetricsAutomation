@@ -1,0 +1,111 @@
+# https://github.com/tradichel/SecurityMetricsAutomation
+# resources/ec2/prefixlist/prefixlist-github.yaml
+# author: @teriradichel @2ndsightlab
+# description: create an customer managed prefix list of 
+# ips to use in security group rulesets
+##############################################################
+Resources:
+  PrefixList:
+    Type: AWS::EC2::PrefixList
+    Properties:
+      AddressFamily: "IPv4"
+      MaxEntries: 50
+      PrefixListName: GithubPrefixList
+      Entries:
+        - Cidr: 140.82.112.0/20
+          Description: github-git
+        - Cidr: 143.55.64.0/20
+          Description: github-git
+        - Cidr: 185.199.108.0/22
+          Description: github-git
+        - Cidr: 192.30.252.0/22
+          Description: github-git
+        - Cidr: 20.175.192.146/32
+          Description: github-git
+        - Cidr: 20.175.192.147/32
+          Description: github-git
+        - Cidr: 20.175.192.149/32
+          Description: github-git
+        - Cidr: 20.200.245.245/32
+          Description: github-git
+        - Cidr: 20.200.245.247/32
+          Description: github-git
+        - Cidr: 20.200.245.248/32
+          Description: github-git
+        - Cidr: 20.201.28.148/32
+          Description: github-git
+        - Cidr: 20.201.28.151/32
+          Description: github-git
+        - Cidr: 20.201.28.152/32
+          Description: github-git
+        - Cidr: 20.205.243.160/32
+          Description: github-git
+        - Cidr: 20.205.243.166/32
+          Description: github-git
+        - Cidr: 20.205.243.168/32
+          Description: github-git
+        - Cidr: 20.207.73.82/32
+          Description: github-git
+        - Cidr: 20.207.73.83/32
+          Description: github-git
+        - Cidr: 20.207.73.85/32
+          Description: github-git
+        - Cidr: 20.233.83.145/32
+          Description: github-git
+        - Cidr: 20.233.83.146/32
+          Description: github-git
+        - Cidr: 20.233.83.149/32
+          Description: github-git
+        - Cidr: 20.248.137.48/32
+          Description: github-git
+        - Cidr: 20.248.137.49/32
+          Description: github-git
+        - Cidr: 20.248.137.50/32
+          Description: github-git
+        - Cidr: 20.27.177.113/32
+          Description: github-git
+        - Cidr: 20.27.177.116/32
+          Description: github-git
+        - Cidr: 20.27.177.118/32
+          Description: github-git
+        - Cidr: 20.87.225.211/32
+          Description: github-git
+        - Cidr: 20.87.225.212/32
+          Description: github-git
+        - Cidr: 20.87.225.214/32
+          Description: github-git
+        - Cidr: 40.71.233.224/28
+          Description: github-git
+
+
+Outputs:
+  PrefixListOutput:
+    Value: !Ref PrefixList
+    Export:
+      Name: GithubPrefixList
+
+#################################################################################
+# Copyright Notice
+# All Rights Reserved.
+# All materials (the “Materials”) in this repository are protected by copyright 
+# under U.S. Copyright laws and are the property of 2nd Sight Lab. They are provided 
+# pursuant to a royalty free, perpetual license the person to whom they were presented 
+# by 2nd Sight Lab and are solely for the training and education by 2nd Sight Lab.
+#
+# The Materials may not be copied, reproduced, distributed, offered for sale, published, 
+# displayed, performed, modified, used to create derivative works, transmitted to 
+# others, or used or exploited in any way, including, in whole or in part, as training 
+# materials by or for any third party.
+#
+# The above copyright notice and this permission notice shall be included in all 
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+################################################################################ 
+
+

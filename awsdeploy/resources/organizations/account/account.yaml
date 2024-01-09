@@ -1,0 +1,100 @@
+# https://github.com/tradichel/SecurityMetricsAutomation
+# awsdeploy/resources/organizations/account/account.yaml
+# author: @tradichel @2ndsightlab
+# description: CloudFormation template to create an AWS Account
+##############################################################
+Parameters:
+  NameParam:
+    Type: String
+  ParentIdsParam:
+    Type: String
+    Default: "None"
+  DomainParam:
+    Type: String  
+  EnvParam:
+    Type: String
+  OrgParam:
+    Type: String
+
+Conditions:
+   DefaultOU: !Equals ["None", !Ref ParentIdsParam]
+
+Resources:
+
+  OrgAccount:
+    Type: AWS::Organizations::Account
+    Properties: 
+      AccountName:
+        !Ref NameParam
+      Email: 
+          !Join
+            - ""
+            - - !Ref NameParam
+              - "@"
+              - !Ref DomainParam
+      ParentIds:
+        - !If [DefaultOU, !ImportValue DenyAllOUIdExport, !Ref ParentIdsParam] 
+      
+      RoleName: 
+            !Join
+              - ""
+              - - !Ref EnvParam 
+                - "-adminrole"
+  
+Outputs:
+  AccountID:
+    Value: !Ref OrgAccount
+    Export:
+     Name: !Sub id-organizations-account-${NameParam}
+  AcccountArn:
+    Value: !GetAtt OrgAccount.Arn
+    Export:
+     Name: !Sub arn-organizations-account-${NameParam}
+  AccountNameOutput:
+    Value: !Ref NameParam
+    Export:
+     Name: !Ref NameParam
+  EmailOutput:
+    Value:
+      !Join
+        - ""
+        - - !Ref NameParam
+          - "@"
+          - !Ref DomainParam
+    Export:
+     Name: 
+      !Sub "${NameParam}email"
+  RoleOutput:
+    Value: 
+      !Join
+        - ""
+        - - !Ref EnvParam
+          - "-adminrole"
+    Export:
+     Name: 
+      !Sub "${NameParam}role"
+          
+
+##################################################################################
+# Copyright Notice
+# All Rights Reserved.
+# All materials (the “Materials”) in this repository are protected by copyright 
+# under U.S. Copyright laws and are the property of 2nd Sight Lab. They are provided 
+# pursuant to a royalty free, perpetual license the person to whom they were presented 
+# by 2nd Sight Lab and are solely for the training and education by 2nd Sight Lab.
+#
+# The Materials may not be copied, reproduced, distributed, offered for sale, published, 
+# displayed, performed, modified, used to create derivative works, transmitted to 
+# others, or used or exploited in any way, including, in whole or in part, as training 
+# materials by or for any third party.
+#
+# The above copyright notice and this permission notice shall be included in all 
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+################################################################################

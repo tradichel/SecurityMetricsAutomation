@@ -1,0 +1,180 @@
+# https://github.com/tradichel/SecurityMetricsAutomation
+# S3/stacks/cfn/Bucket.yaml
+# author: @teriradichel @2ndsightlab
+# The convolute nature of this template is due to what I 
+# presume to be `a bug. If anyone has a better way to do this,
+# please submit a solution as a GitHub issue.
+# https://medium.com/bugs-that-bite/cloudformation-bug-s3-server-access-logs-939dfb337e4d
+################################################################
+Parameters:
+  BucketNameSuffixParam:
+    Type: String
+  KMSKeyIdParam:
+    Type: String
+    Default: ""
+  VersioningParam:
+    Type: String
+    AllowedValues: 
+      - "Enabled"
+      - "Suspended"
+    Default: "Enabled"
+  DeployLogBucketParam:
+    Type: String
+    AllowedValues:
+      - "true"
+      - "false"
+    Default: "false"
+
+Conditions:
+
+  SetAccessLogBucket:
+    !Equals
+    - !Ref DeployLogBucketParam
+    - "true"
+
+  DoNotSetAccessLogBucket:
+    !Equals
+    - !Ref DeployLogBucketParam
+    - "false"    
+
+Resources:
+
+    BucketAccessLogs:
+      Type: AWS::S3::Bucket
+      Condition: DoNotSetAccessLogBucket
+      Properties:
+        BucketEncryption:
+          ServerSideEncryptionConfiguration:
+            - BucketKeyEnabled: true
+              ServerSideEncryptionByDefault:
+                SSEAlgorithm: 'aws:kms'
+                KMSMasterKeyID: 
+                    !Join
+                    - ""
+                    - - !Sub "{{resolve:ssm:Environment}}"
+                      - !Ref KMSKeyIdParam        
+        BucketName: 
+          !Join
+            - ""
+            - - !Sub "{{resolve:ssm:Environment}}"
+              - "-"
+              - !Sub "{{resolve:ssm:EnvironmentOrg}}"
+              - "-"
+              - !Ref BucketNameSuffixParam
+ 
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: true
+          BlockPublicPolicy: true
+          IgnorePublicAcls: true
+          RestrictPublicBuckets: true
+
+        VersioningConfiguration:
+          Status: !Ref VersioningParam
+
+    Bucket:
+      Type: AWS::S3::Bucket
+      Condition: SetAccessLogBucket
+      Properties:
+        BucketEncryption:
+          ServerSideEncryptionConfiguration:
+            - BucketKeyEnabled: true
+              ServerSideEncryptionByDefault:
+                SSEAlgorithm: 'aws:kms'
+                KMSMasterKeyID: !Ref KMSKeyIdParam
+        BucketName:
+          !Join
+            - ""
+            - - !Sub "{{resolve:ssm:Environment}}"
+              - "-"
+              - !Sub "{{resolve:ssm:EnvironmentOrg}}"
+              - "-"
+              - !Ref BucketNameSuffixParam
+        LoggingConfiguration: 
+          DestinationBucketName:
+            !Join
+              - ""
+              - - !Sub "{{resolve:ssm:Environment}}"
+                - "-"
+                - !Sub "{{resolve:ssm:EnvironmentOrg}}"
+                - "-"
+                - !Ref BucketNameSuffixParam
+                - "-logs"
+
+          LogFilePrefix:
+            !Join
+              - ""
+              - - !Sub "{{resolve:ssm:Environment}}"
+                - "-"
+                - !Sub "{{resolve:ssm:EnvironmentOrg}}"
+                - "-"
+                - !Ref BucketNameSuffixParam
+
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: true
+          BlockPublicPolicy: true
+          IgnorePublicAcls: true
+          RestrictPublicBuckets: true
+
+        VersioningConfiguration:
+          Status: !Ref VersioningParam
+
+Outputs:
+    BucketDomainName:
+      Condition: SetAccessLogBucket
+      Value: !GetAtt [Bucket, DomainName]
+      Export:
+        Name: 
+          !Join
+            - ""
+            - - !Ref BucketNameSuffixParam
+              - "-DomainName"
+    BucketUrl:
+      Condition: SetAccessLogBucket
+      Value: !GetAtt [Bucket, WebsiteURL]
+      Export:
+        Name: 
+          !Join
+            - ""
+            - - !Ref BucketNameSuffixParam
+              - "-WebsiteURL"
+    BucketArn:
+      Condition: SetAccessLogBucket
+      Value: !GetAtt [Bucket, Arn]
+      Export: 
+        Name: 
+          !Join
+            - ""
+            - - !Ref BucketNameSuffixParam
+    BucketAccessLogsArn:
+      Condition: DoNotSetAccessLogBucket
+      Value: !GetAtt [BucketAccessLogs, Arn]
+      Export:
+        Name: 
+          !Join
+            - ""
+            - - !Ref BucketNameSuffixParam
+              - "-logs"
+
+#################################################################################
+# Copyright Notice
+# All Rights Reserved.
+# All materials (the “Materials”) in this repository are protected by copyright 
+# under U.S. Copyright laws and are the property of 2nd Sight Lab. They are provided 
+# pursuant to a royalty free, perpetual license the person to whom they were presented 
+# by 2nd Sight Lab and are solely for the training and education by 2nd Sight Lab.
+#
+# The Materials may not be copied, reproduced, distributed, offered for sale, published, 
+# displayed, performed, modified, used to create derivative works, transmitted to 
+# others, or used or exploited in any way, including, in whole or in part, as training 
+# materials by or for any third party.
+#
+# The above copyright notice and this permission notice shall be included in all 
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+################################################################################

@@ -1,0 +1,52 @@
+# https://github.com/tradichel/SecurityMetricsAutomation
+# Apps/stacks/Lambda/cfn/Lambda.yaml
+# author: @teriradichel @2ndsightlab
+##############################################################
+Parameters:
+  NameParam:
+    Type: String
+  EnvParam:
+    Type: String
+    AllowedValues:
+      - "Sandbox"
+  ArchitecturesParam:
+    Type: CommaDelimitedList
+    Default: "arm64"
+
+Mappings:
+  EcrMap:
+    Sandbox:
+      Name: sandbox
+
+Resources:
+  Lambda:
+    Type: AWS::Lambda::Function
+    Properties: 
+      Code: 
+        ImageUri:
+          !Join
+              - ""
+              - - !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/"
+                - !FindInMap [EcrMap, !Ref EnvParam, Name]
+                - !Sub ":${NameParam}"
+      Description: !Ref NameParam
+      FunctionName: !Ref NameParam
+      PackageType: Image
+      Role: 
+        Fn::ImportValue:
+         !Sub "${NameParam}LambdaRole"
+      VpcConfig: 
+        SecurityGroupIds: 
+          - !ImportValue NATVPCGithub
+        SubnetIds: 
+          - !ImportValue NATVPCNATRouteSubnet
+      Architectures:
+        !Ref ArchitecturesParam
+
+Outputs:
+  LambdaOutput:
+    Value: !Ref Lambda
+    Export:
+      Name: !Ref NameParam
+
+

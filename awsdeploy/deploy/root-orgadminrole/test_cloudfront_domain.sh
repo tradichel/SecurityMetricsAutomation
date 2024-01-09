@@ -1,0 +1,143 @@
+#!/bin/bash -e
+# https://github.com/tradichel/SecurityMetricsAutomation
+# awsdeploy/deploy/root-orgadminrole/test_domains.sh
+# author: @teriradichel @2ndsightlab
+# Description: Testing project domain deployment
+##############################################################
+source deploy/shared/functions.sh
+source deploy/shared/validate.sh
+source resources/organizations/account/account_functions.sh
+source resources/route53/hostedzone/hostedzone_functions.sh
+source resources/certificatemanager/certificate/certificate_functions.sh
+
+profile="$1"
+region="$2"
+env="$3"
+parameters="$4"
+
+#cloudfront requires a certificate in xx-xxxx-x
+#save yourself some pain and deploy all these thinsg
+#in the same region
+region="xx-xxxx-x"
+
+s="awsdeploy/deploy/root-orgadminrole/test_domains.sh"
+validate_set $s "profile" $profile
+validate_set $s "region" $region
+validate_environment $s $env
+validate_set $s "parameters" $parameters
+
+projectid=$(get_container_parameter_value $parameters "projectid")
+
+#so we can switch back to the original profile
+orgprofile=$profile
+
+echo "*******************************************************************"
+echo "Get project account number"
+echo "*******************************************************************"
+projectaccountname=$env'-'$projectid
+projectaccountid=$(get_account_number $projectaccountname)
+
+echo "*******************************************************************"
+echo "Deploying project test domains in account: $projectaccountname id: $projectaccountid"
+echo "profile: $profile"
+echo "region: $region"
+echo "env: $env"
+echo "parameters: $parameters"
+echo "*******************************************************************"
+
+echo "*******************************************************************"
+echo "Assume organizations role for $projectaccountname $projectaccountid"
+echo "*******************************************************************"
+assume_organizations_role $projectaccountname
+profile="$projectaccountname"
+
+domains=(
+	"x.2sl.link"
+)
+
+aws configure set region $region --profile "xx-xxxx-x"
+
+#deploy all the scripts in the list
+for domain in ${domains[*]}
+do
+
+  echo "*******************************************************************"
+  echo "Deploy hosted zone for subdomain $domain "
+	echo "env: $env profile: $profile region: $region"
+  echo "*******************************************************************"
+	s="./deploy/route53adminrole/route53_hostedzone_$domain.sh"
+	c="$s $profile $region $env $parameters"; bash $c; 
+
+	echo "*******************************************************************"
+	echo "Get the NS records for subdomain $domain "
+	echo "env: $env profile: $profile region: $region"
+	echo "*******************************************************************"
+	ns=$(get_name_servers_for_cli_command $domain)
+	echo "NS for $domain: $ns"
+
+	echo "*******************************************************************"
+	echo "Return to root-orgadmin role: orgprofile: $orgrpofile"
+	echo "env: $env profile: $profile region: $region"
+	echo "*******************************************************************"
+	profile=$orgprofile
+
+	echo "*******************************************************************"
+	echo "Get $env-domain account number to update parent for $domain "
+	echo "env: $env profile: $profile region: $region"
+	echo "*******************************************************************"
+	domainaccountname=$env'-domain'
+	domainaccountid=$(get_account_number $domainaccountname)
+
+	echo "*******************************************************************"
+	echo "Assume organizations role for $domainaccountname $domainaccountid "
+	echo "env: $env profile: $profile region: $region"
+	echo "*******************************************************************"
+	assume_organizations_role $domainaccountname
+	profile="$domainaccountname"
+
+	echo "*******************************************************************"
+	echo "Add an NS record on the apex domain name $parentdomain for"
+  echo "subdomain: $domain env: $env profile: $profile region: $region"
+	echo "Copy the name servers from the subdomain to the new NS record."
+	echo "Set the TTL to 300."
+	echo "*******************************************************************"
+	parentdomain=$(get_domain_from_subdomain $domain)
+	update_subdomain_name_servers $env $parentdomain $domain $ns
+
+	echo "*******************************************************************"
+	echo "Set profile to $projectaccountname "
+	echo "env: $env profile: $profile region: $region"
+	echo "*******************************************************************"
+	profile="$projectaccountname"
+
+  echo "*******************************************************************"
+  echo "Deploy TLS certificate for $domain "
+	echo "env: $env profile: $profile region: $region"
+  echo "*******************************************************************"	
+	deploy_certificate $domain $env
+
+done
+
+#################################################################################
+# Copyright Notice
+# All Rights Reserved.
+# All materials (the “Materials”) in this repository are protected by copyright 
+# under U.S. Copyright laws and are the property of 2nd Sight Lab. They are provided 
+# pursuant to a royalty free, perpetual license the person to whom they were presented 
+# by 2nd Sight Lab and are solely for the training and education by 2nd Sight Lab.
+#
+# The Materials may not be copied, reproduced, distributed, offered for sale, published, 
+# displayed, performed, modified, used to create derivative works, transmitted to 
+# others, or used or exploited in any way, including, in whole or in part, as training 
+# materials by or for any third party.
+#
+# The above copyright notice and this permission notice shall be included in all 
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+################################################################################ 

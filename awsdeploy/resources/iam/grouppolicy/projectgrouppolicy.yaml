@@ -1,0 +1,101 @@
+#!/bin/bash -e
+# https://github.com/tradichel/SecurityMetricsAutomation
+# awsdeploy/resources/iam/userpolicy/projectgrouppolicy.yaml
+# author: @teriradichel @2ndsightlab
+# Description: Generic group policy for a project account
+##############################################################
+Parameters:
+  NameParam:
+    Type: String
+  GroupNameParam:
+    Type: String
+  #if the user is allowed to assume any xacct roles
+  #pass in the role arn
+  XacctRolesParam:
+    Type: String
+    Default: ""
+
+Resources:
+  grouppolicy:
+    Type: AWS::IAM::GroupPolicy
+    Properties:
+      PolicyName: !Ref NameParam
+      GroupName: !Ref GroupNameParam
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:List*
+              - s3:Get*
+              - s3:PutObject
+              - ec2:Describe*
+              - kms:List*
+              - kms:Get*
+              - ec2:Get*
+              - ec2:CreateKeyPair
+              - ec2:RunInstances
+              - secretsmanager:*
+              - kms:Encrypt*
+              - kms:Decrypt*
+              - ec2:AssignPrivateIpAddresses
+              - ec2:CreateTags
+              - ec2:DeleteTags
+              - ec2:AssociateAddress
+              - ec2:AttachVolume
+              - ec2:AuthorizeSecurityGroupEgress
+              - ec2:AuthorizeSecurityGroupIngress
+              - ec2:CreateImage
+              - ec2:CreateNetworkInterface
+              - ec2:CreateSecurityGroup
+              - ec2:CreateSnapshot*
+              - ec2:CreateVolume
+              - ec2:DeleteSecurityGroup
+              - ec2:DeleteVolume
+              - ec2:DisassociateAddress
+              - ec2:ModifySecurityGroupRules
+              - ec2:MonitorInstances
+              - ec2:RebootInstances
+              - ec2:TerminateInstances
+              - ec2:StopInstances
+              - ec2:RegisterImage
+              - ec2:RequestSpot*
+              - ec2:Revoke*
+              - ec2:StartInstances
+              - ec2:UpdateSecurityGroupRule*
+              - iam:List*
+              - iam:Get*
+            Resource: "*"
+Outputs:
+  grouppolicyid:
+    Value: !Ref grouppolicy
+    Export:
+     Name: !Sub id-iam-grouppolicy-${NameParam}
+  grouppolicyarn:
+    Value: !Ref grouppolicy
+    Export:
+     Name: !Sub arn-iam-grouppolicy-${NameParam}
+
+#################################################################################
+# Copyright Notice
+# All Rights Reserved.
+# All materials (the “Materials”) in this repository are protected by copyright 
+# under U.S. Copyright laws and are the property of 2nd Sight Lab. They are provided 
+# pursuant to a royalty free, perpetual license the person to whom they were presented 
+# by 2nd Sight Lab and are solely for the training and education by 2nd Sight Lab.
+#
+# The Materials may not be copied, reproduced, distributed, offered for sale, published, 
+# displayed, performed, modified, used to create derivative works, transmitted to 
+# others, or used or exploited in any way, including, in whole or in part, as training 
+# materials by or for any third party.
+#
+# The above copyright notice and this permission notice shall be included in all 
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+################################################################################ 

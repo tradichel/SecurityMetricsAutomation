@@ -1,0 +1,67 @@
+# https://github.com/tradichel/SecurityMetricsAutomation
+# IAM/stacks/role/cfn/Policy/AppDeployGroupRolePolicy.yaml
+# author: @tradichel @2ndsightlab
+# description: policy for IAM administrators
+##############################################################
+Resources:
+  AppDeployGroupRolePolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: AppDeploymentGroupRolePolicy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: 'cloudformation:DescribeStacks'
+            Resource: '*'
+          - Effect: Allow
+            Action: 'cloudformation:*'
+            Resource:
+              - !Sub arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/AppDeploy-*
+          - Effect: Allow
+            Action: 'lambda:*'
+            Resource: '*'
+          - Effect: Allow
+            Action: 
+              - ec2:CreateTags
+              - ec2:RunInstances
+              - ec2:TerminateInstances
+              - ec2:DescribeInstances
+              - ec2:DescribeIamInstanceProfileAssociations
+              - ec2:AssociateIamInstanceProfile
+              - ec2:ReplaceIamInstanceProfileAssociation
+              - ec2:DisassociateIamInstanceProfile
+            Resource: '*'
+          - Effect: Allow
+            Action: iam:PassRole
+            Resource: 
+              - !Sub arn:aws:iam::${AWS::AccountId}:role/GenerateBatchJobIdLambdaRole
+              - !Sub arn:aws:iam::${AWS::AccountId}:role/EC2AppDeployRole
+      Roles: 
+        - "AppDeploymentGroup"
+        - "EC2AppDeployRole"
+
+#################################################################################
+# Copyright Notice
+# All Rights Reserved.
+# All materials (the “Materials”) in this repository are protected by copyright 
+# under U.S. Copyright laws and are the property of 2nd Sight Lab. They are provided 
+# pursuant to a royalty free, perpetual license the person to whom they were presented 
+# by 2nd Sight Lab and are solely for the training and education by 2nd Sight Lab.
+#
+# The Materials may not be copied, reproduced, distributed, offered for sale, published, 
+# displayed, performed, modified, used to create derivative works, transmitted to 
+# others, or used or exploited in any way, including, in whole or in part, as training 
+# materials by or for any third party.
+#
+# The above copyright notice and this permission notice shall be included in all 
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+################################################################################ 
+                                                                                     

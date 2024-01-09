@@ -1,0 +1,146 @@
+Parameters:
+  NameParam:
+    Type: String
+  EnvParam:
+    Type: String
+    AllowedValues: 
+      - Sandbox
+  HasSecretParam:
+    Type: String
+    AllowedValues:
+      - "true"
+      - "false"
+    Default: "false"
+  ServiceParam:
+    Type: String
+    AllowedValues:
+      - Lambda
+      - ECSTasks
+  ActionsParam:
+    Type: CommaDelimitedList
+    Default: "codecommit:GitPull,s3:PutObject"
+  #need to add bucket from sandbox web account
+  ResourcesParam:
+    Type: CommaDelimitedList
+    Default: "arn:aws:codecommit:xx-xxxx-x:464339214996:dev.*"
+  S3WriteBucketArnParam:
+    Type: String
+    Default: ""
+  S3ReadBucketArnParam:
+    Type: String
+    Default: ""
+
+Conditions:
+  HasSecret: !Equals 
+    - !Ref HasSecretParam
+    - "true"
+  IsLambda: !Equals
+    - !Ref ServiceParam
+    - "Lambda"
+  NoReadBucket: !Equals
+    - !Ref S3ReadBucketArnParam
+    - ""
+  NoWriteBucket: !Equals
+    - !Ref S3WriteBucketArnParam
+    - ""
+
+Mappings:
+  ServiceMap:
+    Lambda:
+      logname: 'lambda'
+    ECSTasks:
+      logname: 'ecs-tasks'
+
+Resources:
+  AppPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: !Sub ${NameParam}${ServiceParam}Policy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement: 
+          - !If
+            - IsLambda
+            - 
+              Effect: Allow
+              Action: 
+                - 'ec2:CreateNetworkInterface'
+                - 'ec2:DescribeNetworkInterfaces'
+                - 'ec2:DeleteNetworkInterface'
+              Resource: '*'
+            - !Ref AWS::NoValue
+          - Effect: Allow
+            Action:
+              - 'logs:CreateLogGroup'
+              - 'logs:CreateLogStream'
+              - 'logs:PutLogEvents'
+            Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/*/${NameParam}:*'
+            #Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/${logname}/${NameParam}:*'
+          - !If 
+            - HasSecret
+            - 
+              Effect: Allow
+              Action:
+                - secretsmanager:GetResourcePolicy
+                - secretsmanager:GetSecretValue
+                - secretsmanager:DescribeSecret
+                - secretsmanager:ListSecretVersionIds
+              Resource: 
+                -  Fn::ImportValue:
+                    !Sub ${NameParam}Secret
+            - !Ref AWS::NoValue
+
+          - !If 
+            - HasSecret
+            - 
+              Effect: Allow
+              Action: secretsmanager:ListSecrets
+              Resource: '*'
+            - !Ref AWS::NoValue
+
+          - Effect: Allow
+            Action:   
+              - kms:DescribeKey
+              - kms:GenerateDataKey
+              - kms:Decrypt
+            Resource:
+              - Fn::ImportValue: !Sub ${EnvParam}Key
+
+          - !If
+            - NoReadBucket
+            - !Ref AWS::NoValue
+            - 
+              Effect: Allow
+              Action:
+                - s3:ListBucket
+              Resource:
+                - !Ref S3ReadBucketArnParam
+              Effect: Allow
+              Action:
+                - s3:GetObject
+              Resource:
+                - !Sub "${S3ReadBucketArnParam}/*"
+
+          - !If
+            - NoWriteBucket
+            - !Ref AWS::NoValue
+            - 
+              Effect: Allow
+              Action:
+                - s3:ListBucket
+              Resource:
+                - !Ref S3WriteBucketArnParam
+              Effect: Allow
+              Action:
+                - s3:PutObject
+              Resource:
+                - !Sub "${S3WriteBucketArnParam}/*"
+
+          #other permissions not covered above
+          - Effect: Allow
+            Action: !Ref ActionsParam
+            Resource: !Ref ResourcesParam
+
+      Roles: 
+        - !Sub ${NameParam}${ServiceParam}Role
+

@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Deploy a Sub Domain for a Domain
+  
+Parameters: 
+
+  AppNameParam: 
+    Description: Code identifying application
+    Type: String
+  DomainNameParam: 
+    Description: Create a Domain Name
+    Type: String
+
+Resources:
+
+  ContentDomain:
+    Type: AWS::Route53::HostedZone
+    Properties: 
+      Name: !Ref DomainNameParam
+      HostedZoneTags: 
+        - Key: "AppName"
+          Value: !Ref AppNameParam
+
+  DomainSSMParam:
+    Type: "AWS::SSM::Parameter"
+    Properties: 
+      Description: Domain SSM Parameter
+      Name: !Sub "${AppNameParam}-Domain"
+      Type: String
+      Value: !Ref DomainNameParam
+      Tags:
+        AppName: !Ref AppNameParam
+       
+Outputs:
+  HostedZoneId:
+    Value: !Ref ContentDomain
+    Export:
+      Name: !Sub "${AppNameParam}-DomainId"
+  DomainName:
+    Value: !Ref DomainNameParam
+    Export:
+      Name: !Sub "${AppNameParam}-Domain"
+
+
+
+

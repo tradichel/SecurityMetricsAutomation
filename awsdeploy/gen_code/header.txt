@@ -1,0 +1,8 @@
+#!/bin/bash -e
+# https://github.com/tradichel/SecurityMetricsAutomation
+# awsdeploy/{{filepath}}
+# author: @teriradichel @2ndsightlab
+# Description: {{description}}
+##############################################################
+
+

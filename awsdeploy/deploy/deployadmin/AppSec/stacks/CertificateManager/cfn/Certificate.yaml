@@ -1,0 +1,33 @@
+
+
+
+
+Parameters:
+  DomainNameParam:
+    Type: String
+  AppNameParam:
+    Type: String
+  HostedZoneIdParam:
+    Type: String
+
+Resources: 
+  Certificate:
+    Type: "AWS::CertificateManager::Certificate"
+    Properties:
+      DomainName: !Ref DomainNameParam
+      ValidationMethod: DNS
+      DomainValidationOptions:
+        - 
+          DomainName:
+            !Ref DomainNameParam
+          HostedZoneId:  
+            !Ref HostedZoneIdParam
+
+Outputs:
+  TLSOutput:
+    Value: !Ref Certificate
+    Export: 
+      Name: !Sub "${AppNameParam}-TLSCertificate"
+
+
+

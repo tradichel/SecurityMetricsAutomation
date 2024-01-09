@@ -1,0 +1,25 @@
+
+Parameters:
+    NameParam:
+      Type: String
+		#add any other parameters
+		
+Resources:
+  {{resourcetype}}:
+    Type: AWS::{{resourcecategory}}::{{resourcetype}}
+		Properties:
+			Name: !Ref NameParam
+			#Add the rest of the properties
+
+Outputs:
+  {{resourcetype}}id:
+    Value: !Ref {{resourcetype}}
+    Export:
+     Name: !Sub id-{{resourcecategory}}-{{resourcetype}}-${NameParam}
+  {{resourcetype}}arn:
+    Value: !GetAtt {{resourcetype}}.Arn
+    Export:
+     Name: !Sub arn-{{resourcecategory}}-{{resourcetype}}-${NameParam}
+	#adjust outputs as needed
+
+

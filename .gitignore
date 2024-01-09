@@ -1,2 +1,13 @@
+#file: .gitignore in root of github repo
+#exclude these files when checking in code
 *.swp
 *.pem
+creds.sh
+
+
+
+
+
+
+
+

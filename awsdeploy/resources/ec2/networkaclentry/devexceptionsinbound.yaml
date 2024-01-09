@@ -1,0 +1,137 @@
+# https://github.com/tradichel/SecurityMetricsAutomation
+# resources/ec2/networkaclentry/exceptions.yaml
+# author: @teriradichel @2ndsightlab
+##############################################################
+Parameters:
+
+  NetworkAclIdParam:
+    Type: String
+  EphemeralPortStartParam:
+    Type: String
+    Default: "1024"
+
+#exceptions in blocked CIDR ranges
+#avoid 400-499 numbers in other rulesets
+Resources:
+
+  ExceptionIn1:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock: "140.82.112.0/20"
+      Egress: False
+      NetworkAclId: !Ref NetworkAclIdParam
+      PortRange:
+        From: !Ref EphemeralPortStartParam
+        To: 65535
+      Protocol: 6
+      RuleAction: Allow
+      RuleNumber: 400
+  ExcpetionIn2:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock: "108.156.0.0/14"
+      Egress: False
+      NetworkAclId: !Ref NetworkAclIdParam
+      Protocol: 6
+      PortRange:
+        From: !Ref EphemeralPortStartParam
+        To: 65535
+      RuleAction: Allow
+      RuleNumber: 401
+  ExceptionIn3:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock: "146.75.0.0/16"
+      Egress: False
+      NetworkAclId: !Ref NetworkAclIdParam
+      Protocol: 6
+      PortRange:
+        From: !Ref EphemeralPortStartParam
+        To: 65535
+      RuleAction: Allow
+      RuleNumber: 402
+  ExceptionIn4:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock: "52.0.0.0/8"
+      Egress: False
+      NetworkAclId: !Ref NetworkAclIdParam
+      Protocol: 6
+      PortRange:
+        From: !Ref EphemeralPortStartParam
+        To: 65535
+      RuleAction: Allow
+      RuleNumber: 403
+  ExceptionIn5:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock: "151.101.0.0/16"
+      Egress: False
+      NetworkAclId: !Ref NetworkAclIdParam
+      Protocol: 6
+      PortRange:
+        From: !Ref EphemeralPortStartParam
+        To: 65535
+      RuleAction: Allow
+      RuleNumber: 404
+  ExceptionIn6:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock: "3.0.0.0/8"
+      Egress: False
+      NetworkAclId: !Ref NetworkAclIdParam
+      Protocol: 6
+      PortRange:
+        From: !Ref EphemeralPortStartParam
+        To: 65535
+      RuleAction: Allow
+      RuleNumber: 405
+  ExceptionIn7:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock: "75.2.101.78/32"
+      Egress: False
+      NetworkAclId: !Ref NetworkAclIdParam
+      Protocol: 6
+      PortRange:
+        From: !Ref EphemeralPortStartParam
+        To: 65535
+      RuleAction: Allow
+      RuleNumber: 406
+  ExceptIn8:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock: "99.83.145.10/32"
+      Egress: False
+      NetworkAclId: !Ref NetworkAclIdParam
+      Protocol: 6
+      PortRange:
+        From: !Ref EphemeralPortStartParam
+        To: 65535
+      RuleAction: Allow
+      RuleNumber: 407
+  
+
+#################################################################################
+# Copyright Notice
+# All Rights Reserved.
+# All materials (the “Materials”) in this repository are protected by copyright 
+# under U.S. Copyright laws and are the property of 2nd Sight Lab. They are provided 
+# pursuant to a royalty free, perpetual license the person to whom they were presented 
+# by 2nd Sight Lab and are solely for the training and education by 2nd Sight Lab.
+#
+# The Materials may not be copied, reproduced, distributed, offered for sale, published, 
+# displayed, performed, modified, used to create derivative works, transmitted to 
+# others, or used or exploited in any way, including, in whole or in part, as training 
+# materials by or for any third party.
+#
+# The above copyright notice and this permission notice shall be included in all 
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+################################################################################ 

@@ -1,0 +1,92 @@
+# https://github.com/tradichel/SecurityMetricsAutomation
+# awsdeploy/resources/iam/rolepolicy/root-orgadminrolepolicy.yaml
+# author: @tradichel @2ndsightlab
+# description: CloudFormation template to delploy an OU
+##############################################################
+Parameters:
+  NameParam:
+    Type: String
+    Default: root-orgadminrolepolicy
+    AllowedValues: 
+      - root-orgadminrolepolicy
+
+Resources:
+  Policy:
+    Type: AWS::IAM::RolePolicy
+    Properties:
+      RoleName: root-orgadminrole
+      PolicyName: root-orgadminrolepolicy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: "AllowAllActions"
+            Effect: Allow
+            Action: 'organizations:*'
+            Resource: '*'
+          - Sid: "AllowReadSSMInformation"
+            Effect: Allow
+            Action:
+              - 'ssm:get*'
+              - 'ssm:list*'
+              - 'ssm:describe*'
+            Resource: '*'
+          - Sid: "DenyTheseActionsInRootAccount"
+            Effect: Deny
+            Action:
+              - organizations:CreateGovCloudAccount
+              - organizations:DeleteOrganization
+              - organizations:CreateOrganization
+            Resource: '*'
+          - Sid: "AllowCreateRoleWithhPermissionBoundaryInRootAccount"
+            Effect: Allow
+            Action:
+              - iam:CreateRole
+              - iam:UpdateRole
+              - iam:AttachRolePolicy
+            Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:*'
+            Condition:
+              StringEquals:
+                iam:PermissionsBoundary: !Sub 'arn:aws:iam::${AWS::AccountId}:policy/rootaccountrolepermissionsboundary'
+          - Sid: "CloudFormationForOwnStacks"
+            Effect: Allow
+            Action: cloudformation:*
+            Resource: !Sub arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/root-orgadminrole*
+          - Sid: "AssumeOrganizationsRole"
+            Effect: Allow
+            Action: sts:assumerole
+            Resource: "*"
+
+Outputs:
+  PolicyID:
+    Value: !Ref Policy
+    Export:
+     Name: !Sub id-iam-rolepolicy-${NameParam}
+  PolicyArn:
+    Value: !Ref Policy
+    Export:
+     Name: !Sub arn-iam-rolepolicy-${NameParam}
+
+
+#################################################################################
+# Copyright Notice
+# All Rights Reserved.
+# All materials (the “Materials”) in this repository are protected by copyright 
+# under U.S. Copyright laws and are the property of 2nd Sight Lab. They are provided 
+# pursuant to a royalty free, perpetual license the person to whom they were presented 
+# by 2nd Sight Lab and are solely for the training and education by 2nd Sight Lab.
+#
+# The Materials may not be copied, reproduced, distributed, offered for sale, published, 
+# displayed, performed, modified, used to create derivative works, transmitted to 
+# others, or used or exploited in any way, including, in whole or in part, as training 
+# materials by or for any third party.
+#
+# The above copyright notice and this permission notice shall be included in all 
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+################################################################################

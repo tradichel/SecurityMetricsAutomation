@@ -1,0 +1,100 @@
+# https://github.com/tradichel/SecurityMetricsAutomation
+# awsdeploy/resources/iam/user/user.yaml
+# author: @tradichel @2ndsightlab
+# description: CloudFormation template to create an IAM user
+##############################################################
+Parameters:
+  NameParam:
+    Type: String
+  ConsoleAccessParam:
+    Type: String
+    AllowedValues:
+      - true
+      - false
+    Default: false
+  ManagedPolicyArnParam:
+    Type: String
+    Default: "None"
+  #TimestampParam:
+  #  Type: String
+  #  Description: Force an update since AWS overwrites roles and CF doesn't recognize the change
+
+Conditions:
+  ConsoleAllowed: !Equals
+    - !Ref ConsoleAccessParam
+    - true
+  AssignManagedPolicy: !Not
+    - !Equals
+      - !Ref ManagedPolicyArnParam
+      - "None"
+
+Resources:
+
+  Passwrd:
+    Type: 'AWS::SecretsManager::Secret'
+    Condition: ConsoleAllowed
+    Properties:
+      Name: !Sub ${NameParam}-password
+      GenerateSecretString:
+        SecretStringTemplate:
+              !Join
+                - ''
+                - - '{"username": "'
+                  - !Ref NameParam
+                  - '"}'
+        GenerateStringKey: password
+        PasswordLength: 20
+    
+  User:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: !Ref NameParam
+      ManagedPolicyArns:
+        !If
+          - AssignManagedPolicy
+          - 
+            - !Ref ManagedPolicyArnParam
+          - !Ref AWS::NoValue
+      LoginProfile:
+        Fn::If: 
+          - ConsoleAllowed
+          - 
+            Password: !Sub "{{resolve:secretsmanager:${Passwrd}:SecretString:password}}"
+            #if password reset required = true, then password reset cannot require MFA in policies
+            PasswordResetRequired: false
+          - Ref: AWS::NoValue
+
+Outputs:
+  userid:
+    Value: !Ref User
+    Export:
+     Name: !Sub id-iam-user-${NameParam}
+  userarn:
+    Value: !GetAtt User.Arn
+    Export:
+     Name: !Sub arn-iam-user-${NameParam}
+ # forceupdate:
+ #   Value: !Sub "${TimestampParam}"
+#################################################################################
+# Copyright Notice
+# All Rights Reserved.
+# All materials (the “Materials”) in this repository are protected by copyright 
+# under U.S. Copyright laws and are the property of 2nd Sight Lab. They are provided 
+# pursuant to a royalty free, perpetual license the person to whom they were presented 
+# by 2nd Sight Lab and are solely for the training and education by 2nd Sight Lab.
+#
+# The Materials may not be copied, reproduced, distributed, offered for sale, published, 
+# displayed, performed, modified, used to create derivative works, transmitted to 
+# others, or used or exploited in any way, including, in whole or in part, as training 
+# materials by or for any third party.
+#
+# The above copyright notice and this permission notice shall be included in all 
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+################################################################################

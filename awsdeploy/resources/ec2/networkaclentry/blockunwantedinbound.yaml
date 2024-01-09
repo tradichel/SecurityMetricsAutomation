@@ -1,0 +1,129 @@
+# https://github.com/tradichel/SecurityMetricsAutomation
+# resources/ec2/networkaclentry/blockunwantedinbound.yaml
+# author: @teriradichel @2ndsightlab
+##############################################################
+Parameters:
+
+  NetworkAclIdParam:
+    Type: String
+  EphemeralPortStartParam:
+    Type: String
+    Default: "1024"
+  
+#avoid 450-499 numbers in other rulesets
+#these rules block practically the entire
+#internet. Add exceptions above this 
+#as needed in a separate exceptions file
+#so this file remains reusable.
+#If you need countless exceptions, this
+#file probably won't work for you.
+#But then maybe you should consider 
+#separate networks or VPCs to reduce the
+#number of exceptions.
+Resources:
+
+  BlockIn1:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock: "0.0.0.0/2"
+      Egress: False
+      NetworkAclId: !Ref NetworkAclIdParam
+      Protocol: -1
+      RuleAction: Deny
+      RuleNumber: 450
+  BlockIn2:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock: "64.0.0.0/5"
+      Egress: False
+      NetworkAclId: !Ref NetworkAclIdParam
+      Protocol: -1
+      RuleAction: Deny
+      RuleNumber: 451
+  BlockIn3:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock: "72.0.0.0/8"
+      Egress: False
+      NetworkAclId: !Ref NetworkAclIdParam
+      Protocol: -1
+      RuleAction: Deny
+      RuleNumber: 452
+  BlockIn4:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock: "73.0.0.0/8"
+      Egress: False
+      NetworkAclId: !Ref NetworkAclIdParam
+      Protocol: -1
+      RuleAction: Deny
+      RuleNumber: 453
+  BlockIn5:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock: "74.0.0.0/7"
+      Egress: False
+      NetworkAclId: !Ref NetworkAclIdParam
+      Protocol: -1
+      RuleAction: Deny
+      RuleNumber: 454
+  BlockIn6:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock: "76.0.0.0/6"
+      Egress: False
+      NetworkAclId: !Ref NetworkAclIdParam
+      Protocol: -1
+      RuleAction: Deny
+      RuleNumber: 455
+  BlockIn7:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock: "80.0.0.0/4"
+      Egress: False
+      NetworkAclId: !Ref NetworkAclIdParam
+      Protocol: -1
+      RuleAction: Deny
+      RuleNumber: 456
+  BlockIn8:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock: "96.0.0.0/3"
+      Egress: False
+      NetworkAclId: !Ref NetworkAclIdParam
+      Protocol: -1
+      RuleAction: Deny
+      RuleNumber: 457
+  BlockIn9:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock: "128.0.0.0/1"
+      Egress: False
+      NetworkAclId: !Ref NetworkAclIdParam
+      Protocol: -1
+      RuleAction: Deny
+      RuleNumber: 458
+
+#################################################################################
+# Copyright Notice
+# All Rights Reserved.
+# All materials (the “Materials”) in this repository are protected by copyright 
+# under U.S. Copyright laws and are the property of 2nd Sight Lab. They are provided 
+# pursuant to a royalty free, perpetual license the person to whom they were presented 
+# by 2nd Sight Lab and are solely for the training and education by 2nd Sight Lab.
+#
+# The Materials may not be copied, reproduced, distributed, offered for sale, published, 
+# displayed, performed, modified, used to create derivative works, transmitted to 
+# others, or used or exploited in any way, including, in whole or in part, as training 
+# materials by or for any third party.
+#
+# The above copyright notice and this permission notice shall be included in all 
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+################################################################################ 

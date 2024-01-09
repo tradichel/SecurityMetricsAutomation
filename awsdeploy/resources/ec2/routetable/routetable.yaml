@@ -1,0 +1,100 @@
+# https://github.com/tradichel/SecurityMetricsAutomation
+# awsdeploy/resources/ec2/routetable/routetable.yaml
+# author: @teriradichel @2ndsightlab
+# description: create a public or private route table
+#############################################################
+
+Parameters:
+  NameParam:
+    Type: String
+  VpcIdParam:
+    Type: String    
+  RouteTypeParam:
+    Type: String
+    AllowedValues: ['public','private','nat']
+  GatewayIdParam:
+    Type: String
+    Default: "None"
+
+Conditions:
+  IsPublic: !Equals
+    - !Ref RouteTypeParam
+    - public
+  IsNAT: !Equals
+    - !Ref RouteTypeParam
+    - nat
+
+Resources:
+  RouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !ref VpcIdParam
+      Tags:
+        - Key: Name
+          Value: !Ref NameParam
+
+  IGW:
+    Type: AWS::EC2::InternetGateway
+    Condition: IsPublic
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub ${NameParam}igw
+
+  VPCAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Condition: IsPublic
+    Properties:
+      InternetGatewayId: !Ref IGW
+      VpcId: !Ref VpcIdParam
+
+  PublicRoute:
+    Type: AWS::EC2::Route
+    Condition: IsPublic
+    DependsOn: VPCAttachment
+    Properties:
+      RouteTableId: !Ref RouteTable
+      GatewayId: !Ref IGW
+      DestinationCidrBlock: 0.0.0.0/0
+
+  PrivateRoute:
+    Type: AWS::EC2::Route
+    Condition: IsNAT
+    Properties:
+      RouteTableId: !Ref RouteTable
+      NatGatewayId: !Ref GatewayId
+      DestinationCidrBlock: 0.0.0.0/0
+
+Outputs:
+  rtid:
+    Value: !Ref RouteTable
+    Export:
+     Name: !Sub id-ec2-routetable-${NameParam}
+  rtarn:
+    Value: !Ref RouteTable
+    Export:
+     Name: !Sub arn-ec2-routetable-${NameParam}
+
+#################################################################################
+# Copyright Notice
+# All Rights Reserved.
+# All materials (the “Materials”) in this repository are protected by copyright 
+# under U.S. Copyright laws and are the property of 2nd Sight Lab. They are provided 
+# pursuant to a royalty free, perpetual license the person to whom they were presented 
+# by 2nd Sight Lab and are solely for the training and education by 2nd Sight Lab.
+#
+# The Materials may not be copied, reproduced, distributed, offered for sale, published, 
+# displayed, performed, modified, used to create derivative works, transmitted to 
+# others, or used or exploited in any way, including, in whole or in part, as training 
+# materials by or for any third party.
+#
+# The above copyright notice and this permission notice shall be included in all 
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+##########################i###################################################### 

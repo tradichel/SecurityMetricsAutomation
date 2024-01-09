@@ -1,0 +1,30 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  ClassCode:
+    Description: Unique class code
+    Type: String
+
+Resources:
+  HttpApi:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: !Sub ${ClassCode}
+      Description: !Sub Lambda proxy for ${ClassCode}
+      ProtocolType: HTTP
+      Target: !Join 
+        - ''
+        - - 'arn:'
+          - 'aws'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - Fn::ImportValue: !Sub ${ClassCode}-Lambda
+          - /invocations
+
+Outputs:
+  LambdaARN:
+    Export:
+      Name: !Sub ${ClassCode}-API
+    Value:
+      !Ref HttpApi

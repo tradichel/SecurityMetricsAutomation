@@ -1,0 +1,75 @@
+#
+#
+Parameters:
+  BucketNameSuffixParam:
+    Type: String
+  AppNameParam:
+    Type: String
+  ServiceParam:
+    Type: String
+  ReadOrWriteParam:
+    Type: String
+    AllowedValues:
+      - "Read"
+      - "Write"
+
+Resources:
+ AppBucketPolicy:
+  Type: AWS::S3::BucketPolicy
+  Properties:
+    Bucket:
+      !Join
+        - ""
+        - - !Sub "{{resolve:ssm:Environment}}"
+          - "-"
+          - !Sub "{{resolve:ssm:EnvironmentOrg}}"
+          - "-"
+          - !Ref AppNameParam
+    PolicyDocument:
+      Version: 2012-10-17
+      Statement:
+        - Effect: Allow
+          Action:
+            - 's3:PutObject'
+          Resource:
+            !Join
+              - ""
+              - - "arn:aws:s3:::"
+                - !Sub "{{resolve:ssm:Environment}}"
+                - "-"
+                - !Sub "{{resolve:ssm:EnvironmentOrg}}"
+                - "-"
+                - !Ref BucketNameSuffixParam
+                - "/*"
+          Principal: 
+            AWS: 
+              !Join
+                - ""
+                - - "arn:aws:iam::"
+                  - !Sub "{{resolve:ssm:EnvironmentAdminAccount}}"
+                  - ":role/"
+                  - !Ref AppNameParam
+                  - !Sub ServiceParam
+                  - "Role" 
+        - Effect: Allow
+          Action:
+            - 's3:ListBucket'
+          Resource: 
+            !Join
+              - ""
+              - - "arn:aws:s3:::"
+                - !Sub "{{resolve:ssm:Environment}}"
+                - "-"
+                - !Sub "{{resolve:ssm:EnvironmentOrg}}"
+                - "-"
+                - !Ref BucketNameSuffixParam
+          Principal: 
+            AWS: 
+              !Join
+                - ""
+                - - "arn:aws:iam::"
+                  - !Sub "{{resolve:ssm:EnvironmentAdminAccount}}"
+                  - ":role/"
+                  - !Ref AppNameParam
+                  - !Sub ServiceParam
+                  - "Role"

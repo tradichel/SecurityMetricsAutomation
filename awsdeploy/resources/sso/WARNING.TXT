@@ -1,0 +1,11 @@
+# There is no way to enforce MFA every time a role is assumed
+# when using AWS SSO with the AWS CLI  at the time this code 
+# base was written.
+#
+# Not recommended and sso and aws idenity center is not used 
+# in this code base.
+#
+# See IAM blog poss for other concerns or updates.
+# 
+# https://medium.com/cloud-security/aws-iam-932d6a043b7
+############################################################

@@ -1,0 +1,111 @@
+# https://github.com/tradichel/SecurityMetricsAutomation
+# awsdeploy/resources/iam/userpolicy/rootadminuserpolicy.yaml
+# author: @tradichel @2ndsightlab
+# high privilege policy for use only with the rootadmin
+# user in the AWS Organizations management account
+##############################################################
+
+Resources:
+  Policy:
+    Type: AWS::IAM::UserPolicy
+    Properties:
+      UserName: root-admin
+      PolicyName: root-adminuserpolicy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: "AllowAnyActionWithMFA"
+            Effect: Allow
+            Action: "*"
+            Resource: "*"
+            Condition:
+              Bool:
+                "aws:MultiFactorAuthPresent": "true"
+          - Sid: "AllowGetPasswordPolicyListUsersWithoutMFA"
+            Effect: Allow
+            Action:
+              - iam:GetAccountPasswordPolicy
+              - iam:ListUsers
+            Resource: "*"
+          - Sid: "DenyNullMFAAlwaysMustAssumeRoleWithMFA"
+            Effect: Deny
+            Action: "*"
+            Resource: "*"
+            Condition:
+              "Null":
+                "aws:MultiFactorAuthPresent": "true"
+          - Sid: "AllowWithoutMFAForSelfCannotChangeInitialPasswordWithoutMFA"
+            Effect: Allow
+            Action:
+              - iam:EnableMFADevice
+              - iam:ListMfaDevices
+              - iam:GetUser
+            Resource:
+              !Join
+               - ''
+               - - !Sub 'arn:aws:iam::${AWS::AccountId}:user/'
+                 - '${aws:username}'
+          - Sid: "DenyTheseActionsInRootAccount"
+            Effect: Deny
+            Action:
+              - iam:AttachU*
+              - iam:AttachG*
+              - iam:CreateU*
+              - iam:DetachU*
+              - iam:DeleteU*
+              - iam:DeleteG*
+              - iam:PutU*
+              - iam:PutG*
+              - iam:UpdateU*
+              - iam:CreateG*
+              - iam:Pass*
+              - iam:CreateI*
+              - iam:CreateS*
+              - iam:CreateO*
+              - iam:Add*
+            Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:*'
+          - Sid: "AllowCreateRoleWithhPermissionBoundaryInRootAccount"
+            Effect: Allow
+            Action:
+              - iam:CreateRole
+              - iam:UpdateRole
+              - iam:AttachRolePolicy
+            Resource: !Sub 'arn:aws:iam::${AWS::AccountId}:*'
+            Condition:
+              StringEquals:
+                iam:PermissionsBoundary: !Sub 'arn:aws:iam::${AWS::AccountId}:policy/root-accountpermissionsboundary'
+          - Sid: "AllowCreateRoleInOtherAccountsWithoutPermissionBoundary"
+            Effect: Allow
+            Action:
+              - iam:CreateRole
+              - iam:UpdateRole
+              - iam:AttachRolePolicy
+            NotResource:  !Sub 'arn:aws:iam::${AWS::AccountId}:*'
+          - Sid: "AllowActionsOnOwnCloudFormationStacksOnly"
+            Effect: Deny
+            Action:
+              - cloudformation:C*
+              - cloudformation:A*
+              - cloudformation:B*
+              - cloudformation:Del*
+              - cloudformation:Der*
+              - cloudformation:E*
+              - cloudformation:I*
+              - cloudformation:P*
+              - cloudformation:R*
+              - cloudformation:S*
+              - cloudformation:U*
+            NotResource: !Sub "arn:aws:cloudformation:*:${AWS::AccountId}:stack/root-admin*"
+
+Outputs:
+  PolicyID:
+    Value: !Ref Policy
+    Export:
+     Name: id-iam-userpolicy-root-adminuserpolicy
+  PolicyArn:
+    Value: !Ref Policy
+    Export:
+     Name: arn-iam-userpolicy-root-adminuserpolicyarn
+
+
+

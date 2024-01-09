@@ -1,0 +1,90 @@
+# https://github.com/tradichel/SecurityMetricsAutomation
+# Network/stacks/cfn/VPCEndpoint.yaml
+# author: @teriradichel @2ndsightlab
+# description: VPC Endpoint template
+##############################################################
+Parameters:
+  ServiceParam:
+    Type: String
+  EndpointServiceNameParam:
+    Type: String
+  VPCNameParam:
+    Type: String
+  SubnetNameParam:
+    Type: String
+  SecurityGroupNameParam:
+    Type: String
+  ReadPrincipalsParam:
+    Type: CommaDelimitedList
+  ReadActionsParam:
+    Type: CommaDelimitedList
+  ReadResourcesParam:
+    Type: CommaDelimitedList
+  ReadAllowDenyParam:
+    Type: String
+    Default: Deny
+  WritePrincipalsParam:
+    Type: CommaDelimitedList
+    Default: "None"
+  WriteActionsParam:
+    Type: CommaDelimitedList
+    Default: "None"
+  WriteResourcesParam:
+    Type: CommaDelimitedList
+    Default: "None"
+  WriteAllowDenyParam:
+    Type: String
+    Default: Deny
+    AllowedValues:
+      - Allow
+      - Deny
+
+Conditions:
+  NoWrite: !Equals
+      - !Ref WriteAllowDenyParam
+      - "Deny"
+
+Resources:
+  VPCE:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: !Ref ReadAllowDenyParam
+            Principal:
+              AWS: !Ref ReadPrincipalsParam
+            Action: !Ref ReadActionsParam
+            Resource: !Ref ReadResourcesParam
+          - !If
+            - NoWrite
+            - !Ref AWS::NoValue
+            - 
+              Effect: !Ref WriteAllowDenyParam
+              Principal: 
+                AWS: 
+                  !Ref WritePrincipalsParam
+              Action:  !Ref WriteActionsParam
+              Resource: !Ref WriteResourcesParam
+      VpcEndpointType: Interface
+      PrivateDnsEnabled: True
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.${EndpointServiceNameParam}'
+      VpcId:
+        Fn::ImportValue: 
+          !Sub "${VPCNameParam}"
+      SubnetIds: 
+        - Fn::ImportValue:
+            !Sub "${SubnetNameParam}"
+      SecurityGroupIds:
+        - Fn::ImportValue: 
+            !Sub "${SecurityGroupNameParam}"
+
+Outputs:
+  VPCEOutput:
+    Value: !Ref VPCE
+    Export:
+      Name: !Sub VPCE-${ServiceParam}
+
+
+
+

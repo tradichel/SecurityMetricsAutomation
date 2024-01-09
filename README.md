@@ -5,41 +5,63 @@ This code is associated with a series of blog posts. Please refer to these posts
 [Automating Security Metrics](
 https://medium.com/cloud-security/automating-cybersecurity-metrics-890dfabb6198).
 
-If you found this code and/or the associated blog posts helpful, please consider buying my first cybersecurity book where I introduce security metrics you may want to track and the concept of automated cybersecurity metric reporting to assess cybersecurity risk.
+# How I earn a living:
 
-[Cybersecurity for Executives in the Age of Cloud](https://amzn.to/3viUgXC)
+Hire me for a penetration test by contacting me on LinkedIn:
 
-If you would like to use the material or software in this repository for training, presentations, publishing, or any other commercial use, please contact Teri Radichel, CEO of 2nd Sight Lab, LLC for a license agreement.
+[Penetration Testing] (https://2ndsightlab.com/cloud-penetration-testing.html)
 
-Got a question? Schedule a call with me through [IANS Research](https://www.iansresearch.com/).
+Have a question? 
+Schedule a call with me through [ians research](https://www.iansresearch.com/)
 
-Thank you!
+# About this code:
 
-About this code:
+This code has evolved over the series of blog posts I've written to explore
+topics in security deployments in cloud environments, and most specifically
+on AWS.
 
-This code creates a framework for running AWS Batch Jobs (a working progress) that will hopefully require MFA to executewhen we are done. Not only does this code execute batch jobs the blog series walks through the architectural decisions to set up a security cloud environment with segregation of duties, zero trust networking, encryption, and eventually proper networking and organizational policies.
+The inital testing is in the /POC directory.
+A completely revamped version is in the /awsdeploy directory.
 
-Note that this framework does not use SSO due to limitations explained in the blog series, nor does it use a Yubikey for MFA due to the increase attack vectors also explained in the blog series.
+I've introduced the concept of Micro-temlpates throughout the series:
+[Microtemplates] (https://medium.com/cloud-security/cloudformation-micro-templates-ae70236ae2d1)
 
-Testing the code:
+You can find the templates in the /awsdeploy/resources folder if you're looking
+for a CloudFormation template that meets your needs or ideas for writing
+your own temlpates.
 
-1. Create an AWS CLI profile named "iam" that has permission to use CoudForamtion and create IAM resources.
+I'm currenlty working on a process for secure deployments involving
+one or many templates and the lastest iteration is in the /awsdeploy folder. 
 
-[Using an AWS CLI Profile with MFA](
-https://medium.com/cloud-security/using-an-aws-cli-profile-with-mfa-a1ca79289031
-)
+This post gives a good overview of the process, 
+which involves a container that requires MFA for AWS deployments:
 
-2. Run the test.sh scirpt in the root directory. When it asks you if you have set up a kms profile, hit Ctrl-C to exit.
+[Deploying a Project Account on AWS] (https://medium.com/cloud-security/configuring-a-new-project-account-one-job-many-templates-ba467bf19928)
 
-3. Add a virtual MFA device to the users created by the test script. At the time of this writing IAMAdmin and KMSAdmin are in use but in the future all users created by the test script will need MFA.
+Note that I tried to use a container on Lambda but I couldn't get
+the MFA functionality working in a stricly private network where
+all services are accessed via VPC Endpoints. Perhaps that will be
+fixed but I will revisit later, but it seems that the container
+appoach provides a bit better privacy at this point.
 
-4. Modify your iam AWS CLI profile to use credentials and MFA from the IAMAdmin user created by the test script.
+Note that the configuration is not completely secure. More work
+needs to be done to secure all the components such as the 
+container running this job and long term I will likely not 
+use bash.
 
-5. Set up an AWS CLI profile name "kms" using the MFA and credentials from the KMSAdmin user created by the script.
+The code in the aws deploy folder consists of the following:
 
-6. Execute the test.sh script again and continue through all the tests.
+* /container - some scripts to handle various container tasks
+* Dockerfile - used to deploy a container image that runs scripts and requires MFA.
+* /deploy - containers scripts each role can run to deploy resources.
+* /resources - CloudFormation temlpates organized in alignment with AWS documentation.
+* /job - contains the run.sh script that runs when the container starts
+* /job/run.sh - requires MFA code and executes specified script
+* localtest.sh - script for local testing which asks for which script to run and code
+* /userjobs - scripts included by localtest.sh to list jobs a role can execute.
+* /gen_code - scripts to generate a new CloudFormation resource template and deploy scripts
+* /ec2 - some proof of concept code to run the container on an EC2 instance
 
- 
 #################################################################################
 
 Copyright Notice

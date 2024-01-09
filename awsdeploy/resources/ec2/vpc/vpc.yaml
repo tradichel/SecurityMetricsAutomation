@@ -1,0 +1,87 @@
+# https://github.com/tradichel/SecurityMetricsAutomation
+# Network/stacks/cfn/VPC.yaml
+# author: @teriradichel @2ndsightlab
+# description: create a public or private vpc
+##############################################################
+Parameters: 
+  NameParam:
+    Type: String
+  CIDRParam:
+    Description: |
+      VPC CIDR Block. Make the CIDR large enough to support the subnets you need. 
+      The allowed sizes are from a /28 to a /16 for IPV4. Plan accordingly.
+    Type: String
+    AllowedPattern: '((\d{1,3})\.){3}\d{1,3}/\d{1,2}'
+
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref CIDRParam
+      EnableDnsHostnames: True
+      Tags:
+      - Key: Name
+        Value: !Sub ${NameParam}
+
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/vpc/${NameParam}LogGroup"
+      RetentionInDays: 30
+ 
+  FlowLogs:
+    Type: AWS::EC2::FlowLog
+    Properties: 
+      DeliverLogsPermissionArn: !ImportValue org-vpcflowlogsrole
+      LogDestination: !GetAtt LogGroup.Arn
+      ResourceId: !Ref VPC
+      ResourceType: VPC
+      TrafficType: ALL
+
+Outputs:
+  vpcid:
+    Value: !Ref VPC
+    Export:
+     Name: !Sub id-ec2-vpc-${NameParam}
+  vpcarn:
+    Value: !Ref VPC
+    Export:
+     Name: !Sub arn-ec2-vpc-${NameParam}
+  CidrOutput:
+    Value: !GetAtt VPC.CidrBlock
+    Export:
+      Name: !Sub ${NameParam}cidr
+  NetworkAclOutput:
+    Value: !GetAtt VPC.DefaultNetworkAcl
+    Export:
+      Name: !Sub ${NameParam}defaultnetworkacl
+  SecurityGroupOutput:
+    Value: !GetAtt VPC.DefaultSecurityGroup
+    Export:
+      Name: !Sub ${NameParam}defaultsecuritygroup
+
+#################################################################################
+# Copyright Notice
+# All Rights Reserved.
+# All materials (the “Materials”) in this repository are protected by copyright 
+# under U.S. Copyright laws and are the property of 2nd Sight Lab. They are provided 
+# pursuant to a royalty free, perpetual license the person to whom they were presented 
+# by 2nd Sight Lab and are solely for the training and education by 2nd Sight Lab.
+#
+# The Materials may not be copied, reproduced, distributed, offered for sale, published, 
+# displayed, performed, modified, used to create derivative works, transmitted to 
+# others, or used or exploited in any way, including, in whole or in part, as training 
+# materials by or for any third party.
+#
+# The above copyright notice and this permission notice shall be included in all 
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+################################################################################ 
+
+

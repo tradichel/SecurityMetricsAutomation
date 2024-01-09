@@ -1,0 +1,15 @@
+# https://github.com/tradichel/SecurityMetricsAutomation
+# awsdeploy/resources/ec2/routetable/routetableimport.yaml
+# author: @teriradichel @2ndsightlab
+# description: create a public or private route table
+#############################################################
+
+Resources:
+  RouteTable:
+    Type: AWS::EC2::RouteTable
+    DeletionPolicy: Retain
+    Properties:
+      VpcId: {{vpcid}}
+
+
+

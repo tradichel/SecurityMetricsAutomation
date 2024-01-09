@@ -1,0 +1,303 @@
+# https://github.com/tradichel/SecurityMetricsAutomation
+# KMS/stacks/Key/cfn/Key.yaml
+# author: @teriradichel @2ndsightlab
+##############################################################
+Parameters:
+  EncryptArnParam:
+    Type: CommaDelimitedList
+    Default: ""
+  DecryptArnParam:
+    Type: CommaDelimitedList
+    Default: ""
+  AdminArnParam:
+    Type: CommaDelimitedList
+    Default: ""
+  EncryptServicesParam:
+    Type: CommaDelimitedList
+    Default: ""
+  DecryptServicesParam:
+    Type: CommaDelimitedList
+    Default: ""
+  OrganizationIdParam:
+    Type: String
+    Default: ""
+  EncryptOuParam:
+    Type: CommaDelimitedList
+    Default: ""
+  DecryptOuParam:
+    Type: CommaDelimitedList
+    Default: ""
+  KeyAliasParam:
+    Type: String
+  RotateParam:
+    Type: String
+    Default: "true"
+    AllowedValues:
+      - "true"
+      - "false"
+  DescParam:
+    Type: String
+    Default: ""
+  TimestampParam:
+    Type: String
+    Description: "Force an update since AWS overwrites roles and CF doesn't recognize the change"
+  #the service the user is using the key with, if restricted
+  ServiceParam:
+    Type: String
+    Default: ""
+  CreateGrantAllowedParam:
+    Type: String
+    Default: "false"
+    AllowedValues:
+      - true
+      - false
+
+Conditions:
+  CreateGrantAllowed:
+    !Or [
+      !Equals [!Ref CreateGrantAllowedParam, "true"],
+      !Equals [!Ref ServiceParam, "ec2"],
+      !Equals [!Ref ServiceParam, "ecr"],
+    ]
+  ServiceIsSecretsManager:
+    !Equals [!Ref ServiceParam, "secretsmanager"]
+  NoEncryptServices:
+    !Equals 
+      - !Select [0, !Ref EncryptServicesParam]
+      - ''
+  NoDecryptServices:
+    !Equals
+      - !Select [0, !Ref DecryptServicesParam]
+      - ''
+  NoEncryptArns:
+    !Equals
+      - !Select [0, !Ref EncryptArnParam]
+      - ''
+  NoDecryptArns:
+    !Equals
+      - !Select [0, !Ref DecryptArnParam]
+      - ''
+  NoEncryptOus:
+    !Equals
+      - !Select [0, !Ref EncryptOuParam]
+      - ''
+  NoDecryptOus:
+    !Equals
+      - !Select [0, !Ref DecryptOuParam]
+      - ''
+
+Resources:
+  KMSKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: !Ref DescParam
+      EnableKeyRotation: !Ref RotateParam
+      KeyPolicy:
+        Version: 2012-10-17
+        Id: key-default-1
+        Statement:
+          - Sid: "TempForTest"
+            Effect: Allow
+            Principal:
+              AWS:
+                - !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action: "*"
+            Resource: "*"
+
+          - Sid: "Allow Administration of the key and force update"
+            Effect: Allow
+            Principal:
+              AWS:
+                !Ref AdminArnParam
+            Action:
+              - kms:Create*
+              - kms:Describe*
+              - kms:Enable*
+              - kms:List*
+              - kms:Put*
+              - kms:Update*
+              - kms:Revoke*
+              - kms:Disable*
+              - kms:Get*
+              - kms:Delete*
+              - kms:ScheduleKeyDeletion
+              - kms:CancelKeyDeletion
+            Resource: "*"
+
+          #Note: I do not want to give my root admin permission to delete keys.
+          #However, if you delete your KMS aministrator used in the above statement,
+          #You will not be able to modify or delete the key because AWS
+          #changes the ARN to some invalid value (the user ID I think) 
+          #without any warning or confirmation by the customer.
+          - Sid: Describe, DeleteKey, GetKeyPolicy Only
+            Effect: Allow
+            Principal:
+              AWS:
+                - !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action:
+              - kms:DescribeKey
+              - kms:Delete
+              - kms:GetKeyPolicy
+            Resource: "*"
+
+          - !If
+            - NoEncryptArns
+            - !Ref AWS::NoValue
+            - 
+              Sid: "Encrypt which apparently requires decrypt permissions"
+              Effect: Allow
+              Principal:
+                AWS:
+                  !Ref EncryptArnParam
+              Action:
+                - 'kms:Encrypt'
+                - 'kms:ReEncrypt*'
+                - 'kms:GenerateDataKey'
+                - 'kms:GenerateDataKeyWithoutPlaintext'
+                - 'kms:Decrypt'
+                - 'kms:DescribeKey'
+                - !If
+                    - CreateGrantAllowed                
+                    - 'kms:CreateGrant'
+                    - !Ref AWS::NoValue
+              Resource: "*"
+
+          - !If
+            - NoDecryptArns
+            - !Ref AWS::NoValue
+            - 
+              Sid: Decrypt
+              Effect: Allow
+              Principal:
+                AWS:
+                  !Ref DecryptArnParam
+              Action:
+                - 'kms:Decrypt'
+                - 'kms:DescribeKey'
+                - !If 
+                  - CreateGrantAllowed
+                  - 'kms:CreateGrant'
+                  - !Ref AWS::NoValue
+              Condition:
+                !If
+                  - ServiceIsSecretsManager
+                  - 
+                    "StringEquals":
+                      "kms:ViaService":
+                        - !Sub "${ServiceParam}.${AWS::Region}.amazonaws.com"
+                  - !Ref AWS::NoValue
+              Resource: "*"
+
+          - !If
+            - NoEncryptOus
+            - !Ref AWS::NoValue
+            - 
+              Sid: "Encrypt which apparently requires decrypt permissions"
+              Effect: Allow
+              Principal:
+                AWS: "*"
+              Action:
+                - 'kms:Encrypt'
+                - 'kms:ReEncrypt*'
+                - 'kms:GenerateDataKey'
+                - 'kms:GenerateDataKeyWithoutPlaintext'
+                - 'kms:Decrypt'
+                - 'kms:DescribeKey'
+                - !If
+                    - CreateGrantAllowed
+                    - 'kms:CreateGrant'
+                    - !Ref AWS::NoValue
+              Resource: "*"
+              Condition:
+                "StringEquals":
+                  "aws:PrincipalOrgID": 
+                    !Ref OrganizationIdParam
+                "ForAnyValue:StringLike":
+                  "aws:PrincipalOrgPaths": 
+                    !Ref EncryptOuParam
+
+          - !If
+            - NoDecryptOus
+            - !Ref AWS::NoValue
+            - 
+              Sid: Decrypt
+              Effect: Allow
+              Principal:
+                AWS: "*"
+              Action:
+                - 'kms:Decrypt'
+                - 'kms:DescribeKey'
+                - !If
+                  - CreateGrantAllowed
+                  - 'kms:CreateGrant'
+                  - !Ref AWS::NoValue
+              Condition:
+                "StringEquals":
+                  "aws:PrincipalOrgID":
+                    !Ref OrganizationIdParam
+                "ForAnyValue:StringLike":
+                  "aws:PrincipalOrgPaths":
+                    !Ref EncryptOuParam
+
+          #The documentation recommends conditions for CloudFormation but 
+          #did not get that working yet. If you are using this in a production
+          #environment please add those conditions the way I added the
+          #secrets manager condition above but with the appropriate condition value
+          #The documentation recommends conditions for CloudFormation but 
+          #did not get that working yet
+      
+          - !If
+            - NoEncryptServices
+            - !Ref AWS::NoValue
+            - 
+              Sid: "Services That Encrypt which apparently requires decrypt permissions"
+              Effect: Allow
+              Principal:
+                Service:
+                  !Ref EncryptServicesParam
+              Action:
+                - 'kms:Encrypt'
+                - !If
+                    - CreateGrantAllowed
+                    - 'kms:CreateGrant'
+                    - !Ref AWS::NoValue
+              Resource: "*"
+
+          - !If
+            - NoDecryptServices
+            - !Ref AWS::NoValue
+            - 
+              Sid: Decrypt
+              Effect: Allow
+              Principal:
+                Service:
+                  !Ref DecryptServicesParam
+              Action:
+                - 'kms:Decrypt'
+                - !If
+                  - CreateGrantAllowed
+                  - 'kms:CreateGrant'
+                  - !Ref AWS::NoValue
+              Condition:
+                !If
+                  - ServiceIsSecretsManager
+                  - 
+                    "StringEquals":
+                      "kms:ViaService":
+                        - !Sub "${ServiceParam}.${AWS::Region}.amazonaws.com"
+                  - !Ref AWS::NoValue
+              Resource: "*"
+
+Outputs:
+  resourceid:
+    Value: !GetAtt KMSKey.KeyId
+    Export:
+     Name: !Sub id-kms-key-${KeyAliasParam}
+  resourcearn:
+    Value: !GetAtt KMSKey.Arn
+    Export:
+      Name: !Sub arn-iam-key-${KeyAliasParam}
+  ForceUpdate:
+    Value: !Sub "${TimestampParam}"
+    Export:
+      Name: ForceUpdate
