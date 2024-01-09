@@ -29,6 +29,7 @@ Note: None of this is complete or production ready. I'm still testing
 various ideas. 
 
 I've introduced the concept of Micro-temlpates throughout the series:
+
 [Microtemplates](https://medium.com/cloud-security/cloudformation-micro-templates-ae70236ae2d1)
 
 You can find the templates in the /awsdeploy/resources folder if you're looking
