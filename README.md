@@ -28,7 +28,8 @@ Note: None of this is complete or production ready. I'm still testing
 various concepts. 
 
 The code is not for sale of for commercial use. If you'd like to license
-the proprietary inventions contact me for mre information on LinkedIn.
+the proprietary inventions contact me for more information on LinkedIn.
+https://linkedin.com/in/teriradichel
 
 I've introduced the concept of Micro-temlpates throughout the series:
 [Microtemplates](https://medium.com/cloud-security/cloudformation-micro-templates-ae70236ae2d1)
