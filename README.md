@@ -10,10 +10,10 @@ https://medium.com/cloud-security/automating-cybersecurity-metrics-890dfabb6198)
 Hire me for a penetration test by contacting me on LinkedIn: [Penetration Testing](https://2ndsightlab.com/cloud-penetration-testing.html)
 
 Have a question? 
-Schedule a call with me through [ians research](https://www.iansresearch.com/)
+Schedule a call with me through [IANS Research](https://www.iansresearch.com/)
 
 The code is not for sale of for commercial use. If you'd like to license
-the proprietary inventions contact me for more information on LinkedIn: [Teri Radichel]:(https://linkedin.com/in/teriradichel)
+the proprietary inventions contact me for more information on LinkedIn: [Teri Radichel](https://linkedin.com/in/teriradichel)
 
 # About this code:
 
