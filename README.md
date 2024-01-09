@@ -9,7 +9,7 @@ https://medium.com/cloud-security/automating-cybersecurity-metrics-890dfabb6198)
 
 Hire me for a penetration test by contacting me on LinkedIn:
 
-[Penetration Testing] (https://2ndsightlab.com/cloud-penetration-testing.html)
+[Penetration Testing](https://2ndsightlab.com/cloud-penetration-testing.html)
 
 Have a question? 
 Schedule a call with me through [ians research](https://www.iansresearch.com/)
@@ -24,7 +24,7 @@ The inital testing is in the /POC directory.
 A completely revamped version is in the /awsdeploy directory.
 
 I've introduced the concept of Micro-temlpates throughout the series:
-[Microtemplates] (https://medium.com/cloud-security/cloudformation-micro-templates-ae70236ae2d1)
+[Microtemplates](https://medium.com/cloud-security/cloudformation-micro-templates-ae70236ae2d1)
 
 You can find the templates in the /awsdeploy/resources folder if you're looking
 for a CloudFormation template that meets your needs or ideas for writing
@@ -36,7 +36,7 @@ one or many templates and the lastest iteration is in the /awsdeploy folder.
 This post gives a good overview of the process, 
 which involves a container that requires MFA for AWS deployments:
 
-[Deploying a Project Account on AWS] (https://medium.com/cloud-security/configuring-a-new-project-account-one-job-many-templates-ba467bf19928)
+[Deploying a Project Account on AWS](https://medium.com/cloud-security/configuring-a-new-project-account-one-job-many-templates-ba467bf19928)
 
 Note that I tried to use a container on Lambda but I couldn't get
 the MFA functionality working in a stricly private network where
