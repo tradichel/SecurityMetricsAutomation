@@ -5,8 +5,10 @@ This code is associated with a series of blog posts. Please refer to these posts
 [Automating Security Metrics](
 https://medium.com/cloud-security/automating-cybersecurity-metrics-890dfabb6198).
 
-Note that I revamped my repositories as explained in this post which you may want to read before using this code to improve segregation of duties and more flexible use of the code:
+Note that I revamped my repositories as explained in this post to improve segregation of duties and more flexible use of the code:
 [Separate Repositories for a Job Execution Framework, Job Images, and Job Configurations](https://medium.com/cloud-security/separate-repositories-for-a-job-execution-framework-job-images-and-job-configurations-77913e1c968d)
+
+You may want to read that before using this code, which is now maintained and updated in spearate repositories.
 
 # How I earn a living:
 
