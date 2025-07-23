@@ -1,24 +1,14 @@
 # SecurityMetricsAutomation
 
-This code is associated with a series of blog posts. Please refer to these posts for more information:
+This code is associated with a series of blog posts. Note that this code has morphed over time as I explore different ways to use AWS services. 
+
+The latest is pinned at:
+https://github.com/2ndSightLab
+
+Please refer to these posts for more information:
 
 [Automating Security Metrics](
 https://medium.com/cloud-security/automating-cybersecurity-metrics-890dfabb6198).
-
-Note that I revamped my repositories as explained in this post to improve segregation of duties and more flexible use of the code:
-[Separate Repositories for a Job Execution Framework, Job Images, and Job Configurations](https://medium.com/cloud-security/separate-repositories-for-a-job-execution-framework-job-images-and-job-configurations-77913e1c968d)
-
-You may want to read that before using this code, which is now maintained and updated in spearate repositories.
-
-# How I earn a living:
-
-Hire me for a penetration test by contacting me on LinkedIn: [Penetration Testing](https://2ndsightlab.com/cloud-penetration-testing.html)
-
-Have a question? 
-Schedule a call with me through [IANS Research](https://www.iansresearch.com/)
-
-The code is not for sale of for commercial use. If you'd like to license
-the proprietary inventions contact me for more information on LinkedIn: [Teri Radichel](https://linkedin.com/in/teriradichel)
 
 # About this code:
 
